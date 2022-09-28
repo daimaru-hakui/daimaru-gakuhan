@@ -13,6 +13,7 @@ import {
 import {
   collection,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   Timestamp,
@@ -20,6 +21,8 @@ import {
 import { db } from "../../firebase";
 import { FaSistrix } from "react-icons/fa";
 import Card from "../components/Card";
+import { useRecoilState } from "recoil";
+import { projectsState } from "../../store";
 
 type Project = {
   id: string;
@@ -30,24 +33,26 @@ type Project = {
 };
 
 const Dashboard = () => {
-  const [projects, setProjects] = useState<any>([]);
+  const [projects, setProjects] = useRecoilState<any>(projectsState);
+  // const [projects, setProjects] = useState<any>([]);
 
   // projectsを取得
   useEffect(() => {
     const getProjects = async () => {
       const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-      setProjects(
-        querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }))
-      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        setProjects(
+          querySnapshot.docs.map((doc) => ({
+            ...doc.data(),
+            id: doc.id,
+          }))
+        );
+      });
     };
     getProjects();
-  }, []);
+  }, [setProjects]);
 
-  console.log(projects);
+  console.log("projects", projects);
   return (
     <Container maxW="1200px" pt={6}>
       <Flex>

@@ -14,12 +14,14 @@ import {
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
 import { db } from "../../../firebase";
+import { projectsState } from "../../../store";
 import InputModal from "../../components/InputModal";
 
 const ProjectId = () => {
   const router = useRouter();
-
+  const projects = useRecoilValue(projectsState);
   const [project, setProject] = useState<any>({
     title: "",
     desc: "",
@@ -37,15 +39,15 @@ const ProjectId = () => {
   //projectデータを取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, "projects", `${router.query.id}`);
-      const docSnap = await getDoc(docRef);
-      if (!docSnap.exists()) {
-        throw "プロジェクトがありません。";
-      }
-      setProject(docSnap.data());
+      setProject(
+        projects.find((project: { id: string }) => {
+          if (project.id === `${router.query.id}`) return true;
+        })
+      );
     };
     getProject();
-  }, [router.query.id]);
+  }, [router.query.id, projects]);
+  console.log(projects);
 
   return (
     <>
@@ -57,12 +59,12 @@ const ProjectId = () => {
         </Container>
       </Box>
       <Container maxW="800px" pt={6}>
-        {project.desc && (
+        {project?.desc && (
           <Box p={6} bgColor="white" borderRadius={6} boxShadow="base">
             {project?.desc}
           </Box>
         )}
-        {project.schedule && (
+        {project?.schedule && (
           <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
             <Box>採寸日：{project?.schedule}</Box>
           </Box>

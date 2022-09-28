@@ -18,7 +18,13 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -74,15 +80,26 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
 
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, "projects", `${router.query.id}`);
-      const docSnap = await getDoc(docRef);
-      if (!docSnap.exists()) {
-        throw "データがありません。";
-      }
-      setProducts(docSnap.data().products);
+      const unsub = onSnapshot(
+        doc(db, "projects", `${router.query.id}`),
+        (doc) => {
+          setProducts(doc.data()?.products);
+        }
+      );
     };
     getProject();
   }, [router.query.id]);
+  // useEffect(() => {
+  //   const getProject = async () => {
+  //     const docRef = doc(db, "projects", `${router.query.id}`);
+  //     const docSnap = await getDoc(docRef);
+  //     if (!docSnap.exists()) {
+  //       throw "データがありません。";
+  //     }
+  //     setProducts(docSnap.data().products);
+  //   };
+  //   getProject();
+  // }, [router.query.id]);
 
   const addItem = async () => {
     const docRef = doc(db, "projects", `${router.query.id}`);

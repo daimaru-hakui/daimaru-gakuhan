@@ -8,3 +8,8 @@ export const currentUserAuth = atom({
   key: "currentUserState",
   default: "",
 });
+
+export const projectsState = atom({
+  key: "projectsState",
+  default: [],
+});
