@@ -17,33 +17,44 @@ import {
   Stack,
   Text,
   useDisclosure,
-} from '@chakra-ui/react';
-import { NextPage } from 'next';
-import { prepareServerlessUrl } from 'next/dist/server/base-server';
-import React, { useState } from 'react';
-import { FaPlusCircle } from 'react-icons/fa';
+} from "@chakra-ui/react";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
+import { NextPage } from "next";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { FaPlusCircle, FaEdit } from "react-icons/fa";
+import { db } from "../../firebase";
 
 type Props = {
-  index: number;
+  productIndex: number;
+  buttonDesign: string;
 };
 
-const InputModal: NextPage<Props> = ({ index }) => {
+const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
+  const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [products, setProducts] = useState<any>();
   const [items, setItems] = useState<any>({
-    productName: '',
+    productName: "",
     size: [],
-    type: '',
+    type: "",
   });
 
   const sizeData = [
-    { id: 0, label: 'SS' },
-    { id: 1, label: 'S' },
-    { id: 2, label: 'M' },
-    { id: 3, label: 'L' },
-    { id: 4, label: 'LL' },
-    { id: 5, label: '3L' },
-    { id: 6, label: '4L' },
-    { id: 7, label: '5L' },
+    { id: 0, label: "SS" },
+    { id: 1, label: "S" },
+    { id: 2, label: "M" },
+    { id: 3, label: "L" },
+    { id: 4, label: "LL" },
+    { id: 5, label: "3L" },
+    { id: 6, label: "4L" },
+    { id: 7, label: "5L" },
   ];
   const handleCheckedChange = (e: any) => {
     if (e.target.checked) {
@@ -67,25 +78,81 @@ const InputModal: NextPage<Props> = ({ index }) => {
     setItems({ ...items, type: value });
   };
 
-  console.log(items);
+  useEffect(() => {
+    const getProject = async () => {
+      const unsub = onSnapshot(
+        doc(db, "projects", `${router.query.id}`),
+        (doc) => {
+          setProducts(doc.data()?.products);
+        }
+      );
+    };
+    getProject();
+  }, [router.query.id]);
+  // useEffect(() => {
+  //   const getProject = async () => {
+  //     const docRef = doc(db, "projects", `${router.query.id}`);
+  //     const docSnap = await getDoc(docRef);
+  //     if (!docSnap.exists()) {
+  //       throw "データがありません。";
+  //     }
+  //     setProducts(docSnap.data().products);
+  //   };
+  //   getProject();
+  // }, [router.query.id]);
+
+  const addItem = async () => {
+    const docRef = doc(db, "projects", `${router.query.id}`);
+    try {
+      if (products[productIndex]) {
+        const productsArray = products?.map((product: any, index: number) => {
+          if (index === productIndex) {
+            return items;
+          } else {
+            return product;
+          }
+        });
+        const docSnaps = await updateDoc(docRef, {
+          products: productsArray,
+        });
+      } else {
+        const docSnaps = await updateDoc(docRef, {
+          products: arrayUnion(items),
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      onClear();
+      onClose();
+    }
+  };
+
+  const onClear = () => {
+    setItems({
+      productName: "",
+      size: [],
+    });
+  };
+
   return (
     <>
-      <Flex justifyContent='center'>
-        <Button onClick={onOpen}>
-          <FaPlusCircle size='25' />
-        </Button>
+      <Flex justifyContent="center">
+        {buttonDesign === "add" && (
+          <FaPlusCircle size="25" onClick={onOpen} cursor="pointer" />
+        )}
+        {buttonDesign === "edit" && (
+          <FaEdit size="25" onClick={onOpen} cursor="pointer" />
+        )}
       </Flex>
 
       <Modal
         isOpen={isOpen}
         onClose={() => {
           onClose();
-          setItems({
-            productName: '',
-            size: [],
-          });
+          onClear();
         }}
-        size='2xl'
+        size="2xl"
       >
         <ModalOverlay />
         <ModalContent>
@@ -95,15 +162,15 @@ const InputModal: NextPage<Props> = ({ index }) => {
             <Text>商品名</Text>
             <Input
               mt={1}
-              placeholder='商品名'
-              name='productName'
+              placeholder="商品名"
+              name="productName"
               value={items.productName}
               onChange={(e) => handleInputChange(e)}
             />
             <Box mt={6}>
-              <CheckboxGroup colorScheme='green'>
+              <CheckboxGroup colorScheme="green">
                 <Text>サイズ</Text>
-                <Stack spacing={[1, 5]} mt={1} direction={['column', 'row']}>
+                <Stack spacing={[1, 5]} mt={1} direction={["column", "row"]}>
                   {sizeData.map((size) => (
                     <Checkbox
                       key={size.id}
@@ -117,7 +184,7 @@ const InputModal: NextPage<Props> = ({ index }) => {
               </CheckboxGroup>
               {items.size.length > 0 && (
                 <>
-                  <Flex mt={2} p={1} bgColor='green.100'>
+                  <Flex mt={2} p={1} bgColor="green.100">
                     <Box mr={3}>表示順</Box>
                     {items.size.map((size: string) => (
                       <Text key={size} mr={3}>
@@ -131,9 +198,9 @@ const InputModal: NextPage<Props> = ({ index }) => {
             <Box mt={4}>
               <RadioGroup onChange={(e) => handleRadioChange(e)}>
                 <Text>数量入力値</Text>
-                <Stack direction='row' mt={1}>
-                  <Radio value='1'>あり</Radio>
-                  <Radio value='2'>なし</Radio>
+                <Stack direction="row" mt={1}>
+                  <Radio value="1">あり</Radio>
+                  <Radio value="2">なし</Radio>
                 </Stack>
               </RadioGroup>
             </Box>
@@ -141,19 +208,18 @@ const InputModal: NextPage<Props> = ({ index }) => {
 
           <ModalFooter>
             <Button
-              variant='ghost'
+              variant="ghost"
               mr={3}
               onClick={() => {
                 onClose();
-                setItems({
-                  productName: '',
-                  size: [],
-                });
+                onClear();
               }}
             >
               Close
             </Button>
-            <Button colorScheme='facebook'>登録</Button>
+            <Button colorScheme="facebook" onClick={addItem}>
+              登録
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
