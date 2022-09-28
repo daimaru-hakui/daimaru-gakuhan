@@ -1,17 +1,27 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
-import React from 'react';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
-import Link from 'next/link';
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { currentUserAuth } from "../../store";
 
 const Header = () => {
   const router = useRouter();
+  const [currentUser, setCurrentUser] = useRecoilState(currentUserAuth);
+
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/login");
+    }
+  }, [currentUser, router]);
 
   const signOutUser = () => {
     signOut(auth)
       .then(() => {
-        router.push('/login');
+        setCurrentUser("");
+        console.log("loguot");
       })
       .catch((err) => {
         console.log(err);
@@ -20,26 +30,26 @@ const Header = () => {
 
   return (
     <Flex
-      as='header'
-      alignItems='center'
-      justifyContent='space-between'
+      as="header"
+      alignItems="center"
+      justifyContent="space-between"
       p={3}
-      w='100%'
-      h='70px'
-      position='sticky'
+      w="100%"
+      h="70px"
+      position="sticky"
       top={0}
-      backgroundColor='facebook.500'
+      backgroundColor="facebook.500"
       zIndex={100}
     >
-      <Link href='/dashboard'>
+      <Link href="/dashboard">
         <a>
-          <Text color='white' fontWeight='bold'>
+          <Text color="white" fontWeight="bold">
             DAIMARU HAKUI
           </Text>
         </a>
       </Link>
       <Box>
-        <Button size='sm' colorScheme='facebook' mr={3} onClick={signOutUser}>
+        <Button size="sm" colorScheme="facebook" mr={3} onClick={signOutUser}>
           ログアウト
         </Button>
       </Box>
