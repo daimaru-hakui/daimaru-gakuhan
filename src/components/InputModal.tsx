@@ -82,7 +82,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
       setProducts(docSnap.data().products);
     };
     getProject();
-  }, [router.query.id, products]);
+  }, [router.query.id]);
 
   const addItem = async () => {
     const docRef = doc(db, "projects", `${router.query.id}`);

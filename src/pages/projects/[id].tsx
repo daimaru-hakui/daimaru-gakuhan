@@ -45,7 +45,7 @@ const ProjectId = () => {
       setProject(docSnap.data());
     };
     getProject();
-  }, [router.query.id, project]);
+  }, [router.query.id]);
 
   return (
     <>
