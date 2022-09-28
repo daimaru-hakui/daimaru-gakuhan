@@ -6,23 +6,30 @@ import {
   Input,
   Text,
   Textarea,
-} from "@chakra-ui/react";
-import React, { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase";
-import { useSetRecoilState } from "recoil";
-import { loadingState } from "../../store";
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { currentUserAuth, loadingState } from '../../store';
 
 const New = () => {
   const router = useRouter();
+  const currentUser = useRecoilValue(currentUserAuth);
   const setLoading = useSetRecoilState(loadingState);
   const [inputData, setInputData] = useState({
-    title: "",
-    desc: "",
-    schedule: "",
+    title: '',
+    desc: '',
+    schedule: '',
   });
+
+  useEffect(() => {
+    if (!currentUser) {
+      router.push('/login');
+    }
+  }, [currentUser, router]);
 
   const handleInputChange = (e: any) => {
     const value = e.target.value;
@@ -31,7 +38,7 @@ const New = () => {
   };
 
   const addTitle = async () => {
-    const projectsRef = collection(db, "projects");
+    const projectsRef = collection(db, 'projects');
     try {
       setLoading(true);
       const docRef = await addDoc(projectsRef, {
@@ -50,45 +57,45 @@ const New = () => {
   };
   return (
     <>
-      <Container maxW="800px" pt={12}>
-        <Box as="h1" color="black" fontWeight="bold">
+      <Container maxW='800px' pt={12}>
+        <Box as='h1' color='black' fontWeight='bold'>
           学校名＋年度などの一意の名前を登録してください。
         </Box>
-        <Flex flexDirection="column" alignItems="left" mt={2} gap={2}>
+        <Flex flexDirection='column' alignItems='left' mt={2} gap={2}>
           <Text>■ 学校名</Text>
           <Input
-            type="text"
-            placeholder="例）帝塚山大学 心理学学科　春"
-            bgColor="white"
-            name="title"
+            type='text'
+            placeholder='例）帝塚山大学 心理学学科　春'
+            bgColor='white'
+            name='title'
             value={inputData.title}
             onChange={handleInputChange}
           />
           <Text mt={2}>■ 説明</Text>
           <Textarea
-            placeholder="説明"
-            bgColor="white"
-            name="desc"
+            placeholder='説明'
+            bgColor='white'
+            name='desc'
             value={inputData.desc}
             onChange={handleInputChange}
           />
           <Text mt={2}>■ 採寸日</Text>
           <Input
-            type="date"
-            bgColor="white"
+            type='date'
+            bgColor='white'
             w={200}
-            name="schedule"
+            name='schedule'
             value={inputData.schedule}
             onChange={handleInputChange}
           />
-          <Flex w="100%" justifyContent="flex-end" gap={2}>
-            <Link href="/dashboard">
+          <Flex w='100%' justifyContent='flex-end' gap={2}>
+            <Link href='/dashboard'>
               <a>
-                <Button variant="outline">戻る</Button>
+                <Button variant='outline'>戻る</Button>
               </a>
             </Link>
             <Button
-              colorScheme="facebook"
+              colorScheme='facebook'
               disabled={!inputData.title}
               onClick={addTitle}
             >

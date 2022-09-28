@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   HStack,
   Table,
@@ -10,33 +11,35 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
-import { doc, getDoc } from "firebase/firestore";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { db } from "../../../firebase";
-import { projectsState } from "../../../store";
-import InputModal from "../../components/InputModal";
+} from '@chakra-ui/react';
+import { FaTrashAlt } from 'react-icons/fa';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { db } from '../../../firebase';
+import { currentUserAuth, projectsState } from '../../../store';
+import InputModal from '../../components/InputModal';
 
 const ProjectId = () => {
   const router = useRouter();
+  const currentUser = useRecoilValue(currentUserAuth);
   const projects = useRecoilValue(projectsState);
   const [project, setProject] = useState<any>({
-    title: "",
-    desc: "",
-    schedule: "",
-    createdAt: "",
-    products: [
-      { id: 0, productName: "", size: [] },
-      { id: 1, productName: "", size: [] },
-      { id: 2, productName: "", size: [] },
-      { id: 3, productName: "", size: [] },
-      { id: 4, productName: "", size: [] },
-    ],
+    title: '',
+    desc: '',
+    schedule: '',
+    createdAt: '',
+    products: [],
   });
 
-  //projectデータを取得
+  useEffect(() => {
+    if (!currentUser) {
+      router.push('/login');
+    }
+  }, [currentUser, router]);
+
+  // project（個別）データを取得
   useEffect(() => {
     const getProject = async () => {
       setProject(
@@ -47,37 +50,55 @@ const ProjectId = () => {
     };
     getProject();
   }, [router.query.id, projects]);
-  console.log(projects);
+
+  // productを削除
+  const deleteProduct = async (productIndex: number) => {
+    const docRef = doc(db, 'projects', `${router.query.id}`);
+    try {
+      if (project.products[productIndex]) {
+        const productsArray = project.products.filter(
+          (product: string, index: number) =>
+            index === productIndex ? false : true
+        );
+        await updateDoc(docRef, {
+          ...project,
+          products: productsArray,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <>
-      <Box bgColor="white" boxShadow="xs">
-        <Container maxW="800px" py={{ base: 6, md: 10 }}>
-          <Text fontSize="3xl" fontWeight="bold">
+      <Box bgColor='white' boxShadow='xs'>
+        <Container maxW='800px' py={{ base: 6, md: 10 }}>
+          <Text fontSize='3xl' fontWeight='bold'>
             {project?.title}
           </Text>
         </Container>
       </Box>
-      <Container maxW="800px" pt={6}>
+      <Container maxW='900px' py={6}>
         {project?.desc && (
-          <Box p={6} bgColor="white" borderRadius={6} boxShadow="base">
+          <Box p={6} bgColor='white' borderRadius={6} boxShadow='base'>
             {project?.desc}
           </Box>
         )}
         {project?.schedule && (
-          <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
+          <Box p={6} mt={6} bgColor='white' borderRadius={6} boxShadow='base'>
             <Box>採寸日：{project?.schedule}</Box>
           </Box>
         )}
-        <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
-          <Box fontWeight="bold">商品登録</Box>
+        <Box p={6} mt={6} bgColor='white' borderRadius={6} boxShadow='base'>
+          <Box fontWeight='bold'>商品登録</Box>
           <Box mt={2}>
             以下のボタンをクリックして採寸する商品を追加してください。
           </Box>
 
           <TableContainer mt={6}>
-            <Table variant="simple">
-              {project.products.length > 0 && (
+            <Table variant='simple'>
+              {project?.products.length > 0 && (
                 <Thead>
                   <Tr>
                     <Th>商品名</Th>
@@ -88,32 +109,36 @@ const ProjectId = () => {
                 </Thead>
               )}
               <Tbody>
-                {[...Array(5)].map((i: number, index: number) => (
+                {[...Array(9)].map((i: number, index: number) => (
                   <Tr key={i} mt={6}>
                     {project?.products[index] && (
                       <>
                         <Td mr={2}>{project?.products[index].productName}</Td>
                         <Td>
-                          <HStack>
+                          <HStack spacing={2}>
                             {project?.products[index].size?.map(
                               (size: string) => (
-                                <Box key={size} mr={2}>
-                                  {size}
-                                </Box>
+                                <Box key={size}>{size}</Box>
                               )
                             )}
                           </HStack>
                         </Td>
                         <Td>
                           {Number(project?.products[index].type) === 1
-                            ? "あり"
-                            : "なし"}
+                            ? 'あり'
+                            : 'なし'}
                         </Td>
                         <Td>
-                          <InputModal
-                            productIndex={index}
-                            buttonDesign={"edit"}
-                          />
+                          <HStack spacing={6}>
+                            <InputModal
+                              productIndex={index}
+                              buttonDesign={'edit'}
+                            />
+                            <FaTrashAlt
+                              cursor='pointer'
+                              onClick={() => deleteProduct(index)}
+                            />
+                          </HStack>
                         </Td>
                       </>
                     )}
@@ -122,11 +147,11 @@ const ProjectId = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          {[...Array(5)].map((i: number, index: number) => (
+          {[...Array(9)].map((i: number, index: number) => (
             <Box key={i} mt={6}>
               {!project?.products[index] &&
                 project?.products.length === index && (
-                  <InputModal productIndex={index} buttonDesign={"add"} />
+                  <InputModal productIndex={index} buttonDesign={'add'} />
                 )}
             </Box>
           ))}
