@@ -37,10 +37,10 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   const [items, setItems] = useState<any>({
     productName: '',
     size: [],
-    type: '',
   });
 
   const sizeData = [
+    { id: 'F', label: 'F' },
     { id: 0, label: 'SS' },
     { id: 1, label: 'S' },
     { id: 2, label: 'M' },
@@ -75,17 +75,17 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     } else {
       setItems({
         ...items,
-        size: [...items.size.filter((size: string) => size !== e.target.value)],
+        size: [
+          ...items?.size.filter((size: string) => size !== e.target.value),
+        ],
       });
     }
   };
 
-  const handleRadioChange = (e: string) => {
+  const handleRadioChange = (e: string, type: string) => {
     const value = e;
-    setItems({ ...items, type: value });
+    setItems({ ...items, [type]: value });
   };
-
-  useEffect(() => {});
 
   // projectのproductsを取得
   useEffect(() => {
@@ -98,7 +98,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           setItems({
             productName: product?.productName,
             size: product?.size,
-            type: product?.type,
+            quantity: product?.quantity,
+            inseam: product?.inseam,
           });
         }
       );
@@ -106,6 +107,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     getProject();
   }, [router.query.id, productIndex]);
 
+  // 商品を登録
   const addProduct = async () => {
     const docRef = doc(db, 'projects', `${router.query.id}`);
     try {
@@ -118,7 +120,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           }
         });
         await updateDoc(docRef, {
-          products: productsArray,
+          products: [...productsArray],
         });
       } else {
         await updateDoc(docRef, {
@@ -128,7 +130,6 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     } catch (err) {
       console.log(err);
     } finally {
-      onClear();
       onClose();
     }
   };
@@ -137,6 +138,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     setItems({
       productName: '',
       size: [],
+      quantity: '1',
+      inseam: '1',
     });
   };
 
@@ -144,7 +147,13 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     <>
       <Flex justifyContent='center'>
         {buttonDesign === 'add' && (
-          <FaPlusCircle size='25' onClick={onOpen} cursor='pointer' />
+          <FaPlusCircle
+            size='25'
+            onClick={() => {
+              onOpen();
+            }}
+            cursor='pointer'
+          />
         )}
         {buttonDesign === 'edit' && (
           <FaEdit size='25' onClick={onOpen} cursor='pointer' />
@@ -155,7 +164,6 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
         isOpen={isOpen}
         onClose={() => {
           onClose();
-          onClear();
         }}
         size='3xl'
       >
@@ -229,11 +237,17 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               )}
             </Box>
             <Box mt={4}>
-              <RadioGroup
-                onChange={(e) => handleRadioChange(e)}
-                defaultValue={items.type}
-              >
+              <RadioGroup onChange={(e) => handleRadioChange(e, 'quantity')}>
                 <Text>数量入力値</Text>
+                <Stack direction='row' mt={1}>
+                  <Radio value='1'>あり</Radio>
+                  <Radio value='2'>なし</Radio>
+                </Stack>
+              </RadioGroup>
+            </Box>
+            <Box mt={4}>
+              <RadioGroup onChange={(e) => handleRadioChange(e, 'inseam')}>
+                <Text>股下修理</Text>
                 <Stack direction='row' mt={1}>
                   <Radio value='1'>あり</Radio>
                   <Radio value='2'>なし</Radio>
@@ -248,12 +262,15 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               mr={3}
               onClick={() => {
                 onClose();
-                onClear();
               }}
             >
               Close
             </Button>
-            <Button colorScheme='facebook' onClick={addProduct}>
+            <Button
+              disabled={!items.productName}
+              colorScheme='facebook'
+              onClick={addProduct}
+            >
               登録
             </Button>
           </ModalFooter>

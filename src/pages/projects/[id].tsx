@@ -10,6 +10,7 @@ import {
   Text,
   Th,
   Thead,
+  Tooltip,
   Tr,
 } from '@chakra-ui/react';
 import { FaTrashAlt } from 'react-icons/fa';
@@ -53,12 +54,13 @@ const ProjectId = () => {
 
   // productを削除
   const deleteProduct = async (productIndex: number) => {
+    const result = window.confirm('削除して宜しいでしょうか');
+    if (!result) return;
     const docRef = doc(db, 'projects', `${router.query.id}`);
     try {
       if (project.products[productIndex]) {
         const productsArray = project.products.filter(
-          (product: string, index: number) =>
-            index === productIndex ? false : true
+          (product: any, index: number) => index !== productIndex && true
         );
         await updateDoc(docRef, {
           ...project,
@@ -73,13 +75,13 @@ const ProjectId = () => {
   return (
     <>
       <Box bgColor='white' boxShadow='xs'>
-        <Container maxW='800px' py={{ base: 6, md: 10 }}>
+        <Container maxW='1000px' py={{ base: 6, md: 10 }}>
           <Text fontSize='3xl' fontWeight='bold'>
             {project?.title}
           </Text>
         </Container>
       </Box>
-      <Container maxW='900px' py={6}>
+      <Container maxW='1000px' py={6}>
         {project?.desc && (
           <Box p={6} bgColor='white' borderRadius={6} boxShadow='base'>
             {project?.desc}
@@ -104,6 +106,7 @@ const ProjectId = () => {
                     <Th>商品名</Th>
                     <Th>サイズ展開</Th>
                     <Th>数量入力</Th>
+                    <Th>股下修理</Th>
                     <Th></Th>
                   </Tr>
                 </Thead>
@@ -124,7 +127,12 @@ const ProjectId = () => {
                           </HStack>
                         </Td>
                         <Td>
-                          {Number(project?.products[index].type) === 1
+                          {Number(project?.products[index].quantity) === 1
+                            ? 'あり'
+                            : 'なし'}
+                        </Td>
+                        <Td>
+                          {Number(project?.products[index].inseam) === 1
                             ? 'あり'
                             : 'なし'}
                         </Td>
@@ -147,7 +155,7 @@ const ProjectId = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          {[...Array(9)].map((i: number, index: number) => (
+          {Object.keys([...Array(9)]).map((i: string, index: number) => (
             <Box key={i} mt={6}>
               {!project?.products[index] &&
                 project?.products.length === index && (
