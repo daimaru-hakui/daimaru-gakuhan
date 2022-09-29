@@ -1,11 +1,10 @@
-import { Box, Flex } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
-import React, { ReactNode } from 'react';
-import Header from './Header';
-import Loading from './Loading';
-import { useRecoilState } from 'recoil';
-import { loadingState } from '../../store';
-import Footer from './Footer';
+import { Box, Flex } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import React, { ReactNode } from "react";
+import Header from "./Header";
+import Loading from "./Loading";
+import { useRecoilState } from "recoil";
+import { loadingState } from "../../store";
 
 type Props = {
   children: ReactNode;
@@ -17,15 +16,13 @@ const Layout = ({ children }: Props) => {
   return (
     <>
       {loading && <Loading />}
-      {router.pathname !== '/login' && <Header />}
+      {router.pathname !== "/login" && <Header />}
       <Flex
-        flexDirection='column'
-        justifyContent='space-between'
-        bgColor='#fafafa'
-        minH={'calc(100vh - 70px)'}
+        flexDirection="column"
+        bgColor="#fafafa"
+        minH={"calc(100vh - 70px)"}
       >
         {children}
-        <Footer />
       </Flex>
     </>
   );
