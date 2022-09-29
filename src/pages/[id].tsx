@@ -26,9 +26,8 @@ type ProjectType = {
 const Measure = () => {
   const router = useRouter();
   const [project, setProject] = useState<ProjectType>();
-  const [items, setItems] = useState<any>({
-    gender: "3",
-  });
+  const [items, setItems] = useState<any>({});
+  const array = Object.keys([...Array(10)]);
 
   // project（個別）を取得
   useEffect(() => {
@@ -167,7 +166,7 @@ const Measure = () => {
       </Box>
       {project?.products.map((product: any, index: number) => (
         <Box
-          key={product.id}
+          key={product.productName}
           mt={6}
           p={6}
           bgColor="white"
@@ -198,7 +197,7 @@ const Measure = () => {
                     handleSelectChange(e, index, product.productName)
                   }
                 >
-                  {[...Array(10)].map((num: string, index: number) => (
+                  {array.map((num: string, index: number) => (
                     <option key={num?.toString()} value={index}>
                       {index}
                     </option>
