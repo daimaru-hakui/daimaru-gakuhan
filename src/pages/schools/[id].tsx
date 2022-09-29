@@ -1,6 +1,7 @@
 import {
   Box,
   Container,
+  Flex,
   Table,
   TableContainer,
   Tbody,
@@ -45,6 +46,16 @@ const SchoolId = () => {
     getStudents();
   }, [router.query.id]);
   console.log(students);
+  const genderDisp = (gender: string) => {
+    switch (gender) {
+      case "1":
+        return "男性";
+      case "2":
+        return "女性";
+      default:
+        return "未記入";
+    }
+  };
 
   return (
     <Container maxW="1200px" py={6}>
@@ -54,7 +65,7 @@ const SchoolId = () => {
             <Tr>
               <Th>学籍番号</Th>
               <Th>名前</Th>
-              <Th></Th>
+              <Th>性別</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -62,14 +73,22 @@ const SchoolId = () => {
               <Tr key={student.id}>
                 <Td>{student.studentNumber}</Td>
                 <Td>{student.name}</Td>
-                <Td>{student.gender}</Td>
-                {student.products.map((product: any) => (
-                  <React.Fragment key={product.size}>
-                    <Td>{product.productName}</Td>
-                    <Td>{product.size}</Td>
-                    <Td>{product.quantity}</Td>
-                  </React.Fragment>
-                ))}
+                <Td>{genderDisp(student.gender)}</Td>
+                <Td mr={2}>
+                  <Flex>
+                    {student.products.map((product: any) => (
+                      <Flex key={product.size} mr={12}>
+                        <Box mr={6}>{product.productName}</Box>
+                        <Box w="80px" textAlign="center">
+                          {product.size}
+                        </Box>
+                        <Box w="50px" textAlign="right">
+                          {product.quantity}
+                        </Box>
+                      </Flex>
+                    ))}
+                  </Flex>
+                </Td>
               </Tr>
             ))}
           </Tbody>
