@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { collection, doc, getDoc, Timestamp } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "../../firebase";
 
 type ProjectType = {
@@ -26,7 +26,9 @@ type ProjectType = {
 const Measure = () => {
   const router = useRouter();
   const [project, setProject] = useState<ProjectType>();
-  const [items, setItems] = useState<any>({});
+  const [items, setItems] = useState<any>({
+    gender: "3",
+  });
 
   // project（個別）を取得
   useEffect(() => {
@@ -36,7 +38,7 @@ const Measure = () => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setProject(docSnap?.data() as ProjectType);
+          setProject({ ...docSnap?.data(), id: docSnap.id } as ProjectType);
         }
       } catch (err) {
         console.log(err);
@@ -45,8 +47,20 @@ const Measure = () => {
     getProject();
   }, [router.query.id]);
 
-  const addStudent = () => {
-    const docRef = collection(db, "students");
+  const addStudent = async () => {
+    const docRef = collection(db, "schools", `${router.query.id}`, "students");
+    try {
+      await addDoc(docRef, {
+        ...items,
+        title: project?.title,
+        projectId: project?.id,
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      window.alert("登録しました");
+      setItems({});
+    }
     console.log(items);
   };
 
@@ -64,24 +78,32 @@ const Measure = () => {
   // selectの値を追加・変更
   const handleSelectChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
-    rowIndex: number
+    rowIndex: number,
+    productName: string
   ) => {
-    console.log(e.target.name);
+    const value = e.target.value;
     const name = e.target.name;
     setItems(() => {
       let newItems = [];
-      if (items.products?.length !== rowIndex + 1) {
-        // 値がない場合　追加
-        newItems = [...(items.products || ""), { [name]: e.target.value }];
-      } else {
+
+      if (items.products?.length > rowIndex) {
         // 値がある場合　更新
         newItems = items.products?.map((product: any, index: number) => {
-          if (index == rowIndex) {
-            return { ...product, [name]: e.target.value };
+          if (index === rowIndex) {
+            return {
+              ...product,
+              [name]: value,
+            };
           } else {
-            return product;
+            return { ...product };
           }
         });
+      } else {
+        // 値がない場合　追加
+        newItems = [
+          ...(items.products || ""),
+          { [name]: value, productName: productName },
+        ];
       }
       return { ...items, products: [...(newItems || "")] };
     });
@@ -127,6 +149,7 @@ const Measure = () => {
         <RadioGroup
           defaultValue="3"
           name="gender"
+          value={items.gender || "3"}
           onChange={(e) => handleRadioChange(e)}
         >
           <Stack spacing={5} direction="row">
@@ -156,7 +179,9 @@ const Measure = () => {
             <Select
               placeholder="サイズを選択してください"
               name="size"
-              onChange={(e) => handleSelectChange(e, index)}
+              onChange={(e) =>
+                handleSelectChange(e, index, product.productName)
+              }
             >
               {product.size.map((size: string) => (
                 <option key={size} value={size}>
@@ -169,7 +194,9 @@ const Measure = () => {
                 <Select
                   name="quantity"
                   placeholder="数量を選択してしてください"
-                  onChange={(e) => handleSelectChange(e, index)}
+                  onChange={(e) =>
+                    handleSelectChange(e, index, product.productName)
+                  }
                 >
                   {[...Array(10)].map((num: string, index: number) => (
                     <option key={num?.toString()} value={index}>

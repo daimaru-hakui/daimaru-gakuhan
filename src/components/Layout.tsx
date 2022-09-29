@@ -19,7 +19,6 @@ const Layout = ({ children }: Props) => {
       {router.pathname !== "/login" && <Header />}
       <Flex
         flexDirection="column"
-        justifyContent="space-between"
         bgColor="#fafafa"
         minH={"calc(100vh - 70px)"}
       >
