@@ -3,6 +3,10 @@ import {
   Button,
   Container,
   HStack,
+  Input,
+  Radio,
+  RadioGroup,
+  Stack,
   Table,
   TableContainer,
   Tbody,
@@ -10,21 +14,23 @@ import {
   Text,
   Th,
   Thead,
-  Tooltip,
   Tr,
 } from '@chakra-ui/react';
-import { FaTrashAlt } from 'react-icons/fa';
+import { useToast } from '@chakra-ui/react';
+import { FaTrashAlt, FaTimes, FaRegCircle } from 'react-icons/fa';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { db } from '../../../firebase';
-import { currentUserAuth, projectsState } from '../../../store';
+import { currentUserAuth, loadingState, projectsState } from '../../../store';
 import InputModal from '../../components/InputModal';
 
 const ProjectId = () => {
   const router = useRouter();
   const currentUser = useRecoilValue(currentUserAuth);
+  const setLoading = useSetRecoilState(loadingState);
+  const toast = useToast();
   const projects = useRecoilValue(projectsState);
   const [project, setProject] = useState<any>({
     title: '',
@@ -72,6 +78,48 @@ const ProjectId = () => {
     }
   };
 
+  const handleScheduleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
+    const value = e.target.value;
+    const docRef = doc(db, 'projects', `${router.query.id}`);
+    try {
+      updateDoc(docRef, {
+        [type]: value,
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      toast({
+        title: '採寸予定日を変更しました',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleRadioChange = (e: string, type: string) => {
+    const value = e;
+    const docRef = doc(db, 'projects', `${router.query.id}`);
+    try {
+      updateDoc(docRef, {
+        [type]: value,
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      toast({
+        title: '性別記入を変更しました',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+  console.log(project);
+
   return (
     <>
       <Box bgColor='white' boxShadow='xs'>
@@ -89,9 +137,32 @@ const ProjectId = () => {
         )}
         {project?.schedule && (
           <Box p={6} mt={6} bgColor='white' borderRadius={6} boxShadow='base'>
-            <Box>採寸日：{project?.schedule}</Box>
+            <Box fontWeight='bold'>採寸日</Box>
+            <Input
+              mt={2}
+              type='date'
+              value={project?.schedule}
+              onChange={(e) => handleScheduleChange(e, 'schedule')}
+            />
           </Box>
         )}
+        <Box p={6} mt={6} bgColor='white' borderRadius={6} boxShadow='base'>
+          <RadioGroup
+            value={project.gender}
+            onChange={(e) => handleRadioChange(e, 'gender')}
+          >
+            <Box fontWeight='bold'>性別記入</Box>
+            <Stack direction={['column', 'row']} mt={2}>
+              <Radio value='1' pr={6}>
+                なし
+              </Radio>
+              <Radio value='2' pr={6}>
+                男性・女性
+              </Radio>
+              <Radio value='3'>男性・女性・その他</Radio>
+            </Stack>
+          </RadioGroup>
+        </Box>
         <Box p={6} mt={6} bgColor='white' borderRadius={6} boxShadow='base'>
           <Box fontWeight='bold'>商品登録</Box>
           <Box mt={2}>
@@ -127,14 +198,18 @@ const ProjectId = () => {
                           </HStack>
                         </Td>
                         <Td>
-                          {Number(project?.products[index].quantity) === 1
-                            ? 'あり'
-                            : 'なし'}
+                          {Number(project?.products[index].quantity) === 1 ? (
+                            <FaRegCircle />
+                          ) : (
+                            <FaTimes />
+                          )}
                         </Td>
                         <Td>
-                          {Number(project?.products[index].inseam) === 1
-                            ? 'あり'
-                            : 'なし'}
+                          {Number(project?.products[index].inseam) === 1 ? (
+                            <FaRegCircle />
+                          ) : (
+                            <FaTimes />
+                          )}
                         </Td>
                         <Td>
                           <HStack spacing={6}>

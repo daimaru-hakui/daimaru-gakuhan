@@ -19,6 +19,7 @@ type ProjectType = {
   title: string;
   desc: string;
   schedule: string;
+  gender: string;
   products: string[];
   createdAt: Timestamp;
 };
@@ -54,9 +55,8 @@ const Measure = () => {
       })),
     });
   }, [project]);
-  console.log(project);
-  console.log('items', items);
 
+  // 採寸登録
   const addStudent = async () => {
     const docRef = collection(db, 'schools', `${router.query.id}`, 'students');
     try {
@@ -71,7 +71,6 @@ const Measure = () => {
       window.alert('登録しました');
       setItems({});
     }
-    console.log(items);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +84,7 @@ const Measure = () => {
     setItems({ ...items, gender: value });
   };
 
-  // selectの値を追加・変更
+  // 商品の値を追加・変更
   const handleSelectChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
     rowIndex: number,
@@ -156,26 +155,47 @@ const Measure = () => {
         />
       </Box>
 
-      <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
-        <RadioGroup
-          defaultValue='3'
-          name='gender'
-          value={items.gender || '3'}
-          onChange={(e) => handleRadioChange(e)}
-        >
-          <Stack spacing={5} direction='row'>
-            <Radio colorScheme='green' value='1'>
-              男性
-            </Radio>
-            <Radio colorScheme='green' value='2'>
-              女性
-            </Radio>
-            <Radio colorScheme='green' value='3'>
-              未記入
-            </Radio>
-          </Stack>
-        </RadioGroup>
-      </Box>
+      {Number(project?.gender) === 1 && ''}
+      {Number(project?.gender) === 2 && (
+        <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
+          <RadioGroup
+            name='gender'
+            value={items.gender}
+            onChange={(e) => handleRadioChange(e)}
+          >
+            <Stack spacing={5} direction='row'>
+              <Radio colorScheme='green' value='1'>
+                男性
+              </Radio>
+              <Radio colorScheme='green' value='2'>
+                女性
+              </Radio>
+            </Stack>
+          </RadioGroup>
+        </Box>
+      )}
+      {Number(project?.gender) === 3 && (
+        <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
+          <RadioGroup
+            name='gender'
+            value={items.gender}
+            onChange={(e) => handleRadioChange(e)}
+          >
+            <Stack spacing={5} direction='row'>
+              <Radio colorScheme='green' value='1'>
+                男性
+              </Radio>
+              <Radio colorScheme='green' value='2'>
+                女性
+              </Radio>
+              <Radio colorScheme='green' value='3'>
+                その他
+              </Radio>
+            </Stack>
+          </RadioGroup>
+        </Box>
+      )}
+
       {project?.products.map((product: any, index: number) => (
         <Box
           key={product.productName}
@@ -201,7 +221,7 @@ const Measure = () => {
               ))}
             </Select>
             <Box mt={6}>
-              {product.quantity === '1' && (
+              {product.quantity && (
                 <Select
                   name='quantity'
                   placeholder='数量を選択してしてください'
@@ -218,7 +238,7 @@ const Measure = () => {
               )}
             </Box>
             <Box mt={6}>
-              {product.inseam === '1' && (
+              {product.inseam && (
                 <Select
                   name='inseam'
                   placeholder='裾上直しの長さを選択してください'
@@ -239,6 +259,7 @@ const Measure = () => {
           </Box>
         </Box>
       ))}
+
       <Box mt={6} textAlign='center'>
         <Button colorScheme='facebook' onClick={addStudent}>
           登録

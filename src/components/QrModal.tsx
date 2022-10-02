@@ -43,7 +43,6 @@ const QrModal: NextPage<Props> = ({ projectId }) => {
                 renderAs='canvas'
                 size={250}
               />
-              <Box mt={6}>URL：{location.host + '/' + projectId}</Box>
             </Flex>
           </ModalBody>
 

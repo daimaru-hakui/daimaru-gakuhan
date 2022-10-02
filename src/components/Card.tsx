@@ -54,33 +54,28 @@ const Card: NextPage<Props> = ({ project }) => {
             {project?.desc}
           </Box>
         </Box>
-        <Flex justifyContent='space-around' alignItems='center' mt={12}>
+        <Flex justifyContent='space-around' alignItems='center' mt={4}>
           <a href={project.id} target='_blank' rel='noopener noreferrer'>
-            <Tooltip placement='bottom' label='採寸ページ'>
-              <Box>
-                <FaExternalLinkAlt />
-              </Box>
-            </Tooltip>
-          </a>
-          <Tooltip placement='bottom' label='QRコード'>
             <Box>
-              <QrModal projectId={project?.id} />
+              <FaExternalLinkAlt />
             </Box>
-          </Tooltip>
+          </a>
+
+          <Box>
+            <QrModal projectId={project?.id} />
+          </Box>
+
           <Link href={`/projects/${project.id}`}>
             <a>
-              <Tooltip placement='bottom' label='編集'>
-                <Box>
-                  <FaEdit size='19px' />
-                </Box>
-              </Tooltip>
+              <Box>
+                <FaEdit size='19px' />
+              </Box>
             </a>
           </Link>
-          <Tooltip placement='bottom' label='削除'>
-            <Box>
-              <FaTrashAlt cursor='pointer' onClick={deleteProject} />
-            </Box>
-          </Tooltip>
+
+          <Box>
+            <FaTrashAlt cursor='pointer' onClick={deleteProject} />
+          </Box>
         </Flex>
       </Flex>
     </GridItem>

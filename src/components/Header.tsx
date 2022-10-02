@@ -1,13 +1,15 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, Button, Container, Flex, Text } from '@chakra-ui/react';
 import React from 'react';
 import Link from 'next/link';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { useRecoilState } from 'recoil';
 import { currentUserAuth } from '../../store';
+import { useRouter } from 'next/router';
 
 const Header = () => {
   const [currentUser, setCurrentUser] = useRecoilState(currentUserAuth);
+  const router = useRouter();
 
   const signOutUser = () => {
     signOut(auth)
@@ -23,37 +25,48 @@ const Header = () => {
   return (
     <>
       {currentUser && (
-        <Flex
-          as='header'
-          alignItems='center'
-          justifyContent='space-between'
-          p={3}
-          w='100%'
-          h='70px'
-          position='sticky'
-          top={0}
-          backgroundColor='facebook.500'
-          zIndex={100}
-        >
-          <Link href='/dashboard'>
-            <a>
-              <Text color='white' fontWeight='bold'>
-                DAIMARU HAKUI
-              </Text>
-            </a>
-          </Link>
+        <Container maxW='1200'>
+          <Flex
+            as='header'
+            alignItems='center'
+            justifyContent='space-between'
+            w='100%'
+            h='60px'
+            position='sticky'
+            top={0}
+            zIndex={100}
+          >
+            <Link href='/dashboard'>
+              <a>
+                <Text fontWeight='bold'>学販採寸アプリ</Text>
+              </a>
+            </Link>
 
-          <Box>
-            <Button
-              size='sm'
-              colorScheme='facebook'
-              mr={3}
-              onClick={signOutUser}
-            >
-              ログアウト
-            </Button>
-          </Box>
-        </Flex>
+            <Box>
+              <Button size='sm' variant='ghost' onClick={signOutUser}>
+                ログアウト
+              </Button>
+            </Box>
+          </Flex>
+          <Flex>
+            <Link href='/dashboard'>
+              <a>
+                <Text
+                  fontSize='xs'
+                  colorScheme='gray'
+                  py={3}
+                  borderBottom='2px'
+                  borderBottomColor={
+                    location.pathname === '/dashboard' ? 'black' : '#ff2e2e00'
+                  }
+                  _hover={{ opacity: 0.8 }}
+                >
+                  ダッシュボード
+                </Text>
+              </a>
+            </Link>
+          </Flex>
+        </Container>
       )}
     </>
   );

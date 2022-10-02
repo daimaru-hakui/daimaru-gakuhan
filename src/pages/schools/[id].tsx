@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   Flex,
   Table,
@@ -9,13 +10,20 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
-import { collection, getDocs, onSnapshot, query } from "firebase/firestore";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { db } from "../../../firebase";
-import { currentUserAuth } from "../../../store";
+} from '@chakra-ui/react';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+  query,
+} from 'firebase/firestore';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { db } from '../../../firebase';
+import { currentUserAuth } from '../../../store';
 
 const SchoolId = () => {
   const router = useRouter();
@@ -24,14 +32,14 @@ const SchoolId = () => {
 
   useEffect(() => {
     if (!currentUser) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [currentUser, router]);
 
   useEffect(() => {
     const getStudents = async () => {
       const q = query(
-        collection(db, "schools", `${router.query.id}`, "students")
+        collection(db, 'schools', `${router.query.id}`, 'students')
       );
 
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -45,22 +53,30 @@ const SchoolId = () => {
     };
     getStudents();
   }, [router.query.id]);
+
+  // 生徒の登録情報を削除
+  const deleteStudent = (studentId: string) => {
+    const result = window.confirm('削除して宜しいでしょうか');
+    if (!result) return;
+    deleteDoc(doc(db, 'schools', `${router.query.id}`, 'students', studentId));
+  };
+
   console.log(students);
   const genderDisp = (gender: string) => {
     switch (gender) {
-      case "1":
-        return "男性";
-      case "2":
-        return "女性";
+      case '1':
+        return '男性';
+      case '2':
+        return '女性';
       default:
-        return "未記入";
+        return '未記入';
     }
   };
 
   return (
-    <Container maxW="1200px" py={6}>
+    <Container maxW='1200px' py={6}>
       <TableContainer>
-        <Table variant="striped" colorScheme="gray">
+        <Table variant='striped' colorScheme='gray'>
           <Thead>
             <Tr>
               <Th>学籍番号</Th>
@@ -77,17 +93,25 @@ const SchoolId = () => {
                 <Td mr={2}>
                   <Flex>
                     {student.products.map((product: any) => (
-                      <Flex key={product.size} mr={12}>
+                      <Flex key={product.productName} mr={12}>
                         <Box mr={6}>{product.productName}</Box>
-                        <Box w="80px" textAlign="center">
+                        <Box w='80px' textAlign='center'>
                           {product.size}
                         </Box>
-                        <Box w="50px" textAlign="right">
+                        <Box w='50px' textAlign='right'>
                           {product.quantity}
                         </Box>
                       </Flex>
                     ))}
                   </Flex>
+                </Td>
+                <Td>
+                  <Button
+                    colorScheme='red'
+                    onClick={() => deleteStudent(student.id)}
+                  >
+                    削除
+                  </Button>
                 </Td>
               </Tr>
             ))}

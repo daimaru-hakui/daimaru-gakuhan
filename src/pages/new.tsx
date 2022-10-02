@@ -23,6 +23,7 @@ const New = () => {
     title: '',
     desc: '',
     schedule: '',
+    gender: 1,
   });
 
   useEffect(() => {
@@ -45,6 +46,7 @@ const New = () => {
         title: inputData.title,
         desc: inputData.desc,
         schedule: inputData.schedule,
+        gender: 1,
         createdAt: serverTimestamp(),
         products: [],
       });
@@ -71,14 +73,14 @@ const New = () => {
             value={inputData.title}
             onChange={handleInputChange}
           />
-          <Text mt={2}>■ 説明</Text>
+          {/* <Text mt={2}>■ 説明</Text>
           <Textarea
             placeholder='説明'
             bgColor='white'
             name='desc'
             value={inputData.desc}
             onChange={handleInputChange}
-          />
+          /> */}
           <Text mt={2}>■ 採寸日</Text>
           <Input
             type='date'

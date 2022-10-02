@@ -4,6 +4,8 @@ import {
   Checkbox,
   CheckboxGroup,
   Flex,
+  FormControl,
+  FormLabel,
   Input,
   Modal,
   ModalBody,
@@ -12,12 +14,12 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Radio,
-  RadioGroup,
   Stack,
+  Switch,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import { arrayUnion, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -33,33 +35,52 @@ type Props = {
 const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
   const [products, setProducts] = useState<any>();
   const [items, setItems] = useState<any>({
     productName: '',
     size: [],
   });
 
-  const sizeData = [
+  const sizeData1 = [
     { id: 'F', label: 'F' },
-    { id: 0, label: 'SS' },
-    { id: 1, label: 'S' },
-    { id: 2, label: 'M' },
-    { id: 3, label: 'L' },
-    { id: 4, label: 'LL' },
-    { id: 5, label: '3L' },
-    { id: 6, label: '4L' },
-    { id: 7, label: '5L' },
+    { id: '3s', label: '3S' },
+    { id: 'SS', label: 'SS' },
+    { id: 'S', label: 'S' },
+    { id: 'M', label: 'M' },
+    { id: 'L', label: 'L' },
   ];
   const sizeData2 = [
-    { id: 8, label: '22.0cm' },
-    { id: 9, label: '22.5cm' },
-    { id: 10, label: '23.0cm' },
-    { id: 11, label: '23.5cm' },
-    { id: 12, label: '24.0cm' },
-    { id: 13, label: '24.5cm' },
-    { id: 14, label: '25.0cm' },
-    { id: 15, label: '25.5cm' },
+    { id: 'LL', label: 'LL' },
+    { id: '3L', label: '3L' },
+    { id: '4L', label: '4L' },
+    { id: '5L', label: '5L' },
+    { id: '6L', label: '6L' },
   ];
+  const sizeData3 = [
+    { id: '21.0cm', label: '21.0cm' },
+    { id: '21.5cm', label: '21.5cm' },
+    { id: '22.0cm', label: '22.0cm' },
+    { id: '22.5cm', label: '22.5cm' },
+    { id: '23.0cm', label: '23.0cm' },
+  ];
+  const sizeData4 = [
+    { id: '23.5cm', label: '23.5cm' },
+    { id: '24.0cm', label: '24.0cm' },
+    { id: '24.5cm', label: '24.5cm' },
+    { id: '25.0cm', label: '25.0cm' },
+    { id: '25.5cm', label: '25.5cm' },
+  ];
+
+  const sizeData5 = [
+    { id: '26.5cm', label: '26.5cm' },
+    { id: '27.0cm', label: '27.0cm' },
+    { id: '27.5cm', label: '27.5cm' },
+    { id: '28.0cm', label: '28.0cm' },
+    { id: '29.0cm', label: '29.0cm' },
+  ];
+  const sizeData6 = [{ id: '30.0cm', label: '30.0cm' }];
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;
     const value = e.target.value;
@@ -86,6 +107,12 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     const value = e;
     setItems({ ...items, [type]: value });
   };
+
+  const handleSwitchChange = (type: string) => {
+    const value = items[type] ? false : true;
+    setItems({ ...items, [type]: value });
+  };
+  // console.log(items);
 
   // projectのproductsを取得
   useEffect(() => {
@@ -122,9 +149,21 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
         await updateDoc(docRef, {
           products: [...productsArray],
         });
+        toast({
+          title: '商品登録を更新しました',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        });
       } else {
         await updateDoc(docRef, {
           products: arrayUnion(items),
+        });
+        toast({
+          title: '商品登録を登録しました',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
         });
       }
     } catch (err) {
@@ -136,12 +175,26 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
 
   const onClear = () => {
     setItems({
-      productName: '',
-      size: [],
-      quantity: '1',
-      inseam: '1',
+      ...products[productIndex],
     });
   };
+
+  const sizeList = (array: { id: string; label: string }[]) => (
+    <Box>
+      <Stack spacing={[1, 3]} mt={1} direction={['column', 'row']}>
+        {array.map((size) => (
+          <Checkbox
+            isChecked={true}
+            key={size.id}
+            value={size.label}
+            onChange={(e) => handleCheckedChange(e)}
+          >
+            {size.label}
+          </Checkbox>
+        ))}
+      </Stack>
+    </Box>
+  );
 
   return (
     <>
@@ -180,79 +233,59 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               value={items.productName}
               onChange={(e) => handleInputChange(e)}
             />
+
             <Box mt={6}>
               <CheckboxGroup colorScheme='green' defaultValue={items?.size}>
                 <Text>サイズ</Text>
-
                 <Flex flexDirection='column'>
-                  <Box>
-                    <Stack
-                      spacing={[1, 5]}
-                      mt={1}
-                      direction={['column', 'row']}
-                    >
-                      {sizeData.map((size) => (
-                        <Checkbox
-                          isChecked={true}
-                          key={size.id}
-                          value={size.label}
-                          onChange={(e) => handleCheckedChange(e)}
-                        >
-                          {size.label}
-                        </Checkbox>
-                      ))}
-                    </Stack>
-                  </Box>
-                  <Box>
-                    <Stack
-                      spacing={[1, 3]}
-                      mt={1}
-                      direction={['column', 'row']}
-                    >
-                      {sizeData2.map((size) => (
-                        <Checkbox
-                          isChecked={true}
-                          key={size.id}
-                          value={size.label}
-                          onChange={(e) => handleCheckedChange(e)}
-                        >
-                          {size.label}
-                        </Checkbox>
-                      ))}
-                    </Stack>
-                  </Box>
+                  {sizeList(sizeData1)}
+                  {sizeList(sizeData2)}
+                  {sizeList(sizeData3)}
+                  {sizeList(sizeData4)}
+                  {sizeList(sizeData5)}
+                  {sizeList(sizeData6)}
                 </Flex>
               </CheckboxGroup>
               {items?.size?.length > 0 && (
                 <>
-                  <Flex mt={2} p={1} bgColor='green.100'>
+                  <Flex mt={2} p={1} bgColor='green.100' w='100%'>
                     <Box mr={3}>表示順</Box>
-                    {items.size.map((size: string) => (
-                      <Text key={size} mr={3}>
-                        {size}
-                      </Text>
-                    ))}
+                    <Flex flexWrap='wrap' w='100%'>
+                      {items.size.map((size: string) => (
+                        <Box key={size} mr={3}>
+                          {size}
+                        </Box>
+                      ))}
+                    </Flex>
                   </Flex>
                 </>
               )}
             </Box>
-            <Box mt={4}>
-              <RadioGroup onChange={(e) => handleRadioChange(e, 'quantity')}>
-                <Text>数量入力値</Text>
-                <Stack direction='row' mt={1}>
-                  <Radio value='1'>あり</Radio>
-                  <Radio value='2'>なし</Radio>
-                </Stack>
-              </RadioGroup>
+
+            <Box mt={6}>
+              <FormControl display='flex' alignItems='center'>
+                <FormLabel htmlFor='quantity' mb='0'>
+                  数量入力値
+                </FormLabel>
+                <Switch
+                  id='quantity'
+                  isChecked={items.quantity}
+                  onChange={() => handleSwitchChange('quantity')}
+                />
+              </FormControl>
             </Box>
-            <Box mt={4}>
-              <RadioGroup onChange={(e) => handleRadioChange(e, 'inseam')}>
-                <Text>股下修理</Text>
-                <Stack direction='row' mt={1}>
-                  <Radio value='1'>あり</Radio>
-                  <Radio value='2'>なし</Radio>
-                </Stack>
-              </RadioGroup>
+
+            <Box mt={6}>
+              <FormControl display='flex' alignItems='center'>
+                <FormLabel htmlFor='inseam' mb='0'>
+                  股下修理
+                </FormLabel>
+                <Switch
+                  id='inseam'
+                  isChecked={items.inseam}
+                  onChange={() => handleSwitchChange('inseam')}
+                />
+              </FormControl>
             </Box>
           </ModalBody>
 
@@ -261,6 +294,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               variant='ghost'
               mr={3}
               onClick={() => {
+                onClear();
                 onClose();
               }}
             >
