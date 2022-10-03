@@ -30,6 +30,7 @@ type Project = {
   title: string;
   desc: string;
   schedule: '';
+  release: boolean;
   createdAt: Timestamp;
 };
 

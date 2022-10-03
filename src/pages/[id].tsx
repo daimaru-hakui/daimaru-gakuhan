@@ -11,16 +11,25 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { addDoc, collection, doc, getDoc, Timestamp } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  Timestamp,
+} from 'firebase/firestore';
 import { db } from '../../firebase';
 
 type ProjectType = {
   id: string;
   title: string;
+  name: string;
   desc: string;
   schedule: string;
   gender: string;
   products: string[];
+  release: boolean;
   createdAt: Timestamp;
 };
 
@@ -33,20 +42,20 @@ const Measure = () => {
   // project（個別）を取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, 'projects', `${router.query.id}`);
-      try {
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setProject({ ...docSnap?.data(), id: docSnap.id } as ProjectType);
+      const unsub = onSnapshot(
+        doc(db, 'projects', `${router.query.id}`),
+        (doc) => {
+          setProject({ ...doc.data(), id: doc.id } as ProjectType);
+          if (doc.data()?.release === false) {
+            router.push('404/notfound');
+          }
         }
-      } catch (err) {
-        console.log(err);
-      }
+      );
     };
     getProject();
   }, [router.query.id]);
 
+  // 商品登録用
   useEffect(() => {
     setItems({
       ...project,
@@ -58,18 +67,27 @@ const Measure = () => {
 
   // 採寸登録
   const addStudent = async () => {
-    const docRef = collection(db, 'schools', `${router.query.id}`, 'students');
+    const result = window.confirm('登録して宜しいでしょうか');
+    if (!result) return;
+    let docRef;
     try {
-      await addDoc(docRef, {
-        ...items,
-        title: project?.title,
-        projectId: project?.id,
-      });
+      docRef = await addDoc(
+        collection(db, 'schools', `${router.query.id}`, 'students'),
+        {
+          ...items,
+          title: project?.title,
+          projectId: project?.id,
+        }
+      );
     } catch (err) {
       console.log(err);
     } finally {
       window.alert('登録しました');
-      setItems({});
+      router.push({
+        pathname: `/completion/${project?.id}`,
+        query: { studentId: `${docRef?.id}` },
+      });
+      setItems('');
     }
   };
 
@@ -120,151 +138,155 @@ const Measure = () => {
   };
 
   return (
-    <Container maxW='600px' py={6}>
-      {project?.title && (
-        <Box
-          p={6}
-          fontSize='3xl'
-          fontWeight='bold'
-          bgColor='white'
-          borderRadius={6}
-          boxShadow='base'
-        >
-          {project?.title}
-        </Box>
-      )}
-      <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
-        <Text>学籍番号</Text>
-        <Input
-          type='text'
-          mt={2}
-          name='studentNumber'
-          value={items.studentNumber}
-          onChange={handleInputChange}
-        />
-      </Box>
-
-      <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
-        <Text>名前</Text>
-        <Input
-          type='text'
-          mt={2}
-          name='name'
-          value={items.name}
-          onChange={handleInputChange}
-        />
-      </Box>
-
-      {Number(project?.gender) === 1 && ''}
-      {Number(project?.gender) === 2 && (
-        <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
-          <RadioGroup
-            name='gender'
-            value={items.gender}
-            onChange={(e) => handleRadioChange(e)}
-          >
-            <Stack spacing={5} direction='row'>
-              <Radio colorScheme='green' value='1'>
-                男性
-              </Radio>
-              <Radio colorScheme='green' value='2'>
-                女性
-              </Radio>
-            </Stack>
-          </RadioGroup>
-        </Box>
-      )}
-      {Number(project?.gender) === 3 && (
-        <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
-          <RadioGroup
-            name='gender'
-            value={items.gender}
-            onChange={(e) => handleRadioChange(e)}
-          >
-            <Stack spacing={5} direction='row'>
-              <Radio colorScheme='green' value='1'>
-                男性
-              </Radio>
-              <Radio colorScheme='green' value='2'>
-                女性
-              </Radio>
-              <Radio colorScheme='green' value='3'>
-                その他
-              </Radio>
-            </Stack>
-          </RadioGroup>
-        </Box>
-      )}
-
-      {project?.products.map((product: any, index: number) => (
-        <Box
-          key={product.productName}
-          mt={6}
-          p={6}
-          bgColor='white'
-          borderRadius={6}
-          boxShadow='base'
-        >
-          <Box>{product.productName}</Box>
-          <Box mt={6}>
-            <Select
-              placeholder='サイズを選択してください'
-              name='size'
-              onChange={(e) =>
-                handleSelectChange(e, index, product.productName)
-              }
+    <Container maxW='600px' py={6} minH='100vh'>
+      {project?.release && (
+        <>
+          {project?.title && (
+            <Box
+              p={6}
+              fontSize='3xl'
+              fontWeight='bold'
+              bgColor='white'
+              borderRadius={6}
+              boxShadow='base'
             >
-              {product.size.map((size: string) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </Select>
-            <Box mt={6}>
-              {product.quantity && (
+              {project?.title}
+            </Box>
+          )}
+          <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
+            <Text>学籍番号</Text>
+            <Input
+              type='text'
+              mt={2}
+              name='studentNumber'
+              value={items.studentNumber}
+              onChange={handleInputChange}
+            />
+          </Box>
+
+          <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
+            <Text>名前</Text>
+            <Input
+              type='text'
+              mt={2}
+              name='name'
+              value={items.name}
+              onChange={handleInputChange}
+            />
+          </Box>
+
+          {Number(project?.gender) === 1 && ''}
+          {Number(project?.gender) === 2 && (
+            <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
+              <RadioGroup
+                name='gender'
+                value={items.gender}
+                onChange={(e) => handleRadioChange(e)}
+              >
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
+                    男性
+                  </Radio>
+                  <Radio colorScheme='green' value='2'>
+                    女性
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+            </Box>
+          )}
+          {Number(project?.gender) === 3 && (
+            <Box mt={6} p={6} bgColor='white' borderRadius={6} boxShadow='base'>
+              <RadioGroup
+                name='gender'
+                value={items.gender}
+                onChange={(e) => handleRadioChange(e)}
+              >
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
+                    男性
+                  </Radio>
+                  <Radio colorScheme='green' value='2'>
+                    女性
+                  </Radio>
+                  <Radio colorScheme='green' value='3'>
+                    その他
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+            </Box>
+          )}
+
+          {project?.products.map((product: any, index: number) => (
+            <Box
+              key={product.productName}
+              mt={6}
+              p={6}
+              bgColor='white'
+              borderRadius={6}
+              boxShadow='base'
+            >
+              <Box>{product.productName}</Box>
+              <Box mt={6}>
                 <Select
-                  name='quantity'
-                  placeholder='数量を選択してしてください'
+                  placeholder='サイズを選択してください'
+                  name='size'
                   onChange={(e) =>
                     handleSelectChange(e, index, product.productName)
                   }
                 >
-                  {array.map((num: string, index: number) => (
-                    <option key={num?.toString()} value={index}>
-                      {index}
+                  {product.size.map((size: string) => (
+                    <option key={size} value={size}>
+                      {size}
                     </option>
                   ))}
                 </Select>
-              )}
-            </Box>
-            <Box mt={6}>
-              {product.inseam && (
-                <Select
-                  name='inseam'
-                  placeholder='裾上直しの長さを選択してください'
-                  onChange={(e) =>
-                    handleSelectChange(e, index, product.productName)
-                  }
-                >
-                  {Object.keys(['無し', ...Array(30)]).map(
-                    (num: string, index: number) => (
-                      <option key={num?.toString()} value={index + 'cm'}>
-                        {index}cm
-                      </option>
-                    )
+                <Box mt={6}>
+                  {product.quantity && (
+                    <Select
+                      name='quantity'
+                      placeholder='数量を選択してしてください'
+                      onChange={(e) =>
+                        handleSelectChange(e, index, product.productName)
+                      }
+                    >
+                      {array.map((num: string, index: number) => (
+                        <option key={num?.toString()} value={index}>
+                          {index}
+                        </option>
+                      ))}
+                    </Select>
                   )}
-                </Select>
-              )}
+                </Box>
+                <Box mt={6}>
+                  {product.inseam && (
+                    <Select
+                      name='inseam'
+                      placeholder='裾上直しの長さを選択してください'
+                      onChange={(e) =>
+                        handleSelectChange(e, index, product.productName)
+                      }
+                    >
+                      {Object.keys(['無し', ...Array(30)]).map(
+                        (num: string, index: number) => (
+                          <option key={num?.toString()} value={index + 'cm'}>
+                            {index}cm
+                          </option>
+                        )
+                      )}
+                    </Select>
+                  )}
+                </Box>
+              </Box>
             </Box>
-          </Box>
-        </Box>
-      ))}
+          ))}
 
-      <Box mt={6} textAlign='center'>
-        <Button colorScheme='facebook' onClick={addStudent}>
-          登録
-        </Button>
-      </Box>
+          <Box mt={6} textAlign='center'>
+            <Button colorScheme='facebook' onClick={addStudent}>
+              登録
+            </Button>
+          </Box>
+        </>
+      )}
     </Container>
   );
 };

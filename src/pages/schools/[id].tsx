@@ -29,6 +29,7 @@ const SchoolId = () => {
   const router = useRouter();
   const currentUser = useRecoilValue(currentUserAuth);
   const [students, setStudents] = useState<any>();
+  const [tableTitle, setTableTitle] = useState<any>();
 
   useEffect(() => {
     if (!currentUser) {
@@ -73,15 +74,39 @@ const SchoolId = () => {
     }
   };
 
+  useEffect(() => {
+    setTableTitle(
+      students?.find((student: any, index: number) => {
+        if (index === 0) return true;
+      })
+    );
+  }, [students]);
+  console.log(tableTitle);
+
   return (
     <Container maxW='1200px' py={6}>
       <TableContainer>
         <Table variant='striped' colorScheme='gray'>
           <Thead>
             <Tr>
-              <Th>学籍番号</Th>
-              <Th>名前</Th>
-              <Th>性別</Th>
+              <Th>{tableTitle?.studentNumber && '学生番号'}</Th>
+              <Th>{tableTitle?.name && '名前'}</Th>
+              <Th>{tableTitle?.gender && '性別'}</Th>
+              {tableTitle?.products.map(
+                (product: {
+                  productName: string;
+                  size: string[];
+                  quantity: string;
+                  inseam: string;
+                }) => (
+                  <React.Fragment key={product.productName}>
+                    <Th w='80px'>{product?.productName && '商品名'}</Th>
+                    <Th w='80px'>{product?.size && 'サイズ'}</Th>
+                    <Th w='50px'>{product?.quantity && '数量'}</Th>
+                    <Th w='50px'>{product?.inseam && '股下修理'}</Th>
+                  </React.Fragment>
+                )
+              )}
             </Tr>
           </Thead>
           <Tbody>
@@ -90,21 +115,20 @@ const SchoolId = () => {
                 <Td>{student.studentNumber}</Td>
                 <Td>{student.name}</Td>
                 <Td>{genderDisp(student.gender)}</Td>
-                <Td mr={2}>
-                  <Flex>
-                    {student.products.map((product: any) => (
-                      <Flex key={product.productName} mr={12}>
-                        <Box mr={6}>{product.productName}</Box>
-                        <Box w='80px' textAlign='center'>
-                          {product.size}
-                        </Box>
-                        <Box w='50px' textAlign='right'>
-                          {product.quantity}
-                        </Box>
-                      </Flex>
-                    ))}
-                  </Flex>
-                </Td>
+                {student.products.map((product: any) => (
+                  <React.Fragment key={product.productName}>
+                    <Td w='80px'>{product.productName}</Td>
+                    <Td w='80px' textAlign='center'>
+                      {product.size}
+                    </Td>
+                    <Td w='50px' textAlign='right'>
+                      {product.quantity}
+                    </Td>
+                    <Td w='50px' textAlign='right'>
+                      {product.inseam}
+                    </Td>
+                  </React.Fragment>
+                ))}
                 <Td>
                   <Button
                     colorScheme='red'
