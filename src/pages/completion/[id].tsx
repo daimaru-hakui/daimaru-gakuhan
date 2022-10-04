@@ -18,7 +18,6 @@ type ProjectType = {
 const Completion = () => {
   const router = useRouter();
   const [student, setStudent] = useState<any>();
-  const [project, setProject] = useState<any>();
 
   // useEffect(() => {
   //   const getProject = async () => {
@@ -39,6 +38,8 @@ const Completion = () => {
   useEffect(() => {
     const jsonData: any = localStorage.getItem(`${router.query.id}`);
     setStudent(JSON.parse(jsonData));
+    history.pushState(null, "null", null);
+    return;
   }, [router, router.query.id]);
 
   return (
@@ -49,12 +50,19 @@ const Completion = () => {
             採寸登録が完了しました
           </Text>
           <Text fontSize="sm" mt={6}>
-            採寸登録ありがとうございます。こちらの画面が控えになります。
+            採寸登録ありがとうございます。
+            <Box as="span" fontWeight="bold" textDecoration="underline">
+              こちらの画面が控えになります。
+            </Box>
             ご必要な場合はお手数ですが、スクリーンショット又は
             ブックマーク・お気に入り等に登録してください。
+            またサイズ変更等ございます場合は、係員にお申し付けください。
           </Text>
-          <Box mt={12}>
-            <Flex>
+          <Box mt={6}>
+            <Box textAlign="center" fontWeight="bold">
+              {student?.title}
+            </Box>
+            <Flex mt={6}>
               <Box fontWeight="bold" w="90px">
                 学籍番号
               </Box>
