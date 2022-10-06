@@ -39,6 +39,7 @@ const Completion = () => {
     const jsonData: any = localStorage.getItem(`${router.query.id}`);
     setStudent(JSON.parse(jsonData));
     history.pushState(null, "null", null);
+    history.go(1);
     return;
   }, [router, router.query.id]);
 
