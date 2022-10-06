@@ -93,10 +93,7 @@ const Measure = () => {
         projectId: project?.id,
       });
       localStorage.setItem(`${project?.id}`, jsonString);
-      router.push({
-        pathname: `/completion/${project?.id}`,
-        query: { studentId: `${docRef?.id}` },
-      });
+      router.push(`/completion/${project?.id}`);
     }
   };
 
