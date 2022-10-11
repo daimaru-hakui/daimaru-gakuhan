@@ -19,6 +19,7 @@ import {
   onSnapshot,
   query,
 } from 'firebase/firestore';
+import { PHASE_PRODUCTION_SERVER } from 'next/dist/shared/lib/constants';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -37,6 +38,7 @@ const SchoolId = () => {
     }
   }, [currentUser, router]);
 
+  //生徒の情報を取得
   useEffect(() => {
     const getStudents = async () => {
       const q = query(
@@ -55,6 +57,60 @@ const SchoolId = () => {
     getStudents();
   }, [router.query.id]);
 
+  useEffect(() => {
+    let productSize = ['SS', 'S', 'M', 'L', 'LL', 'F'];
+    console.log('length', tableTitle?.products.length);
+
+    const productsArray: any = students?.map((student: any) => {
+      return student.products.find((product: any, index: number) => {
+        return productSize.find((size) => {
+          if (product?.size === size && index === 0) return true;
+        });
+      });
+    });
+    console.log(productsArray);
+
+    const sizeOnly = productsArray?.map((product: any) => {
+      return product?.size;
+    });
+    console.log(sizeOnly);
+
+    const sizeSet = new Set(sizeOnly);
+    const sizes = Array.from(sizeSet);
+
+    const sizesObj = sizes.map((size) => {
+      return productsArray?.filter((array: any) => {
+        if (size === array?.size) {
+          return {
+            [array?.size]: array?.quantity,
+          };
+        }
+      });
+    });
+    console.log('sizesObj', sizesObj);
+
+    const quantitys = sizesObj.map((sizeObj) => {
+      return sizeObj
+        .map((size: any) => {
+          return Number(size?.quantity);
+        })
+        .reduce((a: number, b: number) => {
+          return a + b;
+        }, 0);
+    });
+    console.log('quantitys', quantitys);
+
+    let arr: any = [];
+    sizes.forEach((size, index) => {
+      let obj: any = {};
+      obj.size = size;
+      obj.quantity = quantitys[index];
+      arr.push(obj);
+    });
+
+    console.log(arr);
+  }, [students]);
+
   // 生徒の登録情報を削除
   const deleteStudent = (studentId: string) => {
     const result = window.confirm('削除して宜しいでしょうか');
@@ -62,7 +118,7 @@ const SchoolId = () => {
     deleteDoc(doc(db, 'schools', `${router.query.id}`, 'students', studentId));
   };
 
-  console.log(students);
+  //性別を表示
   const genderDisp = (gender: string) => {
     switch (gender) {
       case '1':
@@ -81,7 +137,6 @@ const SchoolId = () => {
       })
     );
   }, [students]);
-  console.log(tableTitle);
 
   return (
     <Container maxW='1200px' py={6}>
