@@ -81,12 +81,32 @@ const SchoolId = () => {
     getProject();
   }, [router.query.id]);
 
+  // 生徒の登録情報を削除
+  const deleteStudent = (studentId: string) => {
+    const result = window.confirm("削除して宜しいでしょうか");
+    if (!result) return;
+    deleteDoc(doc(db, "schools", `${router.query.id}`, "students", studentId));
+  };
+
+  //性別を表示
+  const genderDisp = (gender: string) => {
+    switch (gender) {
+      case "1":
+        return "男性";
+      case "2":
+        return "女性";
+      default:
+        return "未記入";
+    }
+  };
+
   ///////////////////////////　集計計算 ///////////////////////////////////
   useEffect(() => {
     // 商品アイテム数
     const productsLen = project?.products.length;
 
-    let sum = [];
+    // サイズ明細を格納する配列
+    let sizeDetails = [];
 
     for (let i = 0; i < productsLen; i++) {
       // サイズ規格を取得
@@ -110,6 +130,7 @@ const SchoolId = () => {
 
       // サイズ情報の重複を削除
       const sizeSet = new Set(sizeOnly);
+
       // new Setを配列に変換
       const sizeArray = Array.from(sizeSet);
 
@@ -129,37 +150,26 @@ const SchoolId = () => {
           .reduce((a: number, b: number) => a + b, 0)
       );
 
-      let arr: any = [];
-      sizeArray.forEach((size, index) => {
-        let obj: any = {};
-        obj.productName = productName;
-        obj.size = size;
-        obj.quantity = quantitys[index];
-        arr.push(obj);
-      });
-      sum.push(arr);
+      // 合計数量を変数に格納
+      const sum = quantitys.reduce((a, b) => {
+        return a + b;
+      }, 0);
+
+      // サイズ明細を格納した配列を作成
+      const array = sizeArray.map((size, index) => ({
+        productName,
+        size,
+        quantity: quantitys[index],
+        sum,
+      }));
+
+      // 各サイズ明細をループで追加していく
+      sizeDetails.push(array);
     }
-    setTotals(sum);
+
+    //すべてのサイズ明細を格納したstate
+    setTotals(sizeDetails);
   }, [students, project?.products]);
-
-  // 生徒の登録情報を削除
-  const deleteStudent = (studentId: string) => {
-    const result = window.confirm("削除して宜しいでしょうか");
-    if (!result) return;
-    deleteDoc(doc(db, "schools", `${router.query.id}`, "students", studentId));
-  };
-
-  //性別を表示
-  const genderDisp = (gender: string) => {
-    switch (gender) {
-      case "1":
-        return "男性";
-      case "2":
-        return "女性";
-      default:
-        return "未記入";
-    }
-  };
 
   return (
     <Container maxW="1200px" py={6}>
@@ -167,7 +177,7 @@ const SchoolId = () => {
         <TotalModal totals={totals} />
       </Box>
       <TableContainer mt={6}>
-        <Table variant="striped" colorScheme="gray">
+        <Table variant="striped" colorScheme="gray" size="sm">
           <Thead>
             <Tr>
               <Th>{tableTitle?.studentNumber && "学生番号"}</Th>
