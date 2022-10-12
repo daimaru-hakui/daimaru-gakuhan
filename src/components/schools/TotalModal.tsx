@@ -22,11 +22,13 @@ const TotalModal: NextPage<Props> = ({ totals }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
-      <Button colorScheme="blue" onClick={onOpen}>
-        集計
-      </Button>
+      <Flex justifyContent="flex-end">
+        <Button colorScheme="blue" onClick={onOpen}>
+          集計
+        </Button>
+      </Flex>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} size="xs">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>集計</ModalHeader>
@@ -34,19 +36,43 @@ const TotalModal: NextPage<Props> = ({ totals }) => {
           <ModalBody>
             {totals?.map((total: any) => (
               <Box mt={6} key={total}>
-                {total.map((value: any, index: number) => (
-                  <Box key={value.size}>
-                    <Box fontWeight="bold">
-                      {index === 0 && value.productName}
+                {total.map(
+                  (
+                    value: {
+                      productName: string;
+                      size: string;
+                      quantity: number;
+                      sum: number;
+                    },
+                    index: number,
+                    array: []
+                  ) => (
+                    <Box key={value.size}>
+                      {index === 0 && (
+                        <Box fontWeight="bold">{value.productName} </Box>
+                      )}
+                      <Flex mt={1}>
+                        <Box w={10}>{value.size}</Box>
+                        <Box w={10} textAlign="right">
+                          {value.quantity}
+                        </Box>
+                      </Flex>
+                      {index === array.length - 1 && (
+                        <Flex
+                          mt={1}
+                          py={1}
+                          borderTop="1px"
+                          borderColor="gray.200"
+                        >
+                          <Box w={10}>合計</Box>
+                          <Box w={10} textAlign="right">
+                            {value.sum}
+                          </Box>
+                        </Flex>
+                      )}
                     </Box>
-                    <Flex mt={1}>
-                      <Box w={6} ml={3}>
-                        {value.size}
-                      </Box>
-                      <Box>{value.quantity}</Box>
-                    </Flex>
-                  </Box>
-                ))}
+                  )
+                )}
               </Box>
             ))}
           </ModalBody>
