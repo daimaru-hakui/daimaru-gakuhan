@@ -15,8 +15,8 @@ const Login = () => {
     email: "",
     password: "",
   });
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
   const [currentUser, setCurrentUser] = useRecoilState(currentUserAuth);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const Login = () => {
   // サインイン
   const signInUser = () => {
     setLoading(true);
-    signInWithEmailAndPassword(auth, email, password)
+    signInWithEmailAndPassword(auth, account.email, account.password)
       .then((userCredential) => {
         const user = userCredential.user;
         setCurrentUser(user?.uid);
@@ -111,7 +111,7 @@ const Login = () => {
           <Button
             mt={3}
             color="white"
-            backgroundColor="facebook.600"
+            backgroundColor="facebook"
             _hover={{ backgroundColor: "facebook.500" }}
             disabled={!account.email || !account.password}
             onClick={signInUser}
