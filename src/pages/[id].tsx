@@ -15,8 +15,8 @@ import {
   addDoc,
   collection,
   doc,
-  getDoc,
   onSnapshot,
+  serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -62,6 +62,7 @@ const Measure = () => {
   useEffect(() => {
     setItems({
       ...project,
+      gender: "3",
       products: project?.products.map((product: any) => ({
         productName: product.productName,
       })),
@@ -81,6 +82,7 @@ const Measure = () => {
           ...items,
           title: project?.title,
           projectId: project?.id,
+          createdAt: serverTimestamp(),
         }
       );
     } catch (err) {

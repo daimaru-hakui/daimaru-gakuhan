@@ -111,7 +111,7 @@ const Login = () => {
           <Button
             mt={3}
             color="white"
-            backgroundColor="facebook"
+            bgColor="facebook.900"
             _hover={{ backgroundColor: "facebook.500" }}
             disabled={!account.email || !account.password}
             onClick={signInUser}
