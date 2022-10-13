@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Flex,
+  Input,
   Table,
   TableContainer,
   Tbody,
@@ -16,15 +17,16 @@ import {
   deleteDoc,
   doc,
   getDoc,
-  getDocs,
   onSnapshot,
   query,
 } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { FaTrashAlt } from "react-icons/fa";
 import { useRecoilValue } from "recoil";
 import { db } from "../../../firebase";
 import { currentUserAuth } from "../../../store";
+import { CSVLink, CSVDownload } from "react-csv";
 import TotalModal from "../../components/schools/TotalModal";
 
 const SchoolId = () => {
@@ -34,6 +36,8 @@ const SchoolId = () => {
   const [tableTitle, setTableTitle] = useState<any>();
   const [project, setProject] = useState<any>();
   const [totals, setTotals] = useState<any>();
+  const [password, setPassword] = useState("");
+  const [csvData, setCsvData] = useState("");
 
   useEffect(() => {
     if (!currentUser) {
@@ -98,6 +102,72 @@ const SchoolId = () => {
       default:
         return "未記入";
     }
+  };
+
+  // 作成日表示
+  const createdDateTime = (d: Date) => {
+    const date = new Date(d);
+    let month = String(date.getMonth() + 1);
+    month = ("0" + month).slice(-2);
+    let day = String(date.getDate());
+    day = ("0" + day).slice(-2);
+    let hours = String(date.getHours());
+    hours = ("0" + hours).slice(-2);
+    let minutes = String(date.getMinutes());
+    minutes = ("0" + hours).slice(-2);
+    let seconds = String(date.getSeconds());
+    seconds = ("0" + seconds).slice(-2);
+    return `${month}月${day}日${hours}:${minutes}:${seconds}`;
+  };
+
+  // CSV作成
+  const onClickCsv = () => {
+    const csvData = students.map((student: any) => {
+      let items = student?.products.map((product: any, index: number) => {
+        const nameProduct = "product" + index;
+        const nameSize = "size" + index;
+        const nameQuantity = "quantity" + index;
+        const nameInseam = "inseam" + index;
+        return {
+          [nameProduct]: product.productName,
+          [nameSize]: product.size,
+          [nameQuantity]: product.quantity,
+          [nameInseam]: product.inseam || null,
+        };
+      });
+      let array: any = [];
+      items.forEach((item: any) => {
+        Object.keys(item).forEach((key) => {
+          array.push({ [key]: item[key] });
+        });
+      });
+      array.unshift(
+        { studentNumber: student.studentNumber },
+        { name: student?.name },
+        { gender: student?.gender },
+        { createdAt: createdDateTime(student?.createdAt?.toDate()) }
+      );
+
+      return [...array];
+    });
+
+    const header = csvData[0]
+      .map((csv: any) => Object.keys(csv))
+      .map((key: any) => key[0])
+      .join(",");
+
+    const body = csvData
+      .map((csv: any) =>
+        csv
+          .map((c: any) => Object.values(c))
+          .map((value: any) => value[0])
+          .join(",")
+      )
+      .join("\n");
+
+    const csvFile = header + "\n" + body;
+    console.log(header + "\n" + body);
+    setCsvData(csvFile);
   };
 
   ///////////////////////////　集計計算 ///////////////////////////////////
@@ -173,16 +243,30 @@ const SchoolId = () => {
 
   return (
     <Container maxW="1200px" py={6}>
-      <Box>
-        <TotalModal totals={totals} />
+      <Box as="h2" fontWeight="bold">
+        {project?.title}
       </Box>
+      <Flex mt={3} alignItems="center" justifyContent="space-between">
+        <Box>全{students?.length}件</Box>
+        <Flex>
+          <CSVLink
+            data={csvData}
+            filename={new Date().toLocaleString() + "_.csv"}
+          >
+            <Button size="sm" mr={2} onClick={onClickCsv}>
+              CSV
+            </Button>
+          </CSVLink>
+          <TotalModal totals={totals} />
+        </Flex>
+      </Flex>
       <TableContainer mt={6}>
         <Table variant="striped" colorScheme="gray" size="sm">
           <Thead>
             <Tr>
               <Th>{tableTitle?.studentNumber && "学生番号"}</Th>
               <Th>{tableTitle?.name && "名前"}</Th>
-              <Th>{tableTitle?.gender && "性別"}</Th>
+              {tableTitle?.gender && <Th>{"性別"}</Th>}
               {project?.products.map(
                 (product: {
                   productName: string;
@@ -191,13 +275,15 @@ const SchoolId = () => {
                   inseam: string;
                 }) => (
                   <React.Fragment key={product.productName}>
-                    <Th w="80px">{product?.productName && "商品名"}</Th>
-                    <Th w="80px">{product?.size && "サイズ"}</Th>
-                    <Th w="50px">{product?.quantity && "数量"}</Th>
-                    <Th w="50px">{product?.inseam && "股下修理"}</Th>
+                    {product?.productName && <Th w="80px">商品名</Th>}
+                    {product?.size && <Th w="80px">サイズ</Th>}
+                    {product?.quantity && <Th w="50px">数量</Th>}
+                    {product?.inseam && <Th w="50px">股下修理</Th>}
                   </React.Fragment>
                 )
               )}
+              <Th>登録日</Th>
+              <Th>削除</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -208,31 +294,48 @@ const SchoolId = () => {
                 <Td>{genderDisp(student.gender)}</Td>
                 {student.products.map((product: any) => (
                   <React.Fragment key={product.productName}>
-                    <Td w="80px">{product.productName}</Td>
-                    <Td w="80px" textAlign="center">
-                      {product.size}
-                    </Td>
-                    <Td w="50px" textAlign="right">
-                      {product.quantity}
-                    </Td>
-                    <Td w="50px" textAlign="right">
-                      {product.inseam}
-                    </Td>
+                    {product.productName && (
+                      <Td w="80px">{product.productName}</Td>
+                    )}
+                    {product.size && (
+                      <Td w="80px" textAlign="center">
+                        {product.size}
+                      </Td>
+                    )}
+                    {product.quantity && (
+                      <Td w="50px" textAlign="right">
+                        {product.quantity}
+                      </Td>
+                    )}
+                    {product.inseam && (
+                      <Td w="50px" textAlign="right">
+                        {product.inseam}
+                      </Td>
+                    )}
                   </React.Fragment>
                 ))}
+                <Td>{createdDateTime(student?.createdAt.toDate())}</Td>
                 <Td>
-                  <Button
-                    colorScheme="red"
-                    onClick={() => deleteStudent(student.id)}
-                  >
-                    削除
-                  </Button>
+                  <FaTrashAlt
+                    cursor="pointer"
+                    onClick={() =>
+                      password === "password" && deleteStudent(student.id)
+                    }
+                  />
                 </Td>
               </Tr>
             ))}
           </Tbody>
         </Table>
       </TableContainer>
+      <Box mt={6}>
+        <Input
+          maxW="200px"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </Box>
     </Container>
   );
 };

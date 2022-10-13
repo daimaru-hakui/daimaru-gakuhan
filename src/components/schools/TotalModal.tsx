@@ -23,7 +23,7 @@ const TotalModal: NextPage<Props> = ({ totals }) => {
   return (
     <>
       <Flex justifyContent="flex-end">
-        <Button colorScheme="facebook" onClick={onOpen}>
+        <Button size="sm" colorScheme="facebook" onClick={onOpen}>
           集計
         </Button>
       </Flex>
