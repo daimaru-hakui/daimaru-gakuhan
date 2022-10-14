@@ -39,6 +39,7 @@ const SchoolId = () => {
   const [password, setPassword] = useState("");
   const [csvData, setCsvData] = useState("");
 
+  // ログインしてなければloginページへ移動
   useEffect(() => {
     if (!currentUser) {
       router.push("/login");
@@ -120,42 +121,72 @@ const SchoolId = () => {
     return `${month}月${day}日${hours}:${minutes}:${seconds}`;
   };
 
-  // CSV作成
+  // CSV作成 //////////////////////////////////
   const onClickCsv = () => {
+    // 生徒を一人ひとりループしてデータを作成
     const csvData = students.map((student: any) => {
-      let items = student?.products.map((product: any, index: number) => {
-        const nameProduct = "product" + index;
-        const nameSize = "size" + index;
-        const nameQuantity = "quantity" + index;
-        const nameInseam = "inseam" + index;
-        return {
-          [nameProduct]: product.productName,
-          [nameSize]: product.size,
-          [nameQuantity]: product.quantity,
-          [nameInseam]: product.inseam || null,
-        };
-      });
+      // 商品毎にオブジェクト(obj)を作成して配列に格納
+      let items = student?.products.map(
+        (
+          product: {
+            productName: string;
+            size: string;
+            quantity: number;
+            inseam: number;
+          },
+          index: number
+        ) => {
+          // keyの名前を作成
+          const nameProduct = "商品名" + Number(index + 1);
+          const nameSize = "サイズ" + Number(index + 1);
+          const nameQuantity = "数量" + Number(index + 1);
+          const nameInseam = "股下修理" + Number(index + 1);
+
+          // keyに各項目名を入れてオブジェクトを作成
+          const obj = {
+            [nameProduct]: product.productName,
+            [nameSize]: product.size,
+            [nameQuantity]: product.quantity,
+            [nameInseam]: product.inseam || undefined,
+          };
+
+          // 値がundefindであれば削除
+          const newObject = Object.fromEntries(
+            Object.entries(obj).filter(([, v]) => v !== undefined)
+          );
+
+          return newObject;
+        }
+      );
+
+      // 生徒毎に各項目のオブジェクトを作成して配列に格納
       let array: any = [];
-      items.forEach((item: any) => {
-        Object.keys(item).forEach((key) => {
-          array.push({ [key]: item[key] });
+      items.forEach((obj: any) => {
+        Object.keys(obj).forEach((key) => {
+          array.push({ [key]: obj[key] });
         });
       });
+
+      const gender = genderDisp(student?.gender);
+
+      // 学生番号・名前などを配列に追加
       array.unshift(
-        { studentNumber: student.studentNumber },
-        { name: student?.name },
-        { gender: student?.gender },
-        { createdAt: createdDateTime(student?.createdAt?.toDate()) }
+        { 学籍番号: student.studentNumber },
+        { 名前: student?.name },
+        { 性別: gender },
+        { 作成日: createdDateTime(student?.createdAt?.toDate()) }
       );
 
       return [...array];
     });
 
+    // CSVファイルの項目を作成
     const header = csvData[0]
       .map((csv: any) => Object.keys(csv))
       .map((key: any) => key[0])
       .join(",");
 
+    // CSVファイルの内容を作成
     const body = csvData
       .map((csv: any) =>
         csv
@@ -165,8 +196,8 @@ const SchoolId = () => {
       )
       .join("\n");
 
+    //　項目と内容を合わせてCSVファイルを作成
     const csvFile = header + "\n" + body;
-    console.log(header + "\n" + body);
     setCsvData(csvFile);
   };
 
@@ -251,7 +282,7 @@ const SchoolId = () => {
         <Flex>
           <CSVLink
             data={csvData}
-            filename={new Date().toLocaleString() + "_.csv"}
+            filename={new Date().toLocaleString() + `_${project?.title}_.csv`}
           >
             <Button size="sm" mr={2} onClick={onClickCsv}>
               CSV

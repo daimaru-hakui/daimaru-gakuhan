@@ -114,7 +114,6 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     const value = items[type] ? false : true;
     setItems({ ...items, [type]: value });
   };
-  console.log(items);
 
   // projectのproductsを取得
   useEffect(() => {

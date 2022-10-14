@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from "react-icons/fa";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
@@ -37,6 +37,7 @@ const ProjectId = () => {
   const [editTitle, setEditTitle] = useState(false);
   const toast = useToast();
   const projects = useRecoilValue(projectsState);
+  const [students, setStudents] = useState<any>();
   const [project, setProject] = useState<any>({
     title: "",
     desc: "",
@@ -62,6 +63,25 @@ const ProjectId = () => {
     };
     getProject();
   }, [router.query.id, projects]);
+
+  // studentsデータを取得（採寸したデータ）
+  useEffect(() => {
+    const getSchool = async () => {
+      const studentsCollectionRef = collection(
+        db,
+        "schools",
+        `${router.query.id}`,
+        "students"
+      );
+      const querySnapshot = await getDocs(studentsCollectionRef);
+      setStudents(
+        querySnapshot.docs.map((doc) => {
+          return { ...doc.data() };
+        })
+      );
+    };
+    getSchool();
+  }, [router.query.id]);
 
   // productを削除
   const deleteProduct = async (productIndex: number) => {
@@ -205,106 +225,124 @@ const ProjectId = () => {
             />
           </Box>
         )}
-        <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
-          <RadioGroup
-            value={project?.gender}
-            onChange={(e) => handleRadioChange(e, "gender")}
-          >
-            <Box fontWeight="bold">性別記入</Box>
-            <Stack direction={["column", "row"]} mt={2}>
-              <Radio value="1" pr={6}>
-                なし
-              </Radio>
-              <Radio value="2" pr={6}>
-                男性・女性
-              </Radio>
-              <Radio value="3">男性・女性・その他</Radio>
-            </Stack>
-          </RadioGroup>
-        </Box>
-        <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
-          <Box fontWeight="bold">商品登録</Box>
-          <Box mt={2}>
-            以下のボタンをクリックして採寸する商品を追加してください。
-          </Box>
-
-          <TableContainer mt={6}>
-            <Table variant="simple">
-              {project?.products.length > 0 && (
-                <Thead>
-                  <Tr>
-                    <Th>商品名</Th>
-                    <Th>サイズ展開</Th>
-                    <Th>数量入力</Th>
-                    <Th>股下修理</Th>
-                    <Th>編集・削除</Th>
-                  </Tr>
-                </Thead>
-              )}
-              <Tbody>
-                {[...Array(9)].map((i: number, index: number) => (
-                  <Tr key={i} mt={6}>
-                    {project?.products[index] && (
-                      <>
-                        <Td mr={2}>{project?.products[index].productName}</Td>
-                        <Td>
-                          <Breadcrumb cursor="default">
-                            {project?.products[index].size?.map(
-                              (size: string) => (
-                                <BreadcrumbItem key={size}>
-                                  <BreadcrumbLink
-                                    cursor="default"
-                                    style={{ textDecoration: "none" }}
-                                  >
-                                    {size}
-                                  </BreadcrumbLink>
-                                </BreadcrumbItem>
-                              )
-                            )}
-                          </Breadcrumb>
-                        </Td>
-                        <Td>
-                          {Number(project?.products[index].quantity) === 1 ? (
-                            <FaRegCircle />
-                          ) : (
-                            <FaTimes />
-                          )}
-                        </Td>
-                        <Td>
-                          {Number(project?.products[index].inseam) === 1 ? (
-                            <FaRegCircle />
-                          ) : (
-                            <FaTimes />
-                          )}
-                        </Td>
-                        <Td>
-                          <HStack spacing={6}>
-                            <InputModal
-                              productIndex={index}
-                              buttonDesign={"edit"}
-                            />
-                            <FaTrashAlt
-                              cursor="pointer"
-                              onClick={() => deleteProduct(index)}
-                            />
-                          </HStack>
-                        </Td>
-                      </>
-                    )}
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
-          {Object.keys([...Array(9)]).map((i: string, index: number) => (
-            <Box key={i} mt={6}>
-              {!project?.products[index] &&
-                project?.products.length === index && (
-                  <InputModal productIndex={index} buttonDesign={"add"} />
-                )}
+        {students?.length === 0 ? (
+          <>
+            <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
+              <RadioGroup
+                value={project?.gender}
+                onChange={(e) => handleRadioChange(e, "gender")}
+              >
+                <Box fontWeight="bold">性別記入</Box>
+                <Stack direction={["column", "row"]} mt={2}>
+                  <Radio value="1" pr={6}>
+                    なし
+                  </Radio>
+                  <Radio value="2" pr={6}>
+                    男性・女性
+                  </Radio>
+                  <Radio value="3">男性・女性・その他</Radio>
+                </Stack>
+              </RadioGroup>
             </Box>
-          ))}
-        </Box>
+            <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
+              <Box fontWeight="bold">商品登録</Box>
+              <Box mt={2}>
+                以下のボタンをクリックして採寸する商品を追加してください。
+              </Box>
+
+              <TableContainer mt={6}>
+                <Table variant="simple">
+                  {project?.products.length > 0 && (
+                    <Thead>
+                      <Tr>
+                        <Th>商品名</Th>
+                        <Th>サイズ展開</Th>
+                        <Th>数量入力</Th>
+                        <Th>股下修理</Th>
+                        <Th>編集・削除</Th>
+                      </Tr>
+                    </Thead>
+                  )}
+                  <Tbody>
+                    {[...Array(9)].map((i: number, index: number) => (
+                      <Tr key={i} mt={6}>
+                        {project?.products[index] && (
+                          <>
+                            <Td mr={2}>
+                              {project?.products[index].productName}
+                            </Td>
+                            <Td>
+                              <Breadcrumb cursor="default">
+                                {project?.products[index].size?.map(
+                                  (size: string) => (
+                                    <BreadcrumbItem key={size}>
+                                      <BreadcrumbLink
+                                        cursor="default"
+                                        style={{ textDecoration: "none" }}
+                                      >
+                                        {size}
+                                      </BreadcrumbLink>
+                                    </BreadcrumbItem>
+                                  )
+                                )}
+                              </Breadcrumb>
+                            </Td>
+                            <Td>
+                              {Number(project?.products[index].quantity) ===
+                              1 ? (
+                                <FaRegCircle />
+                              ) : (
+                                <FaTimes />
+                              )}
+                            </Td>
+                            <Td>
+                              {Number(project?.products[index].inseam) === 1 ? (
+                                <FaRegCircle />
+                              ) : (
+                                <FaTimes />
+                              )}
+                            </Td>
+                            <Td>
+                              <HStack spacing={6}>
+                                <InputModal
+                                  productIndex={index}
+                                  buttonDesign={"edit"}
+                                />
+                                <FaTrashAlt
+                                  cursor="pointer"
+                                  onClick={() => deleteProduct(index)}
+                                />
+                              </HStack>
+                            </Td>
+                          </>
+                        )}
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
+              {Object.keys([...Array(9)]).map((i: string, index: number) => (
+                <Box key={i} mt={6}>
+                  {!project?.products[index] &&
+                    project?.products.length === index && (
+                      <InputModal productIndex={index} buttonDesign={"add"} />
+                    )}
+                </Box>
+              ))}
+            </Box>
+          </>
+        ) : (
+          <Box
+            p={6}
+            mt={6}
+            bgColor="white"
+            borderRadius={6}
+            boxShadow="base"
+            textAlign="center"
+          >
+            採寸データが入力されているため編集できません。
+          </Box>
+        )}
       </Container>
     </>
   );
