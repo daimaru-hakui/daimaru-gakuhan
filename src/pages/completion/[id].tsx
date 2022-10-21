@@ -18,6 +18,7 @@ type ProjectType = {
 const Completion = () => {
   const router = useRouter();
   const [student, setStudent] = useState<any>();
+  const TAX = 1.1;
 
   // useEffect(() => {
   //   const getProject = async () => {
@@ -46,7 +47,7 @@ const Completion = () => {
   return (
     <Container maxW="500px" py={6} minH="100vh">
       {student && (
-        <Box p={6} boxShadow="base" bgColor="white" borderRadius={6}>
+        <Box p={6} boxShadow="base" bg="white" rounded="md">
           <Text as="h1" textAlign="center" fontWeight="bold" fontSize="2xl">
             採寸登録が完了しました
           </Text>
@@ -74,6 +75,14 @@ const Completion = () => {
                 名前
               </Box>
               <Box>{student?.name}</Box>
+            </Flex>
+            <Flex>
+              <Box fontWeight="bold" w="90px">
+                合計金額
+              </Box>
+              <Box>
+                {Math.round(student?.sumTotal * TAX).toLocaleString()}円（税込）
+              </Box>
             </Flex>
             <Stack spacing={3}>
               {student?.products.map(

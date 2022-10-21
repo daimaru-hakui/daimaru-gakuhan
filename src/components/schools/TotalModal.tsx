@@ -52,7 +52,7 @@ const TotalModal: NextPage<Props> = ({ totals }) => {
                         <Box fontWeight="bold">{value.productName} </Box>
                       )}
                       <Flex mt={1}>
-                        <Box w={10}>{value.size}</Box>
+                        <Box w={12}>{value.size}</Box>
                         <Box w={10} textAlign="right">
                           {value.quantity}
                         </Box>
@@ -64,7 +64,7 @@ const TotalModal: NextPage<Props> = ({ totals }) => {
                           borderTop="1px"
                           borderColor="gray.200"
                         >
-                          <Box w={10}>合計</Box>
+                          <Box w={12}>合計</Box>
                           <Box w={10} textAlign="right">
                             {value.sum}
                           </Box>
