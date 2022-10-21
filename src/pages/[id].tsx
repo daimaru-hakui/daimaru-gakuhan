@@ -39,33 +39,43 @@ const Measure = () => {
   const router = useRouter();
   const [project, setProject] = useState<ProjectType>();
   const [items, setItems] = useState<any>({});
+  const [sumTotal, setSumTotal] = useState(0);
   const array = Object.keys([...Array(10)]);
   const setLoading = useSetRecoilState(loadingState);
+  const TAX = 1.1;
 
   // project（個別）を取得
   useEffect(() => {
     const getProject = async () => {
-      const unsub = onSnapshot(
-        doc(db, "projects", `${router.query.id}`),
-        (doc) => {
-          setProject({ ...doc.data(), id: doc.id } as ProjectType);
-          if (doc.data()?.release === false) {
-            router.push("404/notfound");
-          }
+      onSnapshot(doc(db, "projects", `${router.query.id}`), (doc) => {
+        setProject({ ...doc.data(), id: doc.id } as ProjectType);
+        if (doc.data()?.release === false) {
+          router.push("404/notfound");
         }
-      );
+      });
     };
     getProject();
   }, [router.query.id, router]);
 
-  // 商品登録用
+  // 商品登録用 初期値入力
   useEffect(() => {
     setItems({
       ...project,
       gender: "3",
-      products: project?.products.map((product: any) => ({
-        productName: product.productName,
-      })),
+      products: project?.products.map((product: any) => {
+        const productName = product.productName ? product.productName : null;
+        const price = product.price ? product.price : null;
+        const size = product.size ? "未記入" : null;
+        const quantity = product.quantity ? "0" : 1;
+        const inseam = product.inseam ? "なし" : null;
+        return {
+          productName,
+          price,
+          size,
+          quantity,
+          inseam,
+        };
+      }),
     });
   }, [project]);
 
@@ -82,6 +92,7 @@ const Measure = () => {
           ...items,
           title: project?.title,
           projectId: project?.id,
+          sumTotal,
           createdAt: serverTimestamp(),
         }
       );
@@ -93,6 +104,7 @@ const Measure = () => {
         ...items,
         title: project?.title,
         projectId: project?.id,
+        sumTotal,
       });
       localStorage.setItem(`${project?.id}`, jsonString);
       router.push(`/completion/${project?.id}`);
@@ -134,16 +146,23 @@ const Measure = () => {
           }
         });
       }
-      // } else {
-      //   // 値がない場合　追加
-      //   newItems = [
-      //     ...(items.products || ''),
-      //     { [name]: value, productName: productName },
-      //   ];
-      // }
       return { ...items, products: [...(newItems || "")] };
     });
   };
+
+  // 合計金額
+  useEffect(() => {
+    let sum = 0;
+    items?.products
+      ?.map((product: any) => ({
+        price: product.price,
+        quantity: product.quantity,
+      }))
+      .forEach((product: any) => {
+        sum += Number(product.price) * Number(product.quantity);
+      });
+    setSumTotal(sum);
+  }, [items.products]);
 
   return (
     <Container maxW="600px" py={6} minH="100vh">
@@ -154,14 +173,14 @@ const Measure = () => {
               p={6}
               fontSize="3xl"
               fontWeight="bold"
-              bgColor="white"
-              borderRadius={6}
+              bg="white"
+              rounded={6}
               boxShadow="base"
             >
               {project?.title}
             </Box>
           )}
-          <Box mt={6} p={6} bgColor="white" borderRadius={6} boxShadow="base">
+          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
             <Text>学籍番号</Text>
             <Input
               type="text"
@@ -172,7 +191,7 @@ const Measure = () => {
             />
           </Box>
 
-          <Box mt={6} p={6} bgColor="white" borderRadius={6} boxShadow="base">
+          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
             <Text>名前</Text>
             <Input
               type="text"
@@ -185,7 +204,7 @@ const Measure = () => {
 
           {Number(project?.gender) === 1 && ""}
           {Number(project?.gender) === 2 && (
-            <Box mt={6} p={6} bgColor="white" borderRadius={6} boxShadow="base">
+            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
               <RadioGroup
                 name="gender"
                 value={items.gender}
@@ -203,7 +222,7 @@ const Measure = () => {
             </Box>
           )}
           {Number(project?.gender) === 3 && (
-            <Box mt={6} p={6} bgColor="white" borderRadius={6} boxShadow="base">
+            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
               <RadioGroup
                 name="gender"
                 value={items.gender}
@@ -229,13 +248,19 @@ const Measure = () => {
               key={product.productName}
               mt={6}
               p={6}
-              bgColor="white"
-              borderRadius={6}
+              bg="white"
+              rounded={6}
               boxShadow="base"
             >
-              <Box>{product.productName}</Box>
+              <Box fontSize="xl">{product.productName}</Box>
+              <Box mt={2}>
+                価格 {(Number(product.price) * TAX).toLocaleString()}
+                円（税込）
+              </Box>
               <Box mt={6}>
+                <Text>サイズ</Text>
                 <Select
+                  mt={1}
                   placeholder="サイズを選択してください"
                   name="size"
                   onChange={(e) =>
@@ -250,38 +275,46 @@ const Measure = () => {
                 </Select>
                 <Box mt={6}>
                   {product.quantity && (
-                    <Select
-                      name="quantity"
-                      placeholder="数量を選択してしてください"
-                      onChange={(e) =>
-                        handleSelectChange(e, index, product.productName)
-                      }
-                    >
-                      {array.map((num: string, index: number) => (
-                        <option key={num?.toString()} value={index}>
-                          {index}
-                        </option>
-                      ))}
-                    </Select>
+                    <>
+                      <Text>数量</Text>
+                      <Select
+                        mt={1}
+                        name="quantity"
+                        placeholder="数量を選択してしてください"
+                        onChange={(e) =>
+                          handleSelectChange(e, index, product.productName)
+                        }
+                      >
+                        {array.map((num: string, index: number) => (
+                          <option key={num?.toString()} value={index}>
+                            {index}
+                          </option>
+                        ))}
+                      </Select>
+                    </>
                   )}
                 </Box>
                 <Box mt={6}>
                   {product.inseam && (
-                    <Select
-                      name="inseam"
-                      placeholder="裾上直しの長さを選択してください"
-                      onChange={(e) =>
-                        handleSelectChange(e, index, product.productName)
-                      }
-                    >
-                      {Object.keys(["無し", ...Array(30)]).map(
-                        (num: string, index: number) => (
-                          <option key={num?.toString()} value={index + "cm"}>
-                            {index}cm
-                          </option>
-                        )
-                      )}
-                    </Select>
+                    <>
+                      <Text>裾上げ</Text>
+                      <Select
+                        mt={1}
+                        name="inseam"
+                        placeholder="裾上直しの長さを選択してください"
+                        onChange={(e) =>
+                          handleSelectChange(e, index, product.productName)
+                        }
+                      >
+                        {Object.keys(["無し", ...Array(30)]).map(
+                          (num: string, index: number) => (
+                            <option key={num?.toString()} value={index + "cm"}>
+                              {index}cm
+                            </option>
+                          )
+                        )}
+                      </Select>
+                    </>
                   )}
                 </Box>
               </Box>

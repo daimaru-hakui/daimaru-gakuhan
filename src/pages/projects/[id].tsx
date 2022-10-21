@@ -16,7 +16,6 @@ import {
   Tbody,
   Td,
   Text,
-  textDecoration,
   Th,
   Thead,
   Tr,
@@ -26,9 +25,9 @@ import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from "react-icons/fa";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { db } from "../../../firebase";
-import { currentUserAuth, loadingState, projectsState } from "../../../store";
+import { currentUserAuth, projectsState } from "../../../store";
 import InputModal from "../../components/InputModal";
 
 const ProjectId = () => {
@@ -171,7 +170,7 @@ const ProjectId = () => {
 
   return (
     <>
-      <Box bgColor="white" boxShadow="xs">
+      <Box bg="white" boxShadow="xs">
         <Container maxW="1000px" py={{ base: 6, md: 10 }}>
           {editTitle ? (
             <Box>
@@ -210,12 +209,12 @@ const ProjectId = () => {
       </Box>
       <Container maxW="1000px" py={6}>
         {project?.desc && (
-          <Box p={6} bgColor="white" borderRadius={6} boxShadow="base">
+          <Box p={6} bg="white" borderRadius={6} boxShadow="base">
             {project?.desc}
           </Box>
         )}
         {project?.schedule && (
-          <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
+          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
             <Box fontWeight="bold">採寸日</Box>
             <Input
               mt={2}
@@ -227,7 +226,7 @@ const ProjectId = () => {
         )}
         {students?.length === 0 ? (
           <>
-            <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
+            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
               <RadioGroup
                 value={project?.gender}
                 onChange={(e) => handleRadioChange(e, "gender")}
@@ -244,7 +243,7 @@ const ProjectId = () => {
                 </Stack>
               </RadioGroup>
             </Box>
-            <Box p={6} mt={6} bgColor="white" borderRadius={6} boxShadow="base">
+            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
               <Box fontWeight="bold">商品登録</Box>
               <Box mt={2}>
                 以下のボタンをクリックして採寸する商品を追加してください。
@@ -256,6 +255,7 @@ const ProjectId = () => {
                     <Thead>
                       <Tr>
                         <Th>商品名</Th>
+                        <Th>金額</Th>
                         <Th>サイズ展開</Th>
                         <Th>数量入力</Th>
                         <Th>股下修理</Th>
@@ -270,6 +270,18 @@ const ProjectId = () => {
                           <>
                             <Td mr={2}>
                               {project?.products[index].productName}
+                            </Td>
+                            <Td mr={2}>
+                              {project?.products[index].price ? (
+                                <>
+                                  {Number(
+                                    project?.products[index].price
+                                  )?.toLocaleString()}
+                                  円
+                                </>
+                              ) : (
+                                "未登録"
+                              )}
                             </Td>
                             <Td>
                               <Breadcrumb cursor="default">
@@ -306,7 +318,7 @@ const ProjectId = () => {
                               <HStack spacing={6}>
                                 <InputModal
                                   productIndex={index}
-                                  buttonDesign={"edit"}
+                                  buttonDesign="edit"
                                 />
                                 <FaTrashAlt
                                   cursor="pointer"
@@ -335,8 +347,8 @@ const ProjectId = () => {
           <Box
             p={6}
             mt={6}
-            bgColor="white"
-            borderRadius={6}
+            bg="white"
+            rounded="md"
             boxShadow="base"
             textAlign="center"
           >

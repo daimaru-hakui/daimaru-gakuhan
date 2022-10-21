@@ -22,22 +22,23 @@ import {
 } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { useRecoilValue } from "recoil";
 import { db } from "../../../firebase";
 import { currentUserAuth } from "../../../store";
 import { CSVLink, CSVDownload } from "react-csv";
 import TotalModal from "../../components/schools/TotalModal";
+import Link from "next/link";
 
 const SchoolId = () => {
   const router = useRouter();
   const currentUser = useRecoilValue(currentUserAuth);
   const [students, setStudents] = useState<any>();
-  const [tableTitle, setTableTitle] = useState<any>();
   const [project, setProject] = useState<any>();
   const [totals, setTotals] = useState<any>();
   const [password, setPassword] = useState("");
   const [csvData, setCsvData] = useState("");
+  const TAX = 1.1;
 
   // ログインしてなければloginページへ移動
   useEffect(() => {
@@ -52,8 +53,7 @@ const SchoolId = () => {
       const q = query(
         collection(db, "schools", `${router.query.id}`, "students")
       );
-
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      onSnapshot(q, (querySnapshot) => {
         setStudents(
           querySnapshot.docs.map((doc) => ({
             ...doc.data(),
@@ -64,15 +64,6 @@ const SchoolId = () => {
     };
     getStudents();
   }, [router.query.id]);
-
-  // テーブルタイトル（Th）を取得
-  useEffect(() => {
-    setTableTitle(
-      students?.find((student: any, index: number) => {
-        if (index === 0) return true;
-      })
-    );
-  }, [students]);
 
   // 学販projectデータ取得
   useEffect(() => {
@@ -174,6 +165,7 @@ const SchoolId = () => {
         { 学籍番号: student.studentNumber },
         { 名前: student?.name },
         { 性別: gender },
+        { 金額: student?.sumTotal },
         { 作成日: createdDateTime(student?.createdAt?.toDate()) }
       );
 
@@ -212,6 +204,7 @@ const SchoolId = () => {
     for (let i = 0; i < productsLen; i++) {
       // サイズ規格を取得
       let productSize = project?.products[i]?.size;
+      productSize.push("未記入");
       // 商品名を取得
       let productName = project?.products[i]?.productName;
 
@@ -247,7 +240,7 @@ const SchoolId = () => {
       const quantitys = sizesArray.map((sizeObj) =>
         sizeObj
           //quantityが空の場合は１として計算
-          .map((size: any) => Number(size?.quantity || 1))
+          .map((size: any) => Number(size?.quantity || 0))
           .reduce((a: number, b: number) => a + b, 0)
       );
 
@@ -277,96 +270,126 @@ const SchoolId = () => {
       <Box as="h2" fontWeight="bold">
         {project?.title}
       </Box>
-      <Flex mt={3} alignItems="center" justifyContent="space-between">
-        <Box>全{students?.length}件</Box>
-        <Flex>
-          <CSVLink
-            data={csvData}
-            filename={new Date().toLocaleString() + `_${project?.title}_.csv`}
-          >
-            <Button size="sm" mr={2} onClick={onClickCsv}>
-              CSV
-            </Button>
-          </CSVLink>
-          <TotalModal totals={totals} />
-        </Flex>
-      </Flex>
-      <TableContainer mt={6}>
-        <Table variant="striped" colorScheme="gray" size="sm">
-          <Thead>
-            <Tr>
-              <Th>{tableTitle?.studentNumber && "学生番号"}</Th>
-              <Th>{tableTitle?.name && "名前"}</Th>
-              {tableTitle?.gender && <Th>{"性別"}</Th>}
-              {project?.products.map(
-                (product: {
-                  productName: string;
-                  size: string[];
-                  quantity: string;
-                  inseam: string;
-                }) => (
-                  <React.Fragment key={product.productName}>
-                    {product?.productName && <Th w="80px">商品名</Th>}
-                    {product?.size && <Th w="80px">サイズ</Th>}
-                    {product?.quantity && <Th w="50px">数量</Th>}
-                    {product?.inseam && <Th w="50px">股下修理</Th>}
-                  </React.Fragment>
-                )
-              )}
-              <Th>登録日</Th>
-              <Th>削除</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {students?.map((student: any) => (
-              <Tr key={student.id}>
-                <Td>{student.studentNumber}</Td>
-                <Td>{student.name}</Td>
-                <Td>{genderDisp(student.gender)}</Td>
-                {student.products.map((product: any) => (
-                  <React.Fragment key={product.productName}>
-                    {product.productName && (
-                      <Td w="80px">{product.productName}</Td>
-                    )}
-                    {product.size && (
-                      <Td w="80px" textAlign="center">
-                        {product.size}
-                      </Td>
-                    )}
-                    {product.quantity && (
-                      <Td w="50px" textAlign="right">
-                        {product.quantity}
-                      </Td>
-                    )}
-                    {product.inseam && (
-                      <Td w="50px" textAlign="right">
-                        {product.inseam}
-                      </Td>
-                    )}
-                  </React.Fragment>
+      {students?.length > 0 ? (
+        <>
+          <Flex mt={3} alignItems="center" justifyContent="space-between">
+            <Box>全{students?.length}件</Box>
+            <Flex>
+              <CSVLink
+                data={csvData}
+                filename={
+                  new Date().toLocaleString() + `_${project?.title}_.csv`
+                }
+              >
+                <Button size="sm" mr={2} onClick={onClickCsv}>
+                  CSV
+                </Button>
+              </CSVLink>
+              <TotalModal totals={totals} />
+            </Flex>
+          </Flex>
+
+          <TableContainer mt={6}>
+            <Table variant="striped" colorScheme="gray" size="sm">
+              <Thead>
+                <Tr>
+                  <Th>学生番号</Th>
+                  <Th>名前</Th>
+                  <Th>性別</Th>
+                  <Th isNumeric>金額（税込）</Th>
+                  {students[0]?.products.map(
+                    (product: {
+                      productName: string;
+                      size: string[];
+                      quantity: string;
+                      inseam: string;
+                    }) => (
+                      <React.Fragment key={product.productName}>
+                        {product?.productName && <Th w="80px">商品名</Th>}
+                        {product?.size && <Th w="80px">サイズ</Th>}
+                        {product?.quantity && <Th w="50px">数量</Th>}
+                        {product?.inseam && <Th w="50px">股下修理</Th>}
+                      </React.Fragment>
+                    )
+                  )}
+                  <Th>登録日</Th>
+                  <Th>詳細</Th>
+                  <Th>削除</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {students?.map((student: any) => (
+                  <Tr key={student.id}>
+                    <Td>{student.studentNumber}</Td>
+                    <Td>{student.name}</Td>
+                    <Td>{genderDisp(student.gender)}</Td>
+                    <Td isNumeric>
+                      {student.sumTotal
+                        ? Number(student.sumTotal * TAX).toLocaleString()
+                        : 0}
+                      円
+                    </Td>
+                    {student.products.map((product: any) => (
+                      <React.Fragment key={product.productName}>
+                        {product.productName && (
+                          <Td w="80px">{product.productName}</Td>
+                        )}
+                        {product.size && (
+                          <Td w="80px" textAlign="center">
+                            {product.size}
+                          </Td>
+                        )}
+                        {product.quantity && (
+                          <Td w="50px" textAlign="right">
+                            {product.quantity}
+                          </Td>
+                        )}
+                        {product.inseam && (
+                          <Td w="50px" textAlign="right">
+                            {product.inseam}
+                          </Td>
+                        )}
+                      </React.Fragment>
+                    ))}
+                    <Td>{createdDateTime(student?.createdAt.toDate())}</Td>
+                    <Td>
+                      <Link href={`/${router.query.id}/show/${student.id}`}>
+                        <a>
+                          <Button
+                            size="xs"
+                            variant="outline"
+                            colorScheme="facebook"
+                          >
+                            詳細
+                          </Button>
+                        </a>
+                      </Link>
+                    </Td>
+                    <Td>
+                      <FaTrashAlt
+                        cursor="pointer"
+                        onClick={() =>
+                          password === "password" && deleteStudent(student.id)
+                        }
+                      />
+                    </Td>
+                  </Tr>
                 ))}
-                <Td>{createdDateTime(student?.createdAt.toDate())}</Td>
-                <Td>
-                  <FaTrashAlt
-                    cursor="pointer"
-                    onClick={() =>
-                      password === "password" && deleteStudent(student.id)
-                    }
-                  />
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-      <Box mt={6}>
-        <Input
-          maxW="200px"
-          placeholder="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Box>
+              </Tbody>
+            </Table>
+          </TableContainer>
+          <Box mt={6}>
+            <Input
+              maxW="200px"
+              placeholder="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Box>
+        </>
+      ) : (
+        <Box mt={6}>現在、登録情報はありません。</Box>
+      )}
     </Container>
   );
 };
