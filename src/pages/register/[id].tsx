@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Container,
+  Flex,
   Input,
   Radio,
   RadioGroup,
@@ -20,9 +21,10 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { db } from '../../../firebase';
 import { useSetRecoilState } from 'recoil';
-import { loadingState } from '../../store';
+import { loadingState } from '../../../store';
+import SizeSpecModal from '../../components/register/SizeSpecModal';
 
 type ProjectType = {
   id: string;
@@ -43,7 +45,7 @@ const Measure = () => {
   const [sumTotal, setSumTotal] = useState(0);
   const array = Object.keys([...Array(10)]);
   const setLoading = useSetRecoilState(loadingState);
-  const TAX = 1.1;
+  const TAX = 1.1; // 税金
 
   // project（個別）を取得
   useEffect(() => {
@@ -70,6 +72,7 @@ const Measure = () => {
         const quantity = product.quantity ? '0' : 1;
         const inseam = product.inseam ? 'なし' : null;
         const sizeUrl = product.sizeUrl ? product.sizeUrl : null;
+        const imageUrl = product.imageUrl ? product.imageUrl : null;
         return {
           productName,
           price,
@@ -77,6 +80,7 @@ const Measure = () => {
           quantity,
           inseam,
           sizeUrl,
+          imageUrl,
         };
       }),
     });
@@ -256,17 +260,25 @@ const Measure = () => {
               boxShadow='base'
             >
               <Box fontSize='xl'>{product.productName}</Box>
-              <Box mt={2}>
-                価格 {(Number(product.price) * TAX).toLocaleString()}
-                円（税込）
-              </Box>
-              {product?.sizeUrl && (
-                <Box mt={6}>
-                  <img src={product.sizeUrl} alt={product.productName} />
+              {Number(product?.price) !== 0 && (
+                <Box mt={2}>
+                  価格 {(Number(product.price) * TAX).toLocaleString()}
+                  円（税込）
                 </Box>
               )}
+              {product?.imageUrl && (
+                <Box mt={6}>
+                  <img src={product?.imageUrl} alt={product?.imageUrl} />
+                </Box>
+              )}
+
               <Box mt={6}>
-                <Text>サイズ</Text>
+                <Flex alignItems='center' justifyContent='space-between'>
+                  <Text>サイズ</Text>
+                  {product?.sizeUrl && (
+                    <SizeSpecModal sizeUrl={product?.sizeUrl} />
+                  )}
+                </Flex>
                 <Select
                   mt={1}
                   placeholder='サイズを選択してください'
@@ -275,12 +287,13 @@ const Measure = () => {
                     handleSelectChange(e, index, product.productName)
                   }
                 >
-                  {product.size.map((size: string) => (
+                  {product?.size?.map((size: string) => (
                     <option key={size} value={size}>
                       {size}
                     </option>
                   ))}
                 </Select>
+
                 <Box mt={6}>
                   {product.quantity && (
                     <>
@@ -302,6 +315,7 @@ const Measure = () => {
                     </>
                   )}
                 </Box>
+
                 <Box mt={6}>
                   {product.inseam && (
                     <>

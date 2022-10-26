@@ -33,9 +33,9 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { FaPlusCircle, FaEdit } from 'react-icons/fa';
-import { db, storage } from '../../firebase';
+import { db, storage } from '../../../firebase';
 import { useSetRecoilState } from 'recoil';
-import { loadingState } from '../../store';
+import { loadingState } from '../../../store';
 
 type Props = {
   productIndex: number;
@@ -48,14 +48,18 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const setLoading = useSetRecoilState(loadingState);
   const [products, setProducts] = useState<any>();
-  const [fileUpload, setFileUpload] = useState<any>();
+  const [sizeFileUpload, setSizeFileUpload] = useState<any>();
+  const [imageFileUpload, setImageFileUpload] = useState<any>();
   const [items, setItems] = useState<any>({
     productName: '',
-    size: [],
+    price: '',
+    size: [''],
     inseam: '',
     quantiry: '',
     sizeUrl: '',
     sizePath: '',
+    imageUrl: '',
+    imagePath: '',
   });
 
   const sizeData1 = [
@@ -139,12 +143,14 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           const product = doc.data()?.products[productIndex];
           setItems({
             productName: product?.productName,
-            price: product?.price,
-            size: product?.size,
+            price: product?.price || 0,
+            size: product?.size || [],
             quantity: product?.quantity || false,
             inseam: product?.inseam || false,
             sizeUrl: product?.sizeUrl || '',
             sizePath: product?.sizePath || '',
+            imageUrl: product?.imageUrl || '',
+            imagePath: product?.imagePath || '',
           });
         }
       );
@@ -155,18 +161,34 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   // 商品を登録
   const addProduct = async () => {
     setLoading(true);
-    let url = items.sizeUrl;
-    let path = items.sizePath;
+    let sizeUrl = items.sizeUrl || '';
+    let sizePath = items.sizePath || '';
+    let imageUrl = items.imageUrl || '';
+    let imagePath = items.imagePath || '';
+
+    // 画像が登録されてなければ画像を登録
     if (!items.sizeUrl) {
-      if (fileUpload) {
-        const file = fileUpload[0];
+      if (sizeFileUpload) {
+        const file = sizeFileUpload[0];
         const fileName = new Date().getTime() + '_' + file.name;
-        const imagePath = `size/${fileName}`;
-        const storageRef = ref(storage, imagePath);
+        const path = `size/${fileName}`;
+        const storageRef = ref(storage, path);
         await uploadBytes(storageRef, file);
-        url = await getDownloadURL(ref(storage, imagePath));
-        path = storageRef.fullPath;
-        setFileUpload('');
+        sizeUrl = await getDownloadURL(ref(storage, path));
+        sizePath = storageRef.fullPath;
+        setSizeFileUpload('');
+      }
+    }
+    if (!items.imageUrl) {
+      if (imageFileUpload) {
+        const file = imageFileUpload[0];
+        const fileName = new Date().getTime() + '_' + file.name;
+        const path = `size/${fileName}`;
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, file);
+        imageUrl = await getDownloadURL(ref(storage, path));
+        imagePath = storageRef.fullPath;
+        setImageFileUpload('');
       }
     }
     const docRef = doc(db, 'projects', `${router.query.id}`);
@@ -174,7 +196,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
       if (products[productIndex]) {
         const productsArray = products?.map((product: any, index: number) => {
           if (index === productIndex) {
-            return { ...items, sizeUrl: url, sizePath: path };
+            return { ...items, sizeUrl, sizePath, imageUrl, imagePath };
           } else {
             return product;
           }
@@ -190,7 +212,13 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
         });
       } else {
         await updateDoc(docRef, {
-          products: arrayUnion(items),
+          products: arrayUnion({
+            ...items,
+            sizeUrl,
+            sizePath,
+            imageUrl,
+            imagePath,
+          }),
         });
         toast({
           title: '商品登録を登録しました',
@@ -207,21 +235,25 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     }
   };
 
-  // 画像削除
-  const deleteSizeImage = async () => {
+  // サイズスペック画像削除
+  const deleteSizeSpec = async () => {
     if (items.sizeUrl) {
       const result = window.confirm('画像を削除して宜しいでしょうか');
       if (!result) return;
     }
     setLoading(true);
-    const desertRef = ref(storage, `${items.sizePath}`);
+    const sizeRef = ref(storage, `${items.sizePath}`);
     const docRef = doc(db, 'projects', `${router.query.id}`);
     try {
-      await deleteObject(desertRef);
+      await deleteObject(sizeRef);
       if (products[productIndex]) {
         const productsArray = products?.map((product: any, index: number) => {
           if (index === productIndex) {
-            return { ...items, sizeUrl: '', sizePath: '' };
+            return {
+              ...items,
+              sizeUrl: '',
+              sizePath: '',
+            };
           } else {
             return product;
           }
@@ -233,7 +265,42 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     } catch (err) {
       console.log(err);
     } finally {
-      setFileUpload(null);
+      setSizeFileUpload(null);
+      setLoading(false);
+    }
+  };
+
+  // イメージ画像削除
+  const deleteImageGazo = async () => {
+    if (items.sizeUrl) {
+      const result = window.confirm('画像を削除して宜しいでしょうか');
+      if (!result) return;
+    }
+    setLoading(true);
+    const imageRef = ref(storage, `${items.imagePath}`);
+    const docRef = doc(db, 'projects', `${router.query.id}`);
+    try {
+      await deleteObject(imageRef);
+      if (products[productIndex]) {
+        const productsArray = products?.map((product: any, index: number) => {
+          if (index === productIndex) {
+            return {
+              ...items,
+              imageUrl: '',
+              imagePath: '',
+            };
+          } else {
+            return product;
+          }
+        });
+        await updateDoc(docRef, {
+          products: [...productsArray],
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setImageFileUpload(null);
       setLoading(false);
     }
   };
@@ -242,7 +309,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     setItems({
       ...products[productIndex],
     });
-    setFileUpload(null);
+    setSizeFileUpload(null);
   };
 
   // サイズ選択表示
@@ -262,10 +329,6 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
       </Stack>
     </Box>
   );
-
-  const onDeleteFile = () => {
-    setFileUpload('');
-  };
 
   return (
     <>
@@ -379,10 +442,10 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             </Box>
 
             <Box mt={6}>
-              <Text>画像</Text>
-              {!items?.sizeUrl && !fileUpload && (
+              <Text>サイズスペック画像</Text>
+              {!items?.sizeUrl && !sizeFileUpload && (
                 <FormControl mt={2}>
-                  <FormLabel htmlFor='gazo' mb='0' w='100px' cursor='pointer'>
+                  <FormLabel htmlFor='gazo' mb='0' w='150px' cursor='pointer'>
                     <Box
                       p={2}
                       textAlign='center'
@@ -390,7 +453,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                       bg='#385898'
                       rounded='md'
                     >
-                      画像登録
+                      アップロード
                     </Box>
                   </FormLabel>
                   <Input
@@ -399,13 +462,77 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                     display='none'
                     type='file'
                     accept='image/*'
-                    value={fileUpload ? fileUpload.name : ''}
-                    onChange={(e) => setFileUpload(e.target.files)}
+                    value={sizeFileUpload ? sizeFileUpload.name : ''}
+                    onChange={(e) => setSizeFileUpload(e.target.files)}
                   />
                 </FormControl>
               )}
 
-              {(items?.sizeUrl || fileUpload?.[0]) && (
+              {(items?.sizeUrl || sizeFileUpload?.[0]) && (
+                <>
+                  <Box mt={2} position='relative' w='auto'>
+                    <Box
+                      position='absolute'
+                      left='50%'
+                      transform='translate(-50%,-50%)'
+                      rounded='50%'
+                      cursor='pointer'
+                      bg='white'
+                    >
+                      <BsXCircleFill fontSize='30px' onClick={deleteSizeSpec} />
+                    </Box>
+                    {items?.sizeUrl && (
+                      <img
+                        width='100%'
+                        src={items?.sizeUrl}
+                        alt={items?.sizeUrl}
+                      />
+                    )}
+                    {sizeFileUpload?.[0] && (
+                      <>
+                        <img
+                          width='100%'
+                          src={window.URL.createObjectURL(sizeFileUpload[0])}
+                          alt={sizeFileUpload[0].name}
+                        />
+                        <Text mt={1} fontWeight='bold'>
+                          ※プレビュー画像です。登録ボタンを押して確定してください。
+                        </Text>
+                      </>
+                    )}
+                  </Box>
+                </>
+              )}
+            </Box>
+
+            <Box mt={6}>
+              <Text>イメージ画像</Text>
+              {!items?.imageUrl && !imageFileUpload && (
+                <FormControl mt={2}>
+                  <FormLabel htmlFor='gazo' mb='0' w='150px' cursor='pointer'>
+                    <Box
+                      p={2}
+                      textAlign='center'
+                      color='white'
+                      bg='#385898'
+                      rounded='md'
+                    >
+                      アップロード
+                    </Box>
+                  </FormLabel>
+                  <Input
+                    mt={1}
+                    id='gazo'
+                    display='none'
+                    type='file'
+                    accept='image/*'
+                    value={imageFileUpload ? imageFileUpload.name : ''}
+                    onChange={(e) => setImageFileUpload(e.target.files)}
+                  />
+                </FormControl>
+              )}
+
+              {(items?.imageUrl || imageFileUpload?.[0]) && (
                 <>
                   <Box mt={2} position='relative' w='auto'>
                     <Box
@@ -418,22 +545,22 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                     >
                       <BsXCircleFill
                         fontSize='30px'
-                        onClick={deleteSizeImage}
+                        onClick={deleteImageGazo}
                       />
                     </Box>
-                    {items?.sizeUrl && (
+                    {items?.imageUrl && (
                       <img
                         width='100%'
-                        src={items?.sizeUrl}
-                        alt={items?.sizeUrl}
+                        src={items?.imageUrl}
+                        alt={items?.imageUrl}
                       />
                     )}
-                    {fileUpload?.[0] && (
+                    {imageFileUpload?.[0] && (
                       <>
                         <img
                           width='100%'
-                          src={window.URL.createObjectURL(fileUpload[0])}
-                          alt={fileUpload[0].name}
+                          src={window.URL.createObjectURL(imageFileUpload[0])}
+                          alt={imageFileUpload[0].name}
                         />
                         <Text mt={1} fontWeight='bold'>
                           ※プレビュー画像です。登録ボタンを押して確定してください。

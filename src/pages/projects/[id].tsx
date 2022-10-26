@@ -19,16 +19,17 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/react";
-import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from "react-icons/fa";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { db } from "../../../firebase";
-import { currentUserAuth, projectsState } from "../../../store";
-import InputModal from "../../components/InputModal";
+} from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
+import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from 'react-icons/fa';
+import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { db, storage } from '../../../firebase';
+import { currentUserAuth, projectsState } from '../../../store';
+import InputModal from '../../components/projects/InputModal';
+import { deleteObject, ref } from 'firebase/storage';
 
 const ProjectId = () => {
   const router = useRouter();
@@ -38,16 +39,16 @@ const ProjectId = () => {
   const projects = useRecoilValue(projectsState);
   const [students, setStudents] = useState<any>();
   const [project, setProject] = useState<any>({
-    title: "",
-    desc: "",
-    schedule: "",
-    createdAt: "",
+    title: '',
+    desc: '',
+    schedule: '',
+    createdAt: '',
     products: [],
   });
 
   useEffect(() => {
     if (!currentUser) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [currentUser, router]);
 
@@ -68,9 +69,9 @@ const ProjectId = () => {
     const getSchool = async () => {
       const studentsCollectionRef = collection(
         db,
-        "schools",
+        'schools',
         `${router.query.id}`,
-        "students"
+        'students'
       );
       const querySnapshot = await getDocs(studentsCollectionRef);
       setStudents(
@@ -84,9 +85,29 @@ const ProjectId = () => {
 
   // productを削除
   const deleteProduct = async (productIndex: number) => {
-    const result = window.confirm("削除して宜しいでしょうか");
+    const result = window.confirm('削除して宜しいでしょうか');
     if (!result) return;
-    const docRef = doc(db, "projects", `${router.query.id}`);
+
+    // サイズスペック画像の削除
+    if (project.products[productIndex]?.sizePath) {
+      const sizePathRef = ref(
+        storage,
+        `${project.products[productIndex]?.sizePath}`
+      );
+      await deleteObject(sizePathRef);
+    }
+
+    // イメージ画像の削除
+    if (project.products[productIndex]?.imagePath) {
+      const imagePathRef = ref(
+        storage,
+        `${project.products[productIndex]?.imagePath}`
+      );
+      await deleteObject(imagePathRef);
+    }
+
+    // データベースから商品を削除
+    const docRef = doc(db, 'projects', `${router.query.id}`);
     try {
       if (project.products[productIndex]) {
         const productsArray = project.products.filter(
@@ -104,7 +125,7 @@ const ProjectId = () => {
 
   // タイトルを編集
   const updateTitle = async () => {
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, 'projects', `${router.query.id}`);
     try {
       await updateDoc(docRef, {
         title: project.title,
@@ -113,8 +134,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: "タイトルを変更しました",
-        status: "success",
+        title: 'タイトルを変更しました',
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
@@ -132,7 +153,7 @@ const ProjectId = () => {
     type: string
   ) => {
     const value = e.target.value;
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, 'projects', `${router.query.id}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -141,8 +162,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: "採寸予定日を変更しました",
-        status: "success",
+        title: '採寸予定日を変更しました',
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
@@ -151,7 +172,7 @@ const ProjectId = () => {
 
   const handleRadioChange = (e: string, type: string) => {
     const value = e;
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, 'projects', `${router.query.id}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -160,8 +181,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: "性別記入を変更しました",
-        status: "success",
+        title: '性別記入を変更しました',
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
@@ -170,21 +191,21 @@ const ProjectId = () => {
 
   return (
     <>
-      <Box bg="white" boxShadow="xs">
-        <Container maxW="1000px" py={{ base: 6, md: 10 }}>
+      <Box bg='white' boxShadow='xs'>
+        <Container maxW='1000px' py={{ base: 6, md: 10 }}>
           {editTitle ? (
             <Box>
               <Input
-                name="title"
+                name='title'
                 value={project?.title}
                 onChange={handleInputChange}
               />
-              <Box mt={3} textAlign="right">
+              <Box mt={3} textAlign='right'>
                 <Button mr={2} onClick={() => setEditTitle((prev) => !prev)}>
                   キャンセル
                 </Button>
                 <Button
-                  colorScheme="facebook"
+                  colorScheme='facebook'
                   onClick={() => {
                     updateTitle();
                     setEditTitle((prev) => !prev);
@@ -195,62 +216,62 @@ const ProjectId = () => {
               </Box>
             </Box>
           ) : (
-            <Flex alignItems="center">
-              <Text mr={2} fontSize="3xl" fontWeight="bold">
+            <Flex alignItems='center'>
+              <Text mr={2} fontSize='3xl' fontWeight='bold'>
                 {project?.title}
               </Text>
               <FaEdit
-                cursor="pointer"
+                cursor='pointer'
                 onClick={() => setEditTitle((prev) => !prev)}
               />
             </Flex>
           )}
         </Container>
       </Box>
-      <Container maxW="1000px" py={6}>
+      <Container maxW='1000px' py={6}>
         {project?.desc && (
-          <Box p={6} bg="white" borderRadius={6} boxShadow="base">
+          <Box p={6} bg='white' borderRadius={6} boxShadow='base'>
             {project?.desc}
           </Box>
         )}
         {project?.schedule && (
-          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-            <Box fontWeight="bold">採寸日</Box>
+          <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+            <Box fontWeight='bold'>採寸日</Box>
             <Input
               mt={2}
-              type="date"
+              type='date'
               value={project?.schedule}
-              onChange={(e) => handleScheduleChange(e, "schedule")}
+              onChange={(e) => handleScheduleChange(e, 'schedule')}
             />
           </Box>
         )}
         {students?.length === 0 ? (
           <>
-            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+            <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
               <RadioGroup
                 value={project?.gender}
-                onChange={(e) => handleRadioChange(e, "gender")}
+                onChange={(e) => handleRadioChange(e, 'gender')}
               >
-                <Box fontWeight="bold">性別記入</Box>
-                <Stack direction={["column", "row"]} mt={2}>
-                  <Radio value="1" pr={6}>
+                <Box fontWeight='bold'>性別記入</Box>
+                <Stack direction={['column', 'row']} mt={2}>
+                  <Radio value='1' pr={6}>
                     なし
                   </Radio>
-                  <Radio value="2" pr={6}>
+                  <Radio value='2' pr={6}>
                     男性・女性
                   </Radio>
-                  <Radio value="3">男性・女性・その他</Radio>
+                  <Radio value='3'>男性・女性・その他</Radio>
                 </Stack>
               </RadioGroup>
             </Box>
-            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-              <Box fontWeight="bold">商品登録</Box>
+            <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+              <Box fontWeight='bold'>商品登録</Box>
               <Box mt={2}>
                 以下のボタンをクリックして採寸する商品を追加してください。
               </Box>
 
               <TableContainer mt={6}>
-                <Table variant="simple">
+                <Table variant='simple'>
                   {project?.products.length > 0 && (
                     <Thead>
                       <Tr>
@@ -280,17 +301,17 @@ const ProjectId = () => {
                                   円
                                 </>
                               ) : (
-                                "未登録"
+                                '未登録'
                               )}
                             </Td>
                             <Td>
-                              <Breadcrumb cursor="default">
+                              <Breadcrumb cursor='default'>
                                 {project?.products[index].size?.map(
                                   (size: string) => (
                                     <BreadcrumbItem key={size}>
                                       <BreadcrumbLink
-                                        cursor="default"
-                                        style={{ textDecoration: "none" }}
+                                        cursor='default'
+                                        style={{ textDecoration: 'none' }}
                                       >
                                         {size}
                                       </BreadcrumbLink>
@@ -318,10 +339,10 @@ const ProjectId = () => {
                               <HStack spacing={6}>
                                 <InputModal
                                   productIndex={index}
-                                  buttonDesign="edit"
+                                  buttonDesign='edit'
                                 />
                                 <FaTrashAlt
-                                  cursor="pointer"
+                                  cursor='pointer'
                                   onClick={() => deleteProduct(index)}
                                 />
                               </HStack>
@@ -337,7 +358,7 @@ const ProjectId = () => {
                 <Box key={i} mt={6}>
                   {!project?.products[index] &&
                     project?.products.length === index && (
-                      <InputModal productIndex={index} buttonDesign={"add"} />
+                      <InputModal productIndex={index} buttonDesign={'add'} />
                     )}
                 </Box>
               ))}
@@ -347,10 +368,10 @@ const ProjectId = () => {
           <Box
             p={6}
             mt={6}
-            bg="white"
-            rounded="md"
-            boxShadow="base"
-            textAlign="center"
+            bg='white'
+            rounded='md'
+            boxShadow='base'
+            textAlign='center'
           >
             採寸データが入力されているため編集できません。
           </Box>

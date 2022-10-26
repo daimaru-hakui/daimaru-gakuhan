@@ -79,14 +79,18 @@ const Card: NextPage<Props> = ({ project }) => {
           </Box>
         </Box>
         <Flex justifyContent='space-around' alignItems='center' mt={4}>
-          <a href={project.id} target='_blank' rel='noopener noreferrer'>
+          <a
+            href={`/register/${project.id}`}
+            target='_blank'
+            rel='noopener noreferrer'
+          >
             <Box>
               <FaExternalLinkAlt />
             </Box>
           </a>
 
           <Box>
-            <QrModal projectId={project?.id} />
+            <QrModal projectId={`/register/${project.id}`} />
           </Box>
 
           <Link href={`/projects/${project.id}`}>
