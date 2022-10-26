@@ -11,7 +11,7 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   collection,
   deleteDoc,
@@ -19,16 +19,16 @@ import {
   getDoc,
   onSnapshot,
   query,
-} from "firebase/firestore";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
-import { useRecoilValue } from "recoil";
-import { db } from "../../../firebase";
-import { currentUserAuth } from "../../../store";
-import { CSVLink, CSVDownload } from "react-csv";
-import TotalModal from "../../components/schools/TotalModal";
-import Link from "next/link";
+} from 'firebase/firestore';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { FaTrashAlt, FaEdit } from 'react-icons/fa';
+import { useRecoilValue } from 'recoil';
+import { db } from '../../../firebase';
+import { currentUserAuth } from '../../../store';
+import { CSVLink, CSVDownload } from 'react-csv';
+import TotalModal from '../../components/schools/TotalModal';
+import Link from 'next/link';
 
 const SchoolId = () => {
   const router = useRouter();
@@ -36,14 +36,15 @@ const SchoolId = () => {
   const [students, setStudents] = useState<any>();
   const [project, setProject] = useState<any>();
   const [totals, setTotals] = useState<any>();
-  const [password, setPassword] = useState("");
-  const [csvData, setCsvData] = useState("");
+  const [password, setPassword] = useState('');
+  const [csvData, setCsvData] = useState('');
+  const [totalPrice, setTotalPrice] = useState(0);
   const TAX = 1.1;
 
   // ログインしてなければloginページへ移動
   useEffect(() => {
     if (!currentUser) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [currentUser, router]);
 
@@ -51,7 +52,7 @@ const SchoolId = () => {
   useEffect(() => {
     const getStudents = async () => {
       const q = query(
-        collection(db, "schools", `${router.query.id}`, "students")
+        collection(db, 'schools', `${router.query.id}`, 'students')
       );
       onSnapshot(q, (querySnapshot) => {
         setStudents(
@@ -68,7 +69,7 @@ const SchoolId = () => {
   // 学販projectデータ取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, "projects", `${router.query.id}`);
+      const docRef = doc(db, 'projects', `${router.query.id}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setProject({ ...docSnap.data() });
@@ -77,22 +78,33 @@ const SchoolId = () => {
     getProject();
   }, [router.query.id]);
 
+  // 生徒全員の合計金額
+  useEffect(() => {
+    const getSumPrice = () => {
+      const total = students
+        ?.map((student: { sumTotal: number }) => student.sumTotal)
+        ?.reduce((prev: number, current: number) => prev + current, 0);
+      setTotalPrice(total);
+    };
+    getSumPrice();
+  }, [students]);
+
   // 生徒の登録情報を削除
   const deleteStudent = (studentId: string) => {
-    const result = window.confirm("削除して宜しいでしょうか");
+    const result = window.confirm('削除して宜しいでしょうか');
     if (!result) return;
-    deleteDoc(doc(db, "schools", `${router.query.id}`, "students", studentId));
+    deleteDoc(doc(db, 'schools', `${router.query.id}`, 'students', studentId));
   };
 
   //性別を表示
   const genderDisp = (gender: string) => {
     switch (gender) {
-      case "1":
-        return "男性";
-      case "2":
-        return "女性";
+      case '1':
+        return '男性';
+      case '2':
+        return '女性';
       default:
-        return "未記入";
+        return '未記入';
     }
   };
 
@@ -100,15 +112,15 @@ const SchoolId = () => {
   const createdDateTime = (d: Date) => {
     const date = new Date(d);
     let month = String(date.getMonth() + 1);
-    month = ("0" + month).slice(-2);
+    month = ('0' + month).slice(-2);
     let day = String(date.getDate());
-    day = ("0" + day).slice(-2);
+    day = ('0' + day).slice(-2);
     let hours = String(date.getHours());
-    hours = ("0" + hours).slice(-2);
+    hours = ('0' + hours).slice(-2);
     let minutes = String(date.getMinutes());
-    minutes = ("0" + hours).slice(-2);
+    minutes = ('0' + hours).slice(-2);
     let seconds = String(date.getSeconds());
-    seconds = ("0" + seconds).slice(-2);
+    seconds = ('0' + seconds).slice(-2);
     return `${month}月${day}日${hours}:${minutes}:${seconds}`;
   };
 
@@ -128,10 +140,10 @@ const SchoolId = () => {
           index: number
         ) => {
           // keyの名前を作成
-          const nameProduct = "商品名" + Number(index + 1);
-          const nameSize = "サイズ" + Number(index + 1);
-          const nameQuantity = "数量" + Number(index + 1);
-          const nameInseam = "股下修理" + Number(index + 1);
+          const nameProduct = '商品名' + Number(index + 1);
+          const nameSize = 'サイズ' + Number(index + 1);
+          const nameQuantity = '数量' + Number(index + 1);
+          const nameInseam = '股下修理' + Number(index + 1);
 
           // keyに各項目名を入れてオブジェクトを作成
           const obj = {
@@ -176,7 +188,7 @@ const SchoolId = () => {
     const header = csvData[0]
       .map((csv: any) => Object.keys(csv))
       .map((key: any) => key[0])
-      .join(",");
+      .join(',');
 
     // CSVファイルの内容を作成
     const body = csvData
@@ -184,12 +196,12 @@ const SchoolId = () => {
         csv
           .map((c: any) => Object.values(c))
           .map((value: any) => value[0])
-          .join(",")
+          .join(',')
       )
-      .join("\n");
+      .join('\n');
 
     //　項目と内容を合わせてCSVファイルを作成
-    const csvFile = header + "\n" + body;
+    const csvFile = header + '\n' + body;
     setCsvData(csvFile);
   };
 
@@ -204,7 +216,7 @@ const SchoolId = () => {
     for (let i = 0; i < productsLen; i++) {
       // サイズ規格を取得
       let productSize = project?.products[i]?.size;
-      productSize.push("未記入");
+      productSize?.push('未記入');
       // 商品名を取得
       let productName = project?.products[i]?.productName;
 
@@ -266,13 +278,13 @@ const SchoolId = () => {
   }, [students, project?.products]);
 
   return (
-    <Container maxW="1200px" py={6}>
-      <Box as="h2" fontWeight="bold">
+    <Container maxW='1200px' py={6}>
+      <Box as='h2' fontWeight='bold'>
         {project?.title}
       </Box>
       {students?.length > 0 ? (
         <>
-          <Flex mt={3} alignItems="center" justifyContent="space-between">
+          <Flex mt={3} alignItems='center' justifyContent='space-between'>
             <Box>全{students?.length}件</Box>
             <Flex>
               <CSVLink
@@ -281,16 +293,16 @@ const SchoolId = () => {
                   new Date().toLocaleString() + `_${project?.title}_.csv`
                 }
               >
-                <Button size="sm" mr={2} onClick={onClickCsv}>
+                <Button size='sm' mr={2} onClick={onClickCsv}>
                   CSV
                 </Button>
               </CSVLink>
-              <TotalModal totals={totals} />
+              <TotalModal totals={totals} totalPrice={totalPrice} TAX={TAX} />
             </Flex>
           </Flex>
 
           <TableContainer mt={6}>
-            <Table variant="striped" colorScheme="gray" size="sm">
+            <Table variant='striped' colorScheme='gray' size='sm'>
               <Thead>
                 <Tr>
                   <Th>学生番号</Th>
@@ -298,17 +310,20 @@ const SchoolId = () => {
                   <Th>性別</Th>
                   <Th isNumeric>金額（税込）</Th>
                   {students[0]?.products.map(
-                    (product: {
-                      productName: string;
-                      size: string[];
-                      quantity: string;
-                      inseam: string;
-                    }) => (
-                      <React.Fragment key={product.productName}>
-                        {product?.productName && <Th w="80px">商品名</Th>}
-                        {product?.size && <Th w="80px">サイズ</Th>}
-                        {product?.quantity && <Th w="50px">数量</Th>}
-                        {product?.inseam && <Th w="50px">股下修理</Th>}
+                    (
+                      product: {
+                        productName: string;
+                        size: string[];
+                        quantity: string;
+                        inseam: string;
+                      },
+                      index: number
+                    ) => (
+                      <React.Fragment key={index}>
+                        {product?.productName && <Th w='80px'>商品名</Th>}
+                        {product?.size && <Th w='80px'>サイズ</Th>}
+                        {product?.quantity && <Th w='50px'>数量</Th>}
+                        {product?.inseam && <Th w='50px'>股下修理</Th>}
                       </React.Fragment>
                     )
                   )}
@@ -329,23 +344,23 @@ const SchoolId = () => {
                         : 0}
                       円
                     </Td>
-                    {student.products.map((product: any) => (
-                      <React.Fragment key={product.productName}>
+                    {student.products.map((product: any, index: number) => (
+                      <React.Fragment key={index}>
                         {product.productName && (
-                          <Td w="80px">{product.productName}</Td>
+                          <Td w='80px'>{product.productName}</Td>
                         )}
                         {product.size && (
-                          <Td w="80px" textAlign="center">
+                          <Td w='80px' textAlign='center'>
                             {product.size}
                           </Td>
                         )}
                         {product.quantity && (
-                          <Td w="50px" textAlign="right">
+                          <Td w='50px' textAlign='right'>
                             {product.quantity}
                           </Td>
                         )}
                         {product.inseam && (
-                          <Td w="50px" textAlign="right">
+                          <Td w='50px' textAlign='right'>
                             {product.inseam}
                           </Td>
                         )}
@@ -353,12 +368,17 @@ const SchoolId = () => {
                     ))}
                     <Td>{createdDateTime(student?.createdAt.toDate())}</Td>
                     <Td>
-                      <Link href={`/${router.query.id}/show/${student.id}`}>
+                      <Link
+                        href={{
+                          pathname: `/schools/students/${student.id}`,
+                          query: student,
+                        }}
+                      >
                         <a>
                           <Button
-                            size="xs"
-                            variant="outline"
-                            colorScheme="facebook"
+                            size='xs'
+                            variant='outline'
+                            colorScheme='facebook'
                           >
                             詳細
                           </Button>
@@ -367,9 +387,9 @@ const SchoolId = () => {
                     </Td>
                     <Td>
                       <FaTrashAlt
-                        cursor="pointer"
+                        cursor='pointer'
                         onClick={() =>
-                          password === "password" && deleteStudent(student.id)
+                          password === 'password' && deleteStudent(student.id)
                         }
                       />
                     </Td>
@@ -380,8 +400,8 @@ const SchoolId = () => {
           </TableContainer>
           <Box mt={6}>
             <Input
-              maxW="200px"
-              placeholder="password"
+              maxW='200px'
+              placeholder='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
