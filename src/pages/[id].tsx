@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import {
   Box,
   Button,
@@ -8,9 +9,9 @@ import {
   Select,
   Stack,
   Text,
-} from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import {
   addDoc,
   collection,
@@ -18,10 +19,10 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
-} from "firebase/firestore";
-import { db } from "../../firebase";
-import { useSetRecoilState } from "recoil";
-import { loadingState } from "../../store";
+} from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useSetRecoilState } from 'recoil';
+import { loadingState } from '../../store';
 
 type ProjectType = {
   id: string;
@@ -47,10 +48,10 @@ const Measure = () => {
   // project（個別）を取得
   useEffect(() => {
     const getProject = async () => {
-      onSnapshot(doc(db, "projects", `${router.query.id}`), (doc) => {
+      onSnapshot(doc(db, 'projects', `${router.query.id}`), (doc) => {
         setProject({ ...doc.data(), id: doc.id } as ProjectType);
         if (doc.data()?.release === false) {
-          router.push("404/notfound");
+          router.push('404/notfound');
         }
       });
     };
@@ -61,19 +62,21 @@ const Measure = () => {
   useEffect(() => {
     setItems({
       ...project,
-      gender: "3",
+      gender: '3',
       products: project?.products.map((product: any) => {
         const productName = product.productName ? product.productName : null;
         const price = product.price ? product.price : null;
-        const size = product.size ? "未記入" : null;
-        const quantity = product.quantity ? "0" : 1;
-        const inseam = product.inseam ? "なし" : null;
+        const size = product.size ? '未記入' : null;
+        const quantity = product.quantity ? '0' : 1;
+        const inseam = product.inseam ? 'なし' : null;
+        const sizeUrl = product.sizeUrl ? product.sizeUrl : null;
         return {
           productName,
           price,
           size,
           quantity,
           inseam,
+          sizeUrl,
         };
       }),
     });
@@ -81,13 +84,13 @@ const Measure = () => {
 
   // 採寸登録
   const addStudent = async () => {
-    const result = window.confirm("登録して宜しいでしょうか");
+    const result = window.confirm('登録して宜しいでしょうか');
     if (!result) return;
     setLoading(true);
     let docRef;
     try {
       docRef = await addDoc(
-        collection(db, "schools", `${router.query.id}`, "students"),
+        collection(db, 'schools', `${router.query.id}`, 'students'),
         {
           ...items,
           title: project?.title,
@@ -146,7 +149,7 @@ const Measure = () => {
           }
         });
       }
-      return { ...items, products: [...(newItems || "")] };
+      return { ...items, products: [...(newItems || '')] };
     });
   };
 
@@ -165,56 +168,56 @@ const Measure = () => {
   }, [items.products]);
 
   return (
-    <Container maxW="600px" py={6} minH="100vh">
+    <Container maxW='600px' py={6} minH='100vh'>
       {project?.release && (
         <>
           {project?.title && (
             <Box
               p={6}
-              fontSize="3xl"
-              fontWeight="bold"
-              bg="white"
+              fontSize='3xl'
+              fontWeight='bold'
+              bg='white'
               rounded={6}
-              boxShadow="base"
+              boxShadow='base'
             >
               {project?.title}
             </Box>
           )}
-          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
             <Text>学籍番号</Text>
             <Input
-              type="text"
+              type='text'
               mt={2}
-              name="studentNumber"
+              name='studentNumber'
               value={items.studentNumber}
               onChange={handleInputChange}
             />
           </Box>
 
-          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
             <Text>名前</Text>
             <Input
-              type="text"
+              type='text'
               mt={2}
-              name="name"
+              name='name'
               value={items.name}
               onChange={handleInputChange}
             />
           </Box>
 
-          {Number(project?.gender) === 1 && ""}
+          {Number(project?.gender) === 1 && ''}
           {Number(project?.gender) === 2 && (
-            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
               <RadioGroup
-                name="gender"
+                name='gender'
                 value={items.gender}
                 onChange={(e) => handleRadioChange(e)}
               >
-                <Stack spacing={5} direction="row">
-                  <Radio colorScheme="green" value="1">
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
                     男性
                   </Radio>
-                  <Radio colorScheme="green" value="2">
+                  <Radio colorScheme='green' value='2'>
                     女性
                   </Radio>
                 </Stack>
@@ -222,20 +225,20 @@ const Measure = () => {
             </Box>
           )}
           {Number(project?.gender) === 3 && (
-            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
               <RadioGroup
-                name="gender"
+                name='gender'
                 value={items.gender}
                 onChange={(e) => handleRadioChange(e)}
               >
-                <Stack spacing={5} direction="row">
-                  <Radio colorScheme="green" value="1">
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
                     男性
                   </Radio>
-                  <Radio colorScheme="green" value="2">
+                  <Radio colorScheme='green' value='2'>
                     女性
                   </Radio>
-                  <Radio colorScheme="green" value="3">
+                  <Radio colorScheme='green' value='3'>
                     その他
                   </Radio>
                 </Stack>
@@ -248,21 +251,26 @@ const Measure = () => {
               key={product.productName}
               mt={6}
               p={6}
-              bg="white"
+              bg='white'
               rounded={6}
-              boxShadow="base"
+              boxShadow='base'
             >
-              <Box fontSize="xl">{product.productName}</Box>
+              <Box fontSize='xl'>{product.productName}</Box>
               <Box mt={2}>
                 価格 {(Number(product.price) * TAX).toLocaleString()}
                 円（税込）
               </Box>
+              {product?.sizeUrl && (
+                <Box mt={6}>
+                  <img src={product.sizeUrl} alt={product.productName} />
+                </Box>
+              )}
               <Box mt={6}>
                 <Text>サイズ</Text>
                 <Select
                   mt={1}
-                  placeholder="サイズを選択してください"
-                  name="size"
+                  placeholder='サイズを選択してください'
+                  name='size'
                   onChange={(e) =>
                     handleSelectChange(e, index, product.productName)
                   }
@@ -279,8 +287,8 @@ const Measure = () => {
                       <Text>数量</Text>
                       <Select
                         mt={1}
-                        name="quantity"
-                        placeholder="数量を選択してしてください"
+                        name='quantity'
+                        placeholder='数量を選択してしてください'
                         onChange={(e) =>
                           handleSelectChange(e, index, product.productName)
                         }
@@ -300,15 +308,15 @@ const Measure = () => {
                       <Text>裾上げ</Text>
                       <Select
                         mt={1}
-                        name="inseam"
-                        placeholder="裾上直しの長さを選択してください"
+                        name='inseam'
+                        placeholder='裾上直しの長さを選択してください'
                         onChange={(e) =>
                           handleSelectChange(e, index, product.productName)
                         }
                       >
-                        {Object.keys(["無し", ...Array(30)]).map(
+                        {Object.keys(['無し', ...Array(30)]).map(
                           (num: string, index: number) => (
-                            <option key={num?.toString()} value={index + "cm"}>
+                            <option key={num?.toString()} value={index + 'cm'}>
                               {index}cm
                             </option>
                           )
@@ -321,8 +329,8 @@ const Measure = () => {
             </Box>
           ))}
 
-          <Box mt={6} textAlign="center">
-            <Button colorScheme="facebook" onClick={addStudent}>
+          <Box mt={6} textAlign='center'>
+            <Button colorScheme='facebook' onClick={addStudent}>
               登録
             </Button>
           </Box>

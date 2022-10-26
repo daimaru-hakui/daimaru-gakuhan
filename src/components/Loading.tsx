@@ -15,7 +15,7 @@ const Loading = () => {
           height='100vh'
           justifyContent='center'
           alignItems='center'
-          zIndex={1000}
+          zIndex={10000}
         >
           <Spinner
             thickness='4px'
@@ -24,7 +24,7 @@ const Loading = () => {
             color='blue.500'
             size='xl'
             position='absolute'
-            zIndex={10000}
+            zIndex={100000}
             style={{ transform: 'translate(-50%,-50%)' }}
           />
         </Flex>
