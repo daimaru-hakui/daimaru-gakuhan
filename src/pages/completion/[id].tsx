@@ -1,4 +1,4 @@
-import { Box, Container, Flex, Stack, Text } from "@chakra-ui/react";
+import { Box, Container, Divider, Flex, Stack, Text } from "@chakra-ui/react";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -19,21 +19,6 @@ const Completion = () => {
   const router = useRouter();
   const [student, setStudent] = useState<any>();
   const TAX = 1.1;
-
-  // useEffect(() => {
-  //   const getProject = async () => {
-  //     const unsub = onSnapshot(
-  //       doc(db, "projects", `${router.query.id}`),
-  //       (doc) => {
-  //         setProject({ ...doc.data(), id: doc.id } as ProjectType);
-  //         if (doc.data()?.release === false) {
-  //           router.push("404/notfound");
-  //         }
-  //       }
-  //     );
-  //   };
-  //   getProject();
-  // }, [router.query.id, router]);
 
   // localstorage 取得
   useEffect(() => {
@@ -129,6 +114,14 @@ const Completion = () => {
                 )
               )}
             </Stack>
+            {student?.signature && (
+              <>
+                <Divider mt={6} />
+                <Box mt={6} fontSize="sm" lineHeight="5" whiteSpace="pre-wrap">
+                  {student.signature}
+                </Box>
+              </>
+            )}
           </Box>
         </Box>
       )}
