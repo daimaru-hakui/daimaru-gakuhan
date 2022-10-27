@@ -55,7 +55,7 @@ const Header = () => {
             borderColor="gray.100"
           >
             <Container maxW="1200">
-              <Flex w="100%">
+              <Flex w="100%" gap={6}>
                 <Link href="/dashboard">
                   <a>
                     <Text
@@ -71,6 +71,24 @@ const Header = () => {
                       _hover={{ opacity: 0.8 }}
                     >
                       ダッシュボード
+                    </Text>
+                  </a>
+                </Link>
+                <Link href="/signature">
+                  <a>
+                    <Text
+                      fontSize="xs"
+                      colorScheme="gray"
+                      py={3}
+                      borderBottom="2px"
+                      borderBottomColor={
+                        location.pathname === "/signature"
+                          ? "black"
+                          : "#ff2e2e00"
+                      }
+                      _hover={{ opacity: 0.8 }}
+                    >
+                      署名一覧
                     </Text>
                   </a>
                 </Link>
