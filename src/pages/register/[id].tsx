@@ -263,14 +263,15 @@ const Measure = () => {
               <Box fontSize="xl">{product.productName}</Box>
               {Number(product?.price) !== 0 && (
                 <Box mt={2}>
-                  価格 {(Number(product.price) * TAX).toLocaleString()}
+                  価格{" "}
+                  {Math.round(Number(product.price) * TAX).toLocaleString()}
                   円（税込）
                 </Box>
               )}
               {product?.imageUrl && (
-                <Box mt={6}>
+                <Flex mt={6} justifyContent="center">
                   <img src={product?.imageUrl} alt={product?.imageUrl} />
-                </Box>
+                </Flex>
               )}
 
               <Box mt={6}>

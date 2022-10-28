@@ -22,13 +22,12 @@ import {
 } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt } from "react-icons/fa";
 import { useRecoilValue } from "recoil";
 import { db } from "../../../firebase";
 import { currentUserAuth } from "../../../store";
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 import TotalModal from "../../components/schools/TotalModal";
-import Link from "next/link";
 import StudentModal from "../../components/schools/StudentModal";
 
 const SchoolId = () => {
@@ -41,6 +40,8 @@ const SchoolId = () => {
   const [csvData, setCsvData] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
   const TAX = 1.1;
+
+  console.log(project);
 
   // ログインしてなければloginページへ移動
   useEffect(() => {
@@ -73,7 +74,7 @@ const SchoolId = () => {
       const docRef = doc(db, "projects", `${router.query.id}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setProject({ ...docSnap.data() });
+        setProject({ ...docSnap.data(), id: docSnap.id });
       }
     };
     getProject();
@@ -341,7 +342,9 @@ const SchoolId = () => {
                     <Td>{genderDisp(student.gender)}</Td>
                     <Td isNumeric>
                       {student.sumTotal
-                        ? Number(student.sumTotal * TAX).toLocaleString()
+                        ? Math.round(
+                            Number(student.sumTotal * TAX)
+                          ).toLocaleString()
                         : 0}
                       円
                     </Td>
