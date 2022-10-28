@@ -69,7 +69,11 @@ const Measure = () => {
       products: project?.products?.map((product: any) => {
         const productName = product.productName ? product.productName : null;
         const price = product.price ? product.price : null;
-        const size = product.size ? "未記入" : null;
+        // const size = product.size ? "未記入" : null;
+
+        let size = product.size ? product.size : null;
+        size = product.size.length === 1 ? product.size[0] : "未記入";
+
         const quantity = product.quantity ? "0" : product.fixedQuantity;
         const inseam = product.inseam ? "なし" : null;
         const sizeUrl = product.sizeUrl ? product.sizeUrl : null;
@@ -119,12 +123,14 @@ const Measure = () => {
     }
   };
 
+  // 学籍番号・名前の変更
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;
     const value = e.target.value;
     setItems({ ...items, [name]: value });
   };
 
+  //　性別の変更
   const handleRadioChange = (e: string) => {
     const value = e;
     setItems({ ...items, gender: value });
@@ -133,14 +139,12 @@ const Measure = () => {
   // 商品の値を追加・変更
   const handleSelectChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
-    rowIndex: number,
-    productName: string
+    rowIndex: number
   ) => {
     const value = e.target.value;
     const name = e.target.name;
     setItems(() => {
       let newItems = [];
-
       if (items.products?.length > rowIndex) {
         // 値がある場合　更新
         newItems = items.products?.map((product: any, index: number) => {
@@ -274,78 +278,84 @@ const Measure = () => {
                 </Flex>
               )}
 
-              <Box mt={6}>
-                <Flex alignItems="center" justifyContent="space-between">
-                  <Text>サイズ</Text>
-                  {product?.sizeUrl && (
-                    <SizeSpecModal sizeUrl={product?.sizeUrl} />
-                  )}
-                </Flex>
-                <Select
-                  mt={1}
-                  placeholder="サイズを選択してください"
-                  name="size"
-                  onChange={(e) =>
-                    handleSelectChange(e, index, product.productName)
-                  }
-                >
-                  {product?.size?.map((size: string) => (
-                    <option key={size} value={size}>
-                      {size}
-                    </option>
-                  ))}
-                </Select>
-
+              {product?.size.length >= 1 && (
                 <Box mt={6}>
-                  {product.quantity ? (
-                    <>
-                      <Text>数量</Text>
-                      <Select
-                        mt={1}
-                        name="quantity"
-                        placeholder="数量を選択してしてください"
-                        onChange={(e) =>
-                          handleSelectChange(e, index, product.productName)
-                        }
-                      >
-                        {array.map((num: string, index: number) => (
-                          <option key={num?.toString()} value={index}>
-                            {index}
-                          </option>
-                        ))}
-                      </Select>
-                    </>
+                  <Flex
+                    mb={2}
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Text>サイズ</Text>
+                    {product?.sizeUrl && (
+                      <SizeSpecModal sizeUrl={product?.sizeUrl} />
+                    )}
+                  </Flex>
+                  {product?.size.length === 1 ? (
+                    <Box>
+                      {product?.size.map((size: string) => (
+                        <Input name="size" key={size} value={size} />
+                      ))}
+                    </Box>
                   ) : (
-                    <Flex gap={3}>
-                      <Text>数量</Text>
-                      <Box>{product.fixedQuantity}</Box>
-                    </Flex>
+                    <Select
+                      placeholder="サイズを選択してください"
+                      name="size"
+                      onChange={(e) => handleSelectChange(e, index)}
+                    >
+                      {product?.size?.map((size: string) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </Select>
                   )}
                 </Box>
+              )}
 
-                <Box mt={6}>
-                  {product.inseam && (
-                    <>
-                      <Text>裾上げ</Text>
-                      <Select
-                        mt={1}
-                        name="inseam"
-                        placeholder="裾上直しの長さを選択してください"
-                        onChange={(e) =>
-                          handleSelectChange(e, index, product.productName)
-                        }
-                      >
-                        {Object.keys(["無し", ...Array(30)]).map(
-                          (num: string, index: number) => (
-                            <option key={num?.toString()} value={index + "cm"}>
-                              {index}cm
-                            </option>
-                          )
-                        )}
-                      </Select>
-                    </>
-                  )}
-                </Box>
+              <Box mt={6}>
+                {product.quantity ? (
+                  <>
+                    <Text>数量</Text>
+                    <Select
+                      mt={2}
+                      name="quantity"
+                      placeholder="数量を選択してしてください"
+                      onChange={(e) => handleSelectChange(e, index)}
+                    >
+                      {array.map((num: string, index: number) => (
+                        <option key={num?.toString()} value={index}>
+                          {index}
+                        </option>
+                      ))}
+                    </Select>
+                  </>
+                ) : (
+                  <Flex gap={3}>
+                    <Text>数量</Text>
+                    <Box>{product.fixedQuantity}</Box>
+                  </Flex>
+                )}
+              </Box>
+              <Box mt={6}>
+                {product.inseam && (
+                  <>
+                    <Text>裾上げ</Text>
+                    <Select
+                      mt={1}
+                      name="inseam"
+                      placeholder="裾上直しの長さを選択してください"
+                      onChange={(e) => handleSelectChange(e, index)}
+                    >
+                      {Object.keys(["無し", ...Array(30)]).map(
+                        (num: string, index: number) => (
+                          <option key={num?.toString()} value={index + "cm"}>
+                            {index}cm
+                          </option>
+                        )
+                      )}
+                    </Select>
+                  </>
+                )}
               </Box>
             </Box>
           ))}
