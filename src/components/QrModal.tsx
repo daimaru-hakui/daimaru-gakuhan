@@ -39,7 +39,8 @@ const QrModal: NextPage<Props> = ({ projectId }) => {
               justifyContent="center"
             >
               <QRCode
-                value={`${location.host}${projectId}`}
+                // value={`${location.host}${projectId}/`}
+                value={`${location.origin}${projectId}/`}
                 renderAs="canvas"
                 size={250}
               />
