@@ -68,7 +68,7 @@ const StudentModal: NextPage<Props> = ({
         詳細
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay bg="#000000bf" />
         <ModalContent>
           <ModalHeader>採寸データ</ModalHeader>
