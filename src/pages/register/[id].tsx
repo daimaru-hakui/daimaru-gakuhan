@@ -70,7 +70,7 @@ const Measure = () => {
         const productName = product.productName ? product.productName : null;
         const price = product.price ? product.price : null;
         const size = product.size ? "未記入" : null;
-        const quantity = product.quantity ? "0" : 1;
+        const quantity = product.quantity ? "0" : product.fixedQuantity;
         const inseam = product.inseam ? "なし" : null;
         const sizeUrl = product.sizeUrl ? product.sizeUrl : null;
         const imageUrl = product.imageUrl ? product.imageUrl : null;
@@ -297,7 +297,7 @@ const Measure = () => {
                 </Select>
 
                 <Box mt={6}>
-                  {product.quantity && (
+                  {product.quantity ? (
                     <>
                       <Text>数量</Text>
                       <Select
@@ -315,6 +315,11 @@ const Measure = () => {
                         ))}
                       </Select>
                     </>
+                  ) : (
+                    <Flex gap={3}>
+                      <Text>数量</Text>
+                      <Box>{product.fixedQuantity}</Box>
+                    </Flex>
                   )}
                 </Box>
 
