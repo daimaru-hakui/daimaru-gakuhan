@@ -71,7 +71,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
 
   const sizeData1 = [
     { id: "F", label: "F" },
-    { id: "3s", label: "3S" },
+    { id: "3S", label: "3S" },
     { id: "SS", label: "SS" },
     { id: "S", label: "S" },
     { id: "M", label: "M" },
@@ -79,6 +79,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   ];
   const sizeData2 = [
     { id: "LL", label: "LL" },
+    { id: "EL", label: "EL" },
     { id: "3L", label: "3L" },
     { id: "4L", label: "4L" },
     { id: "5L", label: "5L" },
