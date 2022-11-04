@@ -22,7 +22,7 @@ type Props = {
 
 const TotalModal: NextPage<Props> = ({ totals, totalPrice, TAX }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  console.log(totals);
   return (
     <>
       <Flex justifyContent='flex-end'>
@@ -59,7 +59,7 @@ const TotalModal: NextPage<Props> = ({ totals, totalPrice, TAX }) => {
                     index: number,
                     array: []
                   ) => (
-                    <Box key={value.size}>
+                    <Box key={index}>
                       {index === 0 && (
                         <Box fontWeight='bold'>{value.productName} </Box>
                       )}

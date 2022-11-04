@@ -10,22 +10,14 @@ import {
   Select,
   Stack,
   Text,
-} from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  serverTimestamp,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "../../../../firebase";
-import { useSetRecoilState } from "recoil";
-import { loadingState } from "../../../../store";
-import SizeSpecModal from "../../../components/register/SizeSpecModal";
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { db } from '../../../../firebase';
+import { useSetRecoilState } from 'recoil';
+import { loadingState } from '../../../../store';
+import SizeSpecModal from '../../../components/register/SizeSpecModal';
 
 const MeasureId = () => {
   const router = useRouter();
@@ -37,16 +29,14 @@ const MeasureId = () => {
   const setLoading = useSetRecoilState(loadingState);
   const TAX = 1.1; // 税金
 
-  console.log(items);
-
   // student（個別）を取得
   useEffect(() => {
     const getStudent = async () => {
       const docRef = doc(
         db,
-        "schools",
+        'schools',
         `${router.query.projectId}`,
-        "students",
+        'students',
         `${router.query.id}`
       );
       const getSnap = await getDoc(docRef);
@@ -57,13 +47,20 @@ const MeasureId = () => {
         }
       }
     };
+
+    let i = 0;
+    while (i <= 20) {
+      history.pushState(null, 'null', null);
+      i++;
+    }
+
     getStudent();
   }, [router.query.id, router.query.projectId]);
 
   // productを取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, "projects", `${router.query.projectId}`);
+      const docRef = doc(db, 'projects', `${router.query.projectId}`);
       const getSnap = await getDoc(docRef);
       if (getSnap.exists()) {
         setProject({ ...getSnap.data(), id: getSnap.id });
@@ -84,12 +81,12 @@ const MeasureId = () => {
         const price = product.price ? product.price : null;
 
         let size = product.size ? product.size : null;
-        size = product.size.length === 1 ? product.size[0] : "未記入";
+        size = product.size.length === 1 ? product.size[0] : '未記入';
 
-        const quantity = product.quantity ? 0 : product.fixedQuantity;
-        const inseam = product.inseam ? "なし" : null;
-        const sizeUrl = product.sizeUrl ? product.sizeUrl : null;
-        const imageUrl = product.imageUrl ? product.imageUrl : null;
+        const quantity = product.quantity ? '0' : product.fixedQuantity;
+        const inseam = product.inseam ? 'なし' : null;
+        const sizeUrl = product.sizeUrl ? product.sizeUrl : '';
+        const imageUrl = product.imageUrl ? product.imageUrl : '';
         return {
           productName,
           price,
@@ -105,19 +102,22 @@ const MeasureId = () => {
 
   // 採寸登録
   const addStudent = async () => {
-    const result = window.confirm("登録して宜しいでしょうか");
+    const result = window.confirm('登録して宜しいでしょうか');
     if (!result) return;
     setLoading(true);
-
     try {
-      await addDoc(
-        collection(db, "schools", `${router.query.id}`, "students"),
+      await updateDoc(
+        doc(
+          db,
+          'schools',
+          `${router.query.projectId}`,
+          'students',
+          `${router.query.id}`
+        ),
         {
           ...items,
-          title: student?.title,
-          projectId: student?.id,
           sumTotal,
-          updateAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         }
       );
     } catch (err) {
@@ -126,11 +126,9 @@ const MeasureId = () => {
       setLoading(false);
       const jsonString = JSON.stringify({
         ...items,
-        title: student?.title,
-        projectId: student?.id,
         sumTotal,
       });
-      localStorage.setItem(`${student?.id}`, jsonString);
+      localStorage.setItem(`${student.id}`, jsonString);
       router.push(`/completion/${student?.id}`);
     }
   };
@@ -170,7 +168,7 @@ const MeasureId = () => {
           }
         });
       }
-      return { ...items, products: [...(newItems || "")] };
+      return { ...items, products: [...(newItems || '')] };
     });
   };
 
@@ -189,56 +187,56 @@ const MeasureId = () => {
   }, [items.products]);
 
   return (
-    <Container maxW="600px" py={6} minH="100vh">
+    <Container maxW='600px' py={6} minH='100vh'>
       {student?.release && (
         <>
           {items?.title && (
             <Box
               p={6}
-              fontSize="3xl"
-              fontWeight="bold"
-              bg="white"
+              fontSize='3xl'
+              fontWeight='bold'
+              bg='white'
               rounded={6}
-              boxShadow="base"
+              boxShadow='base'
             >
               {items?.title}
             </Box>
           )}
-          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
             <Text>学籍番号</Text>
             <Input
-              type="text"
+              type='text'
               mt={2}
-              name="studentNumber"
+              name='studentNumber'
               value={items.studentNumber}
               onChange={handleInputChange}
             />
           </Box>
 
-          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
             <Text>名前</Text>
             <Input
-              type="text"
+              type='text'
               mt={2}
-              name="name"
+              name='name'
               value={items.name}
               onChange={handleInputChange}
             />
           </Box>
 
-          {Number(project?.gender) === 1 && ""}
+          {Number(project?.gender) === 1 && ''}
           {Number(project?.gender) === 2 && (
-            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
               <RadioGroup
-                name="gender"
+                name='gender'
                 value={items.gender}
                 onChange={(e) => handleRadioChange(e)}
               >
-                <Stack spacing={5} direction="row">
-                  <Radio colorScheme="green" value="1">
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
                     男性
                   </Radio>
-                  <Radio colorScheme="green" value="2">
+                  <Radio colorScheme='green' value='2'>
                     女性
                   </Radio>
                 </Stack>
@@ -246,20 +244,20 @@ const MeasureId = () => {
             </Box>
           )}
           {Number(project?.gender) === 3 && (
-            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
               <RadioGroup
-                name="gender"
+                name='gender'
                 value={items.gender}
                 onChange={(e) => handleRadioChange(e)}
               >
-                <Stack spacing={5} direction="row">
-                  <Radio colorScheme="green" value="1">
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
                     男性
                   </Radio>
-                  <Radio colorScheme="green" value="2">
+                  <Radio colorScheme='green' value='2'>
                     女性
                   </Radio>
-                  <Radio colorScheme="green" value="3">
+                  <Radio colorScheme='green' value='3'>
                     その他
                   </Radio>
                 </Stack>
@@ -272,20 +270,20 @@ const MeasureId = () => {
               key={product.productName}
               mt={6}
               p={6}
-              bg="white"
+              bg='white'
               rounded={6}
-              boxShadow="base"
+              boxShadow='base'
             >
-              <Box fontSize="xl">{product.productName}</Box>
+              <Box fontSize='xl'>{product.productName}</Box>
               {Number(product?.price) !== 0 && (
                 <Box mt={2}>
-                  価格{" "}
+                  価格{' '}
                   {Math.round(Number(product.price) * TAX).toLocaleString()}
                   円（税込）
                 </Box>
               )}
               {product?.imageUrl && (
-                <Flex mt={6} justifyContent="center">
+                <Flex mt={6} justifyContent='center'>
                   <img src={product?.imageUrl} alt={product?.imageUrl} />
                 </Flex>
               )}
@@ -294,8 +292,8 @@ const MeasureId = () => {
                 <Box mt={6}>
                   <Flex
                     mb={2}
-                    alignItems="center"
-                    justifyContent="space-between"
+                    alignItems='center'
+                    justifyContent='space-between'
                   >
                     <Text>サイズ</Text>
                     {product?.sizeUrl && (
@@ -305,13 +303,13 @@ const MeasureId = () => {
                   {product?.size.length === 1 ? (
                     <Box>
                       {product?.size.map((size: string) => (
-                        <Input name="size" key={size} value={size} />
+                        <Input name='size' key={size} value={size} />
                       ))}
                     </Box>
                   ) : (
                     <Select
-                      placeholder="サイズを選択してください"
-                      name="size"
+                      placeholder='サイズを選択してください'
+                      name='size'
                       onChange={(e) => handleSelectChange(e, index)}
                     >
                       {product?.size.map((size: string) => (
@@ -330,8 +328,8 @@ const MeasureId = () => {
                     <Text>数量</Text>
                     <Select
                       mt={2}
-                      name="quantity"
-                      placeholder="数量を選択してしてください"
+                      name='quantity'
+                      placeholder='数量を選択してしてください'
                       onChange={(e) => handleSelectChange(e, index)}
                     >
                       {array.map((num: string, index: number) => (
@@ -354,13 +352,13 @@ const MeasureId = () => {
                     <Text>裾上げ</Text>
                     <Select
                       mt={1}
-                      name="inseam"
-                      placeholder="裾上直しの長さを選択してください"
+                      name='inseam'
+                      placeholder='裾上直しの長さを選択してください'
                       onChange={(e) => handleSelectChange(e, index)}
                     >
-                      {Object.keys(["無し", ...Array(30)]).map(
+                      {Object.keys(['無し', ...Array(30)]).map(
                         (num: string, index: number) => (
-                          <option key={num?.toString()} value={index + "cm"}>
+                          <option key={num?.toString()} value={index + 'cm'}>
                             {index}cm
                           </option>
                         )
@@ -372,8 +370,14 @@ const MeasureId = () => {
             </Box>
           ))}
 
-          <Box mt={6} textAlign="center">
-            <Button colorScheme="facebook" onClick={addStudent}>
+          <Box mt={6} textAlign='center'>
+            <Button
+              colorScheme='facebook'
+              onClick={addStudent}
+              disabled={items?.products?.some(
+                (product: any) => Number(product.quantity) === 0
+              )}
+            >
               登録
             </Button>
           </Box>

@@ -10,9 +10,9 @@ import {
   Select,
   Stack,
   Text,
-} from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import {
   addDoc,
   collection,
@@ -20,10 +20,10 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
-} from "firebase/firestore";
-import { db } from "../../../firebase";
-import { useSetRecoilState } from "recoil";
-import { loadingState } from "../../../store";
+} from 'firebase/firestore';
+import { db } from '../../../firebase';
+import { useSetRecoilState } from 'recoil';
+import { loadingState } from '../../../store';
 
 type ProjectType = {
   id: string;
@@ -41,7 +41,7 @@ type ProjectType = {
 const RegisterId = () => {
   const router = useRouter();
   const [project, setProject] = useState<ProjectType>();
-  const [items, setItems] = useState<any>({});
+  const [items, setItems] = useState<any>();
   const setLoading = useSetRecoilState(loadingState);
 
   console.log(items);
@@ -49,10 +49,10 @@ const RegisterId = () => {
   // project（個別）を取得
   useEffect(() => {
     const getProject = async () => {
-      onSnapshot(doc(db, "projects", `${router.query.id}`), (doc) => {
+      onSnapshot(doc(db, 'projects', `${router.query.id}`), (doc) => {
         setProject({ ...doc.data(), id: doc.id } as ProjectType);
         if (doc.data()?.release === false) {
-          router.push("404/notfound");
+          router.push('404/notfound');
         }
       });
     };
@@ -63,23 +63,19 @@ const RegisterId = () => {
   useEffect(() => {
     setItems({
       ...project,
-
+      gender: '',
       products: project?.products?.map((product: any) => {
-        const productName = product.productName ? product.productName : "";
-        const price = product.price ? product.price : 0;
-        const size = "未設定";
-        const quantity = "未記入";
-        const inseam = "未記入";
-        const sizeUrl = product.sizeUrl ? product.sizeUrl : "";
-        const imageUrl = product.imageUrl ? product.imageUrl : "";
+        const productName = product.productName ? product.productName : '';
+        // const price = product.price ? product.price : 0;
+        const size = '未記入';
+        const quantity = '未記入';
+        const inseam = product.inseam ? '未記入' : null;
         return {
           productName,
-          price,
+          // price,
           size,
           quantity,
           inseam,
-          sizeUrl,
-          imageUrl,
         };
       }),
     });
@@ -87,13 +83,13 @@ const RegisterId = () => {
 
   // 採寸登録
   const addStudent = async () => {
-    const result = window.confirm("登録して宜しいでしょうか");
+    const result = window.confirm('登録して宜しいでしょうか');
     if (!result) return;
     setLoading(true);
     let student;
     try {
       student = await addDoc(
-        collection(db, "schools", `${router.query.id}`, "students"),
+        collection(db, 'schools', `${router.query.id}`, 'students'),
         {
           ...items,
           title: project?.title,
@@ -126,56 +122,56 @@ const RegisterId = () => {
   };
 
   return (
-    <Container maxW="600px" py={6} minH="100vh">
+    <Container maxW='600px' py={6} minH='100vh'>
       {project?.release && (
         <>
           {project?.title && (
             <Box
               p={6}
-              fontSize="3xl"
-              fontWeight="bold"
-              bg="white"
+              fontSize='3xl'
+              fontWeight='bold'
+              bg='white'
               rounded={6}
-              boxShadow="base"
+              boxShadow='base'
             >
               {project?.title}
             </Box>
           )}
-          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
             <Text>学籍番号</Text>
             <Input
-              type="text"
+              type='text'
               mt={2}
-              name="studentNumber"
-              value={items.studentNumber}
+              name='studentNumber'
+              value={items.studentNumber || ''}
               onChange={handleInputChange}
             />
           </Box>
 
-          <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
             <Text>名前</Text>
             <Input
-              type="text"
+              type='text'
               mt={2}
-              name="name"
-              value={items.name}
+              name='name'
+              value={items.name || ''}
               onChange={handleInputChange}
             />
           </Box>
 
-          {Number(project?.gender) === 1 && ""}
+          {Number(project?.gender) === 1 && ''}
           {Number(project?.gender) === 2 && (
-            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
               <RadioGroup
-                name="gender"
+                name='gender'
                 value={items.gender}
                 onChange={(e) => handleRadioChange(e)}
               >
-                <Stack spacing={5} direction="row">
-                  <Radio colorScheme="green" value="1">
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
                     男性
                   </Radio>
-                  <Radio colorScheme="green" value="2">
+                  <Radio colorScheme='green' value='2'>
                     女性
                   </Radio>
                 </Stack>
@@ -183,20 +179,20 @@ const RegisterId = () => {
             </Box>
           )}
           {Number(project?.gender) === 3 && (
-            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
               <RadioGroup
-                name="gender"
+                name='gender'
                 value={items.gender}
                 onChange={(e) => handleRadioChange(e)}
               >
-                <Stack spacing={5} direction="row">
-                  <Radio colorScheme="green" value="1">
+                <Stack spacing={5} direction='row'>
+                  <Radio colorScheme='green' value='1'>
                     男性
                   </Radio>
-                  <Radio colorScheme="green" value="2">
+                  <Radio colorScheme='green' value='2'>
                     女性
                   </Radio>
-                  <Radio colorScheme="green" value="3">
+                  <Radio colorScheme='green' value='3'>
                     その他
                   </Radio>
                 </Stack>
@@ -204,9 +200,9 @@ const RegisterId = () => {
             </Box>
           )}
 
-          <Box mt={6} textAlign="center">
+          <Box mt={6} textAlign='center'>
             <Button
-              colorScheme="facebook"
+              colorScheme='facebook'
               onClick={addStudent}
               disabled={!items.name || !items.studentNumber || !items.gender}
             >
