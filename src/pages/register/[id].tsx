@@ -24,7 +24,6 @@ import {
 import { db } from "../../../firebase";
 import { useSetRecoilState } from "recoil";
 import { loadingState } from "../../../store";
-import SizeSpecModal from "../../components/register/SizeSpecModal";
 
 type ProjectType = {
   id: string;
@@ -39,14 +38,13 @@ type ProjectType = {
   createdAt: Timestamp;
 };
 
-const Measure = () => {
+const RegisterId = () => {
   const router = useRouter();
   const [project, setProject] = useState<ProjectType>();
   const [items, setItems] = useState<any>({});
-  const [sumTotal, setSumTotal] = useState(0);
-  const array = Object.keys([...Array(10)]);
   const setLoading = useSetRecoilState(loadingState);
-  const TAX = 1.1; // 税金
+
+  console.log(items);
 
   // project（個別）を取得
   useEffect(() => {
@@ -65,19 +63,15 @@ const Measure = () => {
   useEffect(() => {
     setItems({
       ...project,
-      gender: "3",
+
       products: project?.products?.map((product: any) => {
-        const productName = product.productName ? product.productName : null;
-        const price = product.price ? product.price : null;
-        // const size = product.size ? "未記入" : null;
-
-        let size = product.size ? product.size : null;
-        size = product.size.length === 1 ? product.size[0] : "未記入";
-
-        const quantity = product.quantity ? "0" : product.fixedQuantity;
-        const inseam = product.inseam ? "なし" : null;
-        const sizeUrl = product.sizeUrl ? product.sizeUrl : null;
-        const imageUrl = product.imageUrl ? product.imageUrl : null;
+        const productName = product.productName ? product.productName : "";
+        const price = product.price ? product.price : 0;
+        const size = "未設定";
+        const quantity = "未記入";
+        const inseam = "未記入";
+        const sizeUrl = product.sizeUrl ? product.sizeUrl : "";
+        const imageUrl = product.imageUrl ? product.imageUrl : "";
         return {
           productName,
           price,
@@ -96,15 +90,14 @@ const Measure = () => {
     const result = window.confirm("登録して宜しいでしょうか");
     if (!result) return;
     setLoading(true);
-
+    let student;
     try {
-      await addDoc(
+      student = await addDoc(
         collection(db, "schools", `${router.query.id}`, "students"),
         {
           ...items,
           title: project?.title,
           projectId: project?.id,
-          sumTotal,
           createdAt: serverTimestamp(),
         }
       );
@@ -112,14 +105,10 @@ const Measure = () => {
       console.log(err);
     } finally {
       setLoading(false);
-      const jsonString = JSON.stringify({
-        ...items,
-        title: project?.title,
-        projectId: project?.id,
-        sumTotal,
+      router.push({
+        pathname: `/register/measure/${student?.id}`,
+        query: { projectId: project?.id },
       });
-      localStorage.setItem(`${project?.id}`, jsonString);
-      router.push(`/completion/${project?.id}`);
     }
   };
 
@@ -135,46 +124,6 @@ const Measure = () => {
     const value = e;
     setItems({ ...items, gender: value });
   };
-
-  // 商品の値を追加・変更
-  const handleSelectChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-    rowIndex: number
-  ) => {
-    const value = e.target.value;
-    const name = e.target.name;
-    setItems(() => {
-      let newItems = [];
-      if (items.products?.length > rowIndex) {
-        // 値がある場合　更新
-        newItems = items.products?.map((product: any, index: number) => {
-          if (index === rowIndex) {
-            return {
-              ...product,
-              [name]: value,
-            };
-          } else {
-            return { ...product };
-          }
-        });
-      }
-      return { ...items, products: [...(newItems || "")] };
-    });
-  };
-
-  // 合計金額
-  useEffect(() => {
-    let sum = 0;
-    items?.products
-      ?.map((product: any) => ({
-        price: product.price,
-        quantity: product.quantity,
-      }))
-      .forEach((product: any) => {
-        sum += Number(product.price) * Number(product.quantity);
-      });
-    setSumTotal(sum);
-  }, [items.products]);
 
   return (
     <Container maxW="600px" py={6} minH="100vh">
@@ -255,114 +204,13 @@ const Measure = () => {
             </Box>
           )}
 
-          {project?.products.map((product: any, index: number) => (
-            <Box
-              key={product.productName}
-              mt={6}
-              p={6}
-              bg="white"
-              rounded={6}
-              boxShadow="base"
-            >
-              <Box fontSize="xl">{product.productName}</Box>
-              {Number(product?.price) !== 0 && (
-                <Box mt={2}>
-                  価格{" "}
-                  {Math.round(Number(product.price) * TAX).toLocaleString()}
-                  円（税込）
-                </Box>
-              )}
-              {product?.imageUrl && (
-                <Flex mt={6} justifyContent="center">
-                  <img src={product?.imageUrl} alt={product?.imageUrl} />
-                </Flex>
-              )}
-
-              {product?.size.length >= 1 && (
-                <Box mt={6}>
-                  <Flex
-                    mb={2}
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <Text>サイズ</Text>
-                    {product?.sizeUrl && (
-                      <SizeSpecModal sizeUrl={product?.sizeUrl} />
-                    )}
-                  </Flex>
-                  {product?.size.length === 1 ? (
-                    <Box>
-                      {product?.size.map((size: string) => (
-                        <Input name="size" key={size} value={size} />
-                      ))}
-                    </Box>
-                  ) : (
-                    <Select
-                      placeholder="サイズを選択してください"
-                      name="size"
-                      onChange={(e) => handleSelectChange(e, index)}
-                    >
-                      {product?.size?.map((size: string) => (
-                        <option key={size} value={size}>
-                          {size}
-                        </option>
-                      ))}
-                    </Select>
-                  )}
-                </Box>
-              )}
-
-              <Box mt={6}>
-                {product.quantity ? (
-                  <>
-                    <Text>数量</Text>
-                    <Select
-                      mt={2}
-                      name="quantity"
-                      placeholder="数量を選択してしてください"
-                      onChange={(e) => handleSelectChange(e, index)}
-                    >
-                      {array.map((num: string, index: number) => (
-                        <option key={num?.toString()} value={index}>
-                          {index}
-                        </option>
-                      ))}
-                    </Select>
-                  </>
-                ) : (
-                  <Flex gap={3}>
-                    <Text>数量</Text>
-                    <Box>{product.fixedQuantity}</Box>
-                  </Flex>
-                )}
-              </Box>
-              <Box mt={6}>
-                {product.inseam && (
-                  <>
-                    <Text>裾上げ</Text>
-                    <Select
-                      mt={1}
-                      name="inseam"
-                      placeholder="裾上直しの長さを選択してください"
-                      onChange={(e) => handleSelectChange(e, index)}
-                    >
-                      {Object.keys(["無し", ...Array(30)]).map(
-                        (num: string, index: number) => (
-                          <option key={num?.toString()} value={index + "cm"}>
-                            {index}cm
-                          </option>
-                        )
-                      )}
-                    </Select>
-                  </>
-                )}
-              </Box>
-            </Box>
-          ))}
-
           <Box mt={6} textAlign="center">
-            <Button colorScheme="facebook" onClick={addStudent}>
-              登録
+            <Button
+              colorScheme="facebook"
+              onClick={addStudent}
+              disabled={!items.name || !items.studentNumber || !items.gender}
+            >
+              採寸を始める
             </Button>
           </Box>
         </>
@@ -371,4 +219,4 @@ const Measure = () => {
   );
 };
 
-export default Measure;
+export default RegisterId;

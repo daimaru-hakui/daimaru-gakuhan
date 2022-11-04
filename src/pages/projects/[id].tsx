@@ -311,7 +311,7 @@ const ProjectId = () => {
 
               <TableContainer mt={6}>
                 <Table variant="simple">
-                  {project?.products.length > 0 && (
+                  {project?.products?.length > 0 && (
                     <Thead>
                       <Tr>
                         <Th>商品名</Th>
