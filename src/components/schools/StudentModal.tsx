@@ -18,8 +18,9 @@ import {
   Th,
   Td,
   TableContainer,
+  Text,
 } from '@chakra-ui/react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebase';
@@ -50,8 +51,9 @@ const StudentModal: NextPage<Props> = ({
         'students',
         `${studentId}`
       );
-      const docSnap = await getDoc(studentRef);
-      setStudent(docSnap.data());
+      onSnapshot(studentRef, (querySnapshot) => {
+        setStudent({ ...querySnapshot?.data() });
+      });
     };
     getStudent();
   }, [projectId, studentId]);
@@ -99,12 +101,15 @@ const StudentModal: NextPage<Props> = ({
                   </Flex>
                 )}
               </Stack>
-              <Box>
+              <Box textAlign='center'>
                 <QRCode
                   value={`${location.origin}/register/measure/${projectId}?studentId=${studentId}/`}
                   renderAs='canvas'
                   size={100}
                 />
+                <Text mt={1} fontSize='xs'>
+                  もう一度採寸 QR
+                </Text>
               </Box>
             </Flex>
             <TableContainer mt={6}>
@@ -118,7 +123,7 @@ const StudentModal: NextPage<Props> = ({
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {student?.products.map((product: any, index: number) => (
+                  {student?.products?.map((product: any, index: number) => (
                     <Tr key={index}>
                       <Td>{product.productName}</Td>
                       <Td isNumeric>{product.size}</Td>

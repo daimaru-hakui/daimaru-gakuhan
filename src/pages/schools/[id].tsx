@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   Flex,
   Input,
@@ -430,7 +431,7 @@ const SchoolId = () => {
                     <Td>
                       <FaTrashAlt
                         cursor='pointer'
-                        onClick={() => deleteStudent(student.id)}
+                        onClick={() => password && deleteStudent(student.id)}
                       />
                     </Td>
                   </Tr>
@@ -439,12 +440,13 @@ const SchoolId = () => {
             </Table>
           </TableContainer>
           <Box mt={6}>
-            <Input
-              maxW='200px'
-              placeholder='password'
+            <Checkbox
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+              name='check'
+              onChange={(e: any) => setPassword(e.target.checked)}
+            >
+              削除する場合はチェックを入れてください
+            </Checkbox>
           </Box>
         </>
       ) : (
