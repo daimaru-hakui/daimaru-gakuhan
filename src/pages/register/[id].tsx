@@ -44,16 +44,15 @@ const RegisterId = () => {
   const [items, setItems] = useState<any>();
   const setLoading = useSetRecoilState(loadingState);
 
-  console.log(items);
-
   // project（個別）を取得
   useEffect(() => {
     const getProject = async () => {
       onSnapshot(doc(db, 'projects', `${router.query.id}`), (doc) => {
-        setProject({ ...doc.data(), id: doc.id } as ProjectType);
         if (doc.data()?.release === false) {
-          router.push('404/notfound');
+          router.push('/register');
+          return;
         }
+        setProject({ ...doc.data(), id: doc.id } as ProjectType);
       });
     };
     getProject();
@@ -64,15 +63,16 @@ const RegisterId = () => {
     setItems({
       ...project,
       gender: '',
+      sumTotal: 0,
       products: project?.products?.map((product: any) => {
         const productName = product.productName ? product.productName : '';
-        // const price = product.price ? product.price : 0;
+        const price = product.price ? product.price : 0;
         const size = '未記入';
-        const quantity = '未記入';
+        const quantity = '0';
         const inseam = product.inseam ? '未記入' : null;
         return {
           productName,
-          // price,
+          price,
           size,
           quantity,
           inseam,
@@ -102,8 +102,8 @@ const RegisterId = () => {
     } finally {
       setLoading(false);
       router.push({
-        pathname: `/register/measure/${student?.id}`,
-        query: { projectId: project?.id },
+        pathname: `/register/measure/${project?.id}`,
+        query: { studentId: student?.id },
       });
     }
   };
@@ -150,13 +150,24 @@ const RegisterId = () => {
 
           <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
             <Text>名前</Text>
-            <Input
-              type='text'
-              mt={2}
-              name='name'
-              value={items.name || ''}
-              onChange={handleInputChange}
-            />
+            <Flex gap={2}>
+              <Input
+                mt={2}
+                type='text'
+                placeholder='姓'
+                name='lastName'
+                value={items.lastName || ''}
+                onChange={handleInputChange}
+              />
+              <Input
+                mt={2}
+                type='text'
+                placeholder='名'
+                name='firstName'
+                value={items.firstName || ''}
+                onChange={handleInputChange}
+              />
+            </Flex>
           </Box>
 
           {Number(project?.gender) === 1 && ''}
@@ -204,7 +215,12 @@ const RegisterId = () => {
             <Button
               colorScheme='facebook'
               onClick={addStudent}
-              disabled={!items.name || !items.studentNumber || !items.gender}
+              disabled={
+                !items.firstName ||
+                !items.lastName ||
+                !items.studentNumber ||
+                !items.gender
+              }
             >
               採寸を始める
             </Button>

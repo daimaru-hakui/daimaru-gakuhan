@@ -18,6 +18,7 @@ import { db } from '../../../../firebase';
 import { useSetRecoilState } from 'recoil';
 import { loadingState } from '../../../../store';
 import SizeSpecModal from '../../../components/register/SizeSpecModal';
+import InputEditModal from '../../../components/register/InputEditModal';
 
 const MeasureId = () => {
   const router = useRouter();
@@ -35,16 +36,14 @@ const MeasureId = () => {
       const docRef = doc(
         db,
         'schools',
-        `${router.query.projectId}`,
+        `${router.query.id}`,
         'students',
-        `${router.query.id}`
+        `${router.query.studentId}`
       );
       const getSnap = await getDoc(docRef);
       if (getSnap.exists()) {
+        if (getSnap?.data().release === false) return;
         setStudent({ ...getSnap.data(), id: getSnap.id });
-        if (getSnap?.data().release === false) {
-          console.log(getSnap?.data().release);
-        }
       }
     };
 
@@ -55,22 +54,23 @@ const MeasureId = () => {
     }
 
     getStudent();
-  }, [router.query.id, router.query.projectId]);
+  }, [router.query.id, router.query.studentId]);
 
   // productを取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, 'projects', `${router.query.projectId}`);
-      const getSnap = await getDoc(docRef);
-      if (getSnap.exists()) {
-        setProject({ ...getSnap.data(), id: getSnap.id });
-        if (getSnap?.data().release === false) {
-          console.log(getSnap?.data().release);
+      const docRef = doc(db, 'projects', `${router.query.id}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        if (docSnap?.data().release === false) {
+          router.push('/register');
+          return;
         }
+        setProject({ ...docSnap.data(), id: docSnap.id });
       }
     };
     getProject();
-  }, [router.query.id, router.query.projectId]);
+  }, [router.query.id, router]);
 
   // 商品登録用 初期値入力
   useEffect(() => {
@@ -101,7 +101,7 @@ const MeasureId = () => {
   }, [project, student]);
 
   // 採寸登録
-  const addStudent = async () => {
+  const updateStudent = async () => {
     const result = window.confirm('登録して宜しいでしょうか');
     if (!result) return;
     setLoading(true);
@@ -110,9 +110,9 @@ const MeasureId = () => {
         doc(
           db,
           'schools',
-          `${router.query.projectId}`,
+          `${router.query.id}`,
           'students',
-          `${router.query.id}`
+          `${router.query.studentId}`
         ),
         {
           ...items,
@@ -133,19 +133,6 @@ const MeasureId = () => {
     }
   };
 
-  // 学籍番号・名前の変更
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setItems({ ...items, [name]: value });
-  };
-
-  //　性別の変更
-  const handleRadioChange = (e: string) => {
-    const value = e;
-    setItems({ ...items, gender: value });
-  };
-
   // 商品の値を追加・変更
   const handleSelectChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -155,18 +142,22 @@ const MeasureId = () => {
     const name = e.target.name;
     setItems(() => {
       let newItems = [];
-      if (items.products?.length > rowIndex) {
+      // 選択した商品の数量やサイズがproductsにあれば更新
+      if (items.products?.length >= rowIndex + 1) {
         // 値がある場合　更新
-        newItems = items.products?.map((product: any, index: number) => {
-          if (index === rowIndex) {
-            return {
-              ...product,
-              [name]: value,
-            };
-          } else {
-            return { ...product };
-          }
-        });
+        newItems = items.products?.map((product: any, index: number) =>
+          index === rowIndex ? { ...product, [name]: value } : { ...product }
+        );
+        // newItems = items.products?.map((product: any, index: number) => {
+        //   if (index === rowIndex) {
+        //     return {
+        //       ...product,
+        //       [name]: value,
+        //     };
+        //   } else {
+        //     return { ...product };
+        //   }
+        // });
       }
       return { ...items, products: [...(newItems || '')] };
     });
@@ -186,6 +177,18 @@ const MeasureId = () => {
     setSumTotal(sum);
   }, [items.products]);
 
+  //性別を表示
+  const genderDisp = (gender: string) => {
+    switch (gender) {
+      case '1':
+        return '男性';
+      case '2':
+        return '女性';
+      default:
+        return '未記入';
+    }
+  };
+
   return (
     <Container maxW='600px' py={6} minH='100vh'>
       {student?.release && (
@@ -202,68 +205,42 @@ const MeasureId = () => {
               {items?.title}
             </Box>
           )}
-          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
-            <Text>学籍番号</Text>
-            <Input
-              type='text'
-              mt={2}
-              name='studentNumber'
-              value={items.studentNumber}
-              onChange={handleInputChange}
-            />
-          </Box>
-
-          <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
-            <Text>名前</Text>
-            <Input
-              type='text'
-              mt={2}
-              name='name'
-              value={items.name}
-              onChange={handleInputChange}
-            />
-          </Box>
-
-          {Number(project?.gender) === 1 && ''}
-          {Number(project?.gender) === 2 && (
-            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
-              <RadioGroup
-                name='gender'
-                value={items.gender}
-                onChange={(e) => handleRadioChange(e)}
-              >
-                <Stack spacing={5} direction='row'>
-                  <Radio colorScheme='green' value='1'>
-                    男性
-                  </Radio>
-                  <Radio colorScheme='green' value='2'>
-                    女性
-                  </Radio>
-                </Stack>
-              </RadioGroup>
+          <Flex
+            mt={6}
+            p={6}
+            justifyContent='space-between'
+            bg='white'
+            rounded={6}
+            boxShadow='base'
+          >
+            <Box flex={1}>
+              <Box>
+                <Text>学籍番号</Text>
+                <Box mt={1} ml={3}>
+                  {items.studentNumber}
+                </Box>
+              </Box>
+              <Box mt={3}>
+                <Text>名前</Text>
+                <Box mt={1} ml={3}>
+                  {items.lastName} {items.firstName}
+                </Box>
+              </Box>
+              <Box mt={3}>
+                <Text>性別</Text>
+                <Box mt={1} ml={3}>
+                  {genderDisp(items.gender)}
+                </Box>
+              </Box>
             </Box>
-          )}
-          {Number(project?.gender) === 3 && (
-            <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
-              <RadioGroup
-                name='gender'
-                value={items.gender}
-                onChange={(e) => handleRadioChange(e)}
-              >
-                <Stack spacing={5} direction='row'>
-                  <Radio colorScheme='green' value='1'>
-                    男性
-                  </Radio>
-                  <Radio colorScheme='green' value='2'>
-                    女性
-                  </Radio>
-                  <Radio colorScheme='green' value='3'>
-                    その他
-                  </Radio>
-                </Stack>
-              </RadioGroup>
-            </Box>
-          )}
+            <InputEditModal
+              items={items}
+              setItems={setItems}
+              student={student}
+              project={project}
+              router={router}
+            />
+          </Flex>
 
           {project?.products.map((product: any, index: number) => (
             <Box
@@ -303,7 +280,12 @@ const MeasureId = () => {
                   {product?.size.length === 1 ? (
                     <Box>
                       {product?.size.map((size: string) => (
-                        <Input name='size' key={size} value={size} />
+                        <Input
+                          name='size'
+                          key={size}
+                          defaultValue={size}
+                          isReadOnly
+                        />
                       ))}
                     </Box>
                   ) : (
@@ -373,7 +355,7 @@ const MeasureId = () => {
           <Box mt={6} textAlign='center'>
             <Button
               colorScheme='facebook'
-              onClick={addStudent}
+              onClick={updateStudent}
               disabled={items?.products?.some(
                 (product: any) => Number(product.quantity) === 0
               )}

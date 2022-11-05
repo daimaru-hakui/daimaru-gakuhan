@@ -1,8 +1,8 @@
-import { Box, Container, Divider, Flex, Stack, Text } from "@chakra-ui/react";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { db } from "../../../firebase";
+import { Box, Container, Divider, Flex, Stack, Text } from '@chakra-ui/react';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { db } from '../../../firebase';
 
 type ProjectType = {
   id: string;
@@ -24,21 +24,21 @@ const Completion = () => {
   useEffect(() => {
     const jsonData: any = localStorage.getItem(`${router.query.id}`);
     setStudent(JSON.parse(jsonData));
-    history.pushState(null, "null", null);
+    history.pushState(null, 'null', null);
     history.go(1);
     return;
   }, [router, router.query.id]);
 
   return (
-    <Container maxW="500px" py={6} minH="100vh">
+    <Container maxW='500px' py={6} minH='100vh'>
       {student && (
-        <Box p={6} boxShadow="base" bg="white" rounded="md">
-          <Text as="h1" textAlign="center" fontWeight="bold" fontSize="2xl">
+        <Box p={6} boxShadow='base' bg='white' rounded='md'>
+          <Text as='h1' textAlign='center' fontWeight='bold' fontSize='2xl'>
             採寸登録が完了しました
           </Text>
-          <Text fontSize="sm" mt={6}>
+          <Text fontSize='sm' mt={6}>
             採寸登録ありがとうございます。
-            <Box as="span" fontWeight="bold" textDecoration="underline">
+            <Box as='span' fontWeight='bold' textDecoration='underline'>
               こちらの画面が控えになります。
             </Box>
             ご必要な場合はお手数ですが、スクリーンショット又は
@@ -46,23 +46,23 @@ const Completion = () => {
             またサイズ変更等ございます場合は、係員にお申し付けください。
           </Text>
           <Box mt={6}>
-            <Box textAlign="center" fontWeight="bold">
+            <Box textAlign='center' fontWeight='bold'>
               {student?.title}
             </Box>
             <Flex mt={6}>
-              <Box fontWeight="bold" w="90px">
+              <Box fontWeight='bold' w='90px'>
                 学籍番号
               </Box>
               <Box>{student?.studentNumber}</Box>
             </Flex>
             <Flex>
-              <Box fontWeight="bold" w="90px">
+              <Box fontWeight='bold' w='90px'>
                 名前
               </Box>
-              <Box>{student?.name}</Box>
+              <Box>{`${student?.lastName} ${student?.firstName}`}</Box>
             </Flex>
             <Flex>
-              <Box fontWeight="bold" w="90px">
+              <Box fontWeight='bold' w='90px'>
                 合計金額
               </Box>
               <Box>
@@ -80,7 +80,7 @@ const Completion = () => {
                   <Box key={product.productName} mt={6}>
                     {product.productName && (
                       <Flex>
-                        <Box fontWeight="bold" w="90px">
+                        <Box fontWeight='bold' w='90px'>
                           商品名
                         </Box>
                         <Box>{product.productName}</Box>
@@ -88,7 +88,7 @@ const Completion = () => {
                     )}
                     {product.quantity && (
                       <Flex>
-                        <Box fontWeight="bold" w="90px">
+                        <Box fontWeight='bold' w='90px'>
                           サイズ
                         </Box>
                         <Box>{product.size}</Box>
@@ -96,7 +96,7 @@ const Completion = () => {
                     )}
                     {product.quantity && (
                       <Flex>
-                        <Box fontWeight="bold" w="90px">
+                        <Box fontWeight='bold' w='90px'>
                           数量
                         </Box>
                         <Box>{product.quantity}</Box>
@@ -104,7 +104,7 @@ const Completion = () => {
                     )}
                     {product.inseam && (
                       <Flex>
-                        <Box fontWeight="bold" w="90px">
+                        <Box fontWeight='bold' w='90px'>
                           股下修理
                         </Box>
                         <Box>{product.inseam}</Box>
@@ -117,7 +117,7 @@ const Completion = () => {
             {student?.signature && (
               <>
                 <Divider mt={6} />
-                <Box mt={6} fontSize="sm" lineHeight="5" whiteSpace="pre-wrap">
+                <Box mt={6} fontSize='sm' lineHeight='5' whiteSpace='pre-wrap'>
                   {student.signature}
                 </Box>
               </>

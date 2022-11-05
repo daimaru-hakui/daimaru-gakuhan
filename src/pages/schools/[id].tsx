@@ -18,6 +18,7 @@ import {
   doc,
   getDoc,
   onSnapshot,
+  orderBy,
   query,
 } from 'firebase/firestore';
 import { useRouter } from 'next/router';
@@ -29,6 +30,7 @@ import { currentUserAuth } from '../../../store';
 import { CSVLink } from 'react-csv';
 import TotalModal from '../../components/schools/TotalModal';
 import StudentModal from '../../components/schools/StudentModal';
+import SliderWidth from '../../components/schools/SliderWidth';
 
 const SchoolId = () => {
   const router = useRouter();
@@ -39,9 +41,8 @@ const SchoolId = () => {
   const [password, setPassword] = useState('');
   const [csvData, setCsvData] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
+  const [tableWidth, setTableWidth] = useState(1200);
   const TAX = 1.1;
-
-  console.log(project);
 
   // ログインしてなければloginページへ移動
   useEffect(() => {
@@ -53,9 +54,13 @@ const SchoolId = () => {
   //生徒の情報を取得
   useEffect(() => {
     const getStudents = async () => {
-      const q = query(
-        collection(db, 'schools', `${router.query.id}`, 'students')
+      const collectionRef = collection(
+        db,
+        'schools',
+        `${router.query.id}`,
+        'students'
       );
+      const q = query(collectionRef, orderBy('studentNumber', 'asc'));
       onSnapshot(q, (querySnapshot) => {
         setStudents(
           querySnapshot.docs.map((doc) => ({
@@ -111,7 +116,7 @@ const SchoolId = () => {
   };
 
   // 作成日表示
-  const createdDateTime = (d: Date) => {
+  const getDateTime = (d: Date) => {
     const date = new Date(d);
     let month = String(date.getMonth() + 1);
     month = ('0' + month).slice(-2);
@@ -119,14 +124,28 @@ const SchoolId = () => {
     day = ('0' + day).slice(-2);
     let hours = String(date.getHours());
     hours = ('0' + hours).slice(-2);
-    let minutes = String(date.getMinutes());
-    minutes = ('0' + hours).slice(-2);
-    let seconds = String(date.getSeconds());
-    seconds = ('0' + seconds).slice(-2);
-    return `${month}月${day}日${hours}:${minutes}:${seconds}`;
+    let min = String(date.getMinutes());
+    min = ('0' + min).slice(-2);
+    let sec = String(date.getSeconds());
+    sec = ('0' + sec).slice(-2);
+    return `${month}月${day}日${hours}:${min}:${sec}`;
   };
 
-  // CSV作成 //////////////////////////////////
+  // 経過時間
+  const getElapsedtime = (before: Date, after: Date) => {
+    const beforeTime = new Date(before).getTime();
+    const afterTime = new Date(after).getTime();
+    const elap = Math.floor((afterTime - beforeTime) / 1000);
+    const hour = Math.floor(Number(elap) / 3600);
+    let min = String(Math.floor((elap / 60) % 60));
+    min = ('0' + min).slice(-2);
+    let sec = String(Math.floor(elap % 60));
+    sec = ('0' + sec).slice(-2);
+    const result = `${hour}時間 ${min}分 ${sec}秒`;
+    return result;
+  };
+
+  ////////////////// CSV作成 //////////////////////////////////
   const onClickCsv = () => {
     // 生徒を一人ひとりループしてデータを作成
     const csvData = students.map((student: any) => {
@@ -177,10 +196,22 @@ const SchoolId = () => {
       // 学生番号・名前などを配列に追加
       array.unshift(
         { 学籍番号: student.studentNumber },
-        { 名前: student?.name },
+        { 名前: student?.lastName + student?.firstName },
         { 性別: gender },
         { 金額: student?.sumTotal },
-        { 作成日: createdDateTime(student?.createdAt?.toDate()) }
+        { 作成日: getDateTime(student?.createdAt?.toDate()) },
+        {
+          採寸完了日:
+            student?.updatedAt && getDateTime(student?.updatedAt?.toDate()),
+        },
+        {
+          経過時間:
+            student?.updatedAt &&
+            getElapsedtime(
+              student?.createdAt?.toDate(),
+              student?.updatedAt?.toDate()
+            ),
+        }
       );
 
       return [...array];
@@ -280,8 +311,9 @@ const SchoolId = () => {
   }, [students, project?.products]);
 
   return (
-    <Container maxW='1200px' py={6}>
-      <Box as='h2' fontWeight='bold'>
+    <Container maxW={`${tableWidth}px`} py={6}>
+      <SliderWidth tableWidth={tableWidth} setTableWidth={setTableWidth} />
+      <Box as='h2' mt={3} fontWeight='bold'>
         {project?.title}
       </Box>
       {students?.length > 0 ? (
@@ -330,16 +362,20 @@ const SchoolId = () => {
                     )
                   )}
                   <Th>登録日</Th>
-                  <Th>更新日</Th>
+                  <Th>採寸完了日</Th>
+                  <Th>経過時間</Th>
                   <Th>詳細</Th>
                   <Th>削除</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {students?.map((student: any) => (
-                  <Tr key={student.id}>
-                    <Td>{student.studentNumber}</Td>
-                    <Td>{student.name}</Td>
+                  <Tr
+                    key={student.id}
+                    textColor={student?.updatedAt || 'red.500'}
+                  >
+                    <Td>{student?.studentNumber}</Td>
+                    <Td>{`${student?.lastName} ${student?.firstName}`}</Td>
                     <Td>{genderDisp(student.gender)}</Td>
                     <Td isNumeric>
                       {student.sumTotal
@@ -371,10 +407,17 @@ const SchoolId = () => {
                         )}
                       </React.Fragment>
                     ))}
-                    <Td>{createdDateTime(student?.createdAt.toDate())}</Td>
+                    <Td>{getDateTime(student?.createdAt.toDate())}</Td>
                     <Td>
                       {student?.updatedAt &&
-                        createdDateTime(student?.updatedAt.toDate())}
+                        getDateTime(student?.updatedAt.toDate())}
+                    </Td>
+                    <Td>
+                      {student?.updatedAt &&
+                        getElapsedtime(
+                          student?.createdAt.toDate(),
+                          student?.updatedAt.toDate()
+                        )}
                     </Td>
                     <Td>
                       <StudentModal
@@ -383,22 +426,6 @@ const SchoolId = () => {
                         genderDisp={genderDisp}
                         TAX={TAX}
                       />
-                      {/* <Link
-                        href={{
-                          pathname: `/schools/students/${student.id}`,
-                          query: student,
-                        }}
-                      >
-                        <a>
-                          <Button
-                            size='xs'
-                            variant='outline'
-                            colorScheme='facebook'
-                          >
-                            詳細
-                          </Button>
-                        </a>
-                      </Link> */}
                     </Td>
                     <Td>
                       <FaTrashAlt

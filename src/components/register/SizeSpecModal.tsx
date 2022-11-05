@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import {
-  Box,
   Button,
   Flex,
   Modal,
@@ -11,9 +10,9 @@ import {
   ModalHeader,
   ModalOverlay,
   useDisclosure,
-} from "@chakra-ui/react";
-import { NextPage } from "next";
-import React from "react";
+} from '@chakra-ui/react';
+import { NextPage } from 'next';
+import React from 'react';
 
 type Props = {
   sizeUrl: string;
@@ -23,7 +22,7 @@ const SizeSpecModal: NextPage<Props> = ({ sizeUrl }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
-      <Button size="xs" onClick={onOpen}>
+      <Button size='xs' onClick={onOpen}>
         サイズ表
       </Button>
 
@@ -33,13 +32,13 @@ const SizeSpecModal: NextPage<Props> = ({ sizeUrl }) => {
           <ModalHeader>サイズスペック</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Flex justifyContent="center">
+            <Flex justifyContent='center'>
               <img src={sizeUrl} alt={sizeUrl} />
             </Flex>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
+            <Button colorScheme='blue' mr={3} onClick={onClose}>
               閉じる
             </Button>
           </ModalFooter>

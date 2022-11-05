@@ -22,7 +22,7 @@ type Props = {
 
 const TotalModal: NextPage<Props> = ({ totals, totalPrice, TAX }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  console.log(totals);
+
   return (
     <>
       <Flex justifyContent='flex-end'>
@@ -39,8 +39,8 @@ const TotalModal: NextPage<Props> = ({ totals, totalPrice, TAX }) => {
           <ModalBody>
             {totalPrice && (
               <>
-                <Box>合計金額 {totalPrice?.toLocaleString()}円</Box>
-                <Box>{`（税込み${(
+                <Box>合計金額 {Math.round(totalPrice)?.toLocaleString()}円</Box>
+                <Box>{`（税込み${Math.round(
                   totalPrice * TAX
                 ).toLocaleString()}円）`}</Box>
               </>

@@ -14,17 +14,16 @@ import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
-} from "@chakra-ui/react";
-import { doc, getDoc } from "firebase/firestore";
-import { NextPage } from "next";
-import React, { useEffect, useState } from "react";
-import { db } from "../../../firebase";
+} from '@chakra-ui/react';
+import { doc, getDoc } from 'firebase/firestore';
+import { NextPage } from 'next';
+import React, { useEffect, useState } from 'react';
+import { db } from '../../../firebase';
+import QRCode from 'qrcode.react';
 
 type Props = {
   projectId: string;
@@ -46,9 +45,9 @@ const StudentModal: NextPage<Props> = ({
     const getStudent = async () => {
       const studentRef = doc(
         db,
-        "schools",
+        'schools',
         `${projectId}`,
-        "students",
+        'students',
         `${studentId}`
       );
       const docSnap = await getDoc(studentRef);
@@ -60,67 +59,78 @@ const StudentModal: NextPage<Props> = ({
   return (
     <>
       <Button
-        size="sm"
-        variant="outline"
-        colorScheme="facebook"
+        size='sm'
+        variant='outline'
+        colorScheme='facebook'
         onClick={onOpen}
       >
         詳細
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
-        <ModalOverlay bg="#000000bf" />
+      <Modal isOpen={isOpen} onClose={onClose} size='4xl'>
+        <ModalOverlay bg='#000000bf' />
         <ModalContent>
           <ModalHeader>採寸データ</ModalHeader>
           <ModalCloseButton />
           <ModalBody p={6}>
-            <Stack>
-              <Flex>
-                <Box>学籍番号：</Box>
-                <Box>{student?.studentNumber}</Box>
-              </Flex>
-              <Flex>
-                <Box>名前：</Box>
-                <Box>{student?.name}</Box>
-              </Flex>
-              <Flex>
-                <Box>性別：</Box>
-                <Box>{genderDisp(student?.gender)}</Box>
-              </Flex>
-              {student?.sumTotal && (
+            <Flex justifyContent='space-between'>
+              <Stack>
                 <Flex>
-                  <Box>金額：</Box>
-                  <Box>
-                    {(Number(student?.sumTotal) * TAX).toLocaleString()}円
-                  </Box>
+                  <Box>学籍番号：</Box>
+                  <Box>{student?.studentNumber}</Box>
                 </Flex>
-              )}
-
-              <TableContainer>
-                <Table variant="simple">
-                  <Thead>
-                    <Tr>
-                      <Th w="auto">商品名</Th>
-                      <Th w="100px">サイズ</Th>
-                      <Th w="100px">数量</Th>
-                      <Th w="100px">裾上げ</Th>
+                <Flex>
+                  <Box>名前：</Box>
+                  <Box>{`${student?.lastName} ${student?.firstName}`}</Box>
+                </Flex>
+                <Flex>
+                  <Box>性別：</Box>
+                  <Box>{genderDisp(student?.gender)}</Box>
+                </Flex>
+                {student?.sumTotal && (
+                  <Flex>
+                    <Box>金額：</Box>
+                    <Box>
+                      {Math.round(
+                        Number(student?.sumTotal) * TAX
+                      ).toLocaleString()}
+                      円
+                    </Box>
+                  </Flex>
+                )}
+              </Stack>
+              <Box>
+                <QRCode
+                  value={`${location.origin}/register/measure/${projectId}?studentId=${studentId}/`}
+                  renderAs='canvas'
+                  size={100}
+                />
+              </Box>
+            </Flex>
+            <TableContainer mt={6}>
+              <Table variant='simple'>
+                <Thead>
+                  <Tr>
+                    <Th w='auto'>商品名</Th>
+                    <Th w='100px'>サイズ</Th>
+                    <Th w='100px'>数量</Th>
+                    <Th w='100px'>裾上げ</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {student?.products.map((product: any, index: number) => (
+                    <Tr key={index}>
+                      <Td>{product.productName}</Td>
+                      <Td isNumeric>{product.size}</Td>
+                      <Td isNumeric>{product.quantity}</Td>
+                      <Td isNumeric>
+                        {product.inseam ? product.inseam : 'なし'}
+                      </Td>
                     </Tr>
-                  </Thead>
-                  <Tbody>
-                    {student?.products.map((product: any, index: number) => (
-                      <Tr key={index}>
-                        <Td>{product.productName}</Td>
-                        <Td isNumeric>{product.size}</Td>
-                        <Td isNumeric>{product.quantity}</Td>
-                        <Td isNumeric>
-                          {product.inseam ? product.inseam : "なし"}
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-            </Stack>
+                  ))}
+                </Tbody>
+              </Table>
+            </TableContainer>
           </ModalBody>
 
           <ModalFooter>
