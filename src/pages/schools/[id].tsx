@@ -35,11 +35,13 @@ import SliderWidth from '../../components/schools/SliderWidth';
 
 const SchoolId = () => {
   const router = useRouter();
+  const projectId = router.query.id;
   const currentUser = useRecoilValue(currentUserAuth);
   const [students, setStudents] = useState<any>();
   const [project, setProject] = useState<any>();
   const [totals, setTotals] = useState<any>();
-  const [password, setPassword] = useState('');
+  const [unRegister, setUnRegister] = useState('');
+  const [deleteCheck, setDeleteCheck] = useState('');
   const [csvData, setCsvData] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
   const [tableWidth, setTableWidth] = useState(1200);
@@ -58,7 +60,7 @@ const SchoolId = () => {
       const collectionRef = collection(
         db,
         'schools',
-        `${router.query.id}`,
+        `${projectId}`,
         'students'
       );
       const q = query(collectionRef, orderBy('studentNumber', 'asc'));
@@ -72,19 +74,30 @@ const SchoolId = () => {
       });
     };
     getStudents();
-  }, [router.query.id]);
+  }, [projectId]);
 
   // 学販projectデータ取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, 'projects', `${router.query.id}`);
+      const docRef = doc(db, 'projects', `${projectId}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setProject({ ...docSnap.data(), id: docSnap.id });
       }
     };
     getProject();
-  }, [router.query.id]);
+  }, [projectId]);
+
+  // 未登録の生徒数
+  useEffect(() => {
+    const getUnregister = () => {
+      const result = students?.filter(
+        (student: { updatedAt: Date }) => !student.updatedAt
+      );
+      setUnRegister(result?.length === 0 ? '' : result?.length);
+    };
+    getUnregister();
+  }, [students]);
 
   // 生徒全員の合計金額
   useEffect(() => {
@@ -320,7 +333,12 @@ const SchoolId = () => {
       {students?.length > 0 ? (
         <>
           <Flex mt={3} alignItems='center' justifyContent='space-between'>
-            <Box>全{students?.length}件</Box>
+            <Box>
+              全{students?.length}件
+              {unRegister && (
+                <Box as='span'>{`（未提出者 ${unRegister}名）`}</Box>
+              )}
+            </Box>
             <Flex>
               <CSVLink
                 data={csvData}
@@ -431,7 +449,7 @@ const SchoolId = () => {
                     <Td>
                       <FaTrashAlt
                         cursor='pointer'
-                        onClick={() => password && deleteStudent(student.id)}
+                        onClick={() => deleteCheck && deleteStudent(student.id)}
                       />
                     </Td>
                   </Tr>
@@ -441,9 +459,9 @@ const SchoolId = () => {
           </TableContainer>
           <Box mt={6}>
             <Checkbox
-              value={password}
+              value={deleteCheck}
               name='check'
-              onChange={(e: any) => setPassword(e.target.checked)}
+              onChange={(e: any) => setDeleteCheck(e.target.checked)}
             >
               削除する場合はチェックを入れてください
             </Checkbox>

@@ -20,7 +20,7 @@ import {
   TableContainer,
   Text,
 } from '@chakra-ui/react';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebase';

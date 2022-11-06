@@ -1,8 +1,9 @@
 import { Box, Container, Divider, Flex, Stack, Text } from '@chakra-ui/react';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
+import ConfMail from '../../components/completion/ConfMail';
 
 type ProjectType = {
   id: string;
@@ -17,17 +18,31 @@ type ProjectType = {
 
 const Completion = () => {
   const router = useRouter();
+  const studentId = router.query.id;
+  const [release, setRelease] = useState<boolean>(false);
   const [student, setStudent] = useState<any>();
   const TAX = 1.1;
 
   // localstorage 取得
   useEffect(() => {
-    const jsonData: any = localStorage.getItem(`${router.query.id}`);
+    const jsonData: any = localStorage.getItem(`${studentId}`);
     setStudent(JSON.parse(jsonData));
     history.pushState(null, 'null', null);
     history.go(1);
     return;
-  }, [router, router.query.id]);
+  }, [router, studentId]);
+
+  // project（個別）を取得
+  useEffect(() => {
+    const getProject = async () => {
+      const docRef = doc(db, 'projects', `${student?.projectId}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setRelease(docSnap.data().release);
+      }
+    };
+    getProject();
+  }, [student?.projectId]);
 
   return (
     <Container maxW='500px' py={6} minH='100vh'>
@@ -42,9 +57,16 @@ const Completion = () => {
               こちらの画面が控えになります。
             </Box>
             ご必要な場合はお手数ですが、スクリーンショット又は
-            ブックマーク・お気に入り等に登録してください。
+            メールアドレスを登録して確認メールを受け取ってください。
             またサイズ変更等ございます場合は、係員にお申し付けください。
           </Text>
+
+          {release && (
+            <Box mt={6}>
+              <ConfMail student={student} release={release} TAX={TAX} />
+            </Box>
+          )}
+
           <Box mt={6}>
             <Box textAlign='center' fontWeight='bold'>
               {student?.title}

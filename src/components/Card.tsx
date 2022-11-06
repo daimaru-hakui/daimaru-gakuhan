@@ -29,8 +29,15 @@ const Card: NextPage<Props> = ({ project }) => {
   const router = useRouter();
   const [release, setRelease] = useState();
 
+  // projectを削除
   const deleteProject = async () => {
-    const result = window.confirm('削除して宜しいでしょうか');
+    let result = window.confirm('削除して宜しいでしょうか');
+    if (!result) return;
+    result = window.confirm('本当に削除して宜しいでしょうか');
+    if (!result) return;
+    result = window.confirm(
+      'これで最後です。\nすべてのデータが削除されますが宜しいでしょうか'
+    );
     if (!result) return;
     await deleteDoc(doc(db, 'projects', `${project.id}`));
   };
