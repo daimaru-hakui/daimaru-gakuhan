@@ -10,18 +10,20 @@ import {
   Select,
   Stack,
   Text,
-} from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { db } from '../../../../firebase';
-import { useSetRecoilState } from 'recoil';
-import { loadingState } from '../../../../store';
-import SizeSpecModal from '../../../components/register/SizeSpecModal';
-import InputEditModal from '../../../components/register/InputEditModal';
+} from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { db } from "../../../../firebase";
+import { useSetRecoilState } from "recoil";
+import { loadingState } from "../../../../store";
+import SizeSpecModal from "../../../components/register/SizeSpecModal";
+import InputEditModal from "../../../components/register/InputEditModal";
 
 const MeasureId = () => {
   const router = useRouter();
+  const projectId = router.query.id;
+  const studentId = router.query.studentId;
   const [student, setStudent] = useState<any>();
   const [project, setProject] = useState<any>();
   const [items, setItems] = useState<any>({});
@@ -35,10 +37,10 @@ const MeasureId = () => {
     const getStudent = async () => {
       const docRef = doc(
         db,
-        'schools',
-        `${router.query.id}`,
-        'students',
-        `${router.query.studentId}`
+        "schools",
+        `${projectId}`,
+        "students",
+        `${studentId}`
       );
       const getSnap = await getDoc(docRef);
       if (getSnap.exists()) {
@@ -49,28 +51,28 @@ const MeasureId = () => {
 
     let i = 0;
     while (i <= 20) {
-      history.pushState(null, 'null', null);
+      history.pushState(null, "null", null);
       i++;
     }
 
     getStudent();
-  }, [router.query.id, router.query.studentId]);
+  }, [projectId, studentId]);
 
   // productを取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, 'projects', `${router.query.id}`);
+      const docRef = doc(db, "projects", `${projectId}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         if (docSnap?.data().release === false) {
-          router.push('/register');
+          router.push("/register");
           return;
         }
         setProject({ ...docSnap.data(), id: docSnap.id });
       }
     };
     getProject();
-  }, [router.query.id, router]);
+  }, [projectId, router]);
 
   // 商品登録用 初期値入力
   useEffect(() => {
@@ -81,12 +83,12 @@ const MeasureId = () => {
         const price = product.price ? product.price : null;
 
         let size = product.size ? product.size : null;
-        size = product.size.length === 1 ? product.size[0] : '未記入';
+        size = product.size.length === 1 ? product.size[0] : "未記入";
 
-        const quantity = product.quantity ? '0' : product.fixedQuantity;
-        const inseam = product.inseam ? 'なし' : null;
-        const sizeUrl = product.sizeUrl ? product.sizeUrl : '';
-        const imageUrl = product.imageUrl ? product.imageUrl : '';
+        const quantity = product.quantity ? "0" : product.fixedQuantity;
+        const inseam = product.inseam ? "なし" : null;
+        const sizeUrl = product.sizeUrl ? product.sizeUrl : "";
+        const imageUrl = product.imageUrl ? product.imageUrl : "";
         return {
           productName,
           price,
@@ -102,18 +104,12 @@ const MeasureId = () => {
 
   // 採寸登録
   const updateStudent = async () => {
-    const result = window.confirm('登録して宜しいでしょうか');
+    const result = window.confirm("登録して宜しいでしょうか");
     if (!result) return;
     setLoading(true);
     try {
       await updateDoc(
-        doc(
-          db,
-          'schools',
-          `${router.query.id}`,
-          'students',
-          `${router.query.studentId}`
-        ),
+        doc(db, "schools", `${projectId}`, "students", `${studentId}`),
         {
           ...items,
           sumTotal,
@@ -128,8 +124,8 @@ const MeasureId = () => {
         ...items,
         sumTotal,
       });
-      localStorage.setItem(`${student.id}`, jsonString);
-      router.push(`/completion/${student?.id}`);
+      localStorage.setItem(`${studentId}`, jsonString);
+      router.push(`/completion/${studentId}`);
     }
   };
 
@@ -159,7 +155,7 @@ const MeasureId = () => {
         //   }
         // });
       }
-      return { ...items, products: [...(newItems || '')] };
+      return { ...items, products: [...(newItems || "")] };
     });
   };
 
@@ -180,27 +176,27 @@ const MeasureId = () => {
   //性別を表示
   const genderDisp = (gender: string) => {
     switch (gender) {
-      case '1':
-        return '男性';
-      case '2':
-        return '女性';
+      case "1":
+        return "男性";
+      case "2":
+        return "女性";
       default:
-        return '未記入';
+        return "未記入";
     }
   };
 
   return (
-    <Container maxW='600px' py={6} minH='100vh'>
+    <Container maxW="600px" py={6} minH="100vh">
       {student?.release && (
         <>
           {items?.title && (
             <Box
               p={6}
-              fontSize='3xl'
-              fontWeight='bold'
-              bg='white'
+              fontSize="3xl"
+              fontWeight="bold"
+              bg="white"
               rounded={6}
-              boxShadow='base'
+              boxShadow="base"
             >
               {items?.title}
             </Box>
@@ -208,10 +204,10 @@ const MeasureId = () => {
           <Flex
             mt={6}
             p={6}
-            justifyContent='space-between'
-            bg='white'
+            justifyContent="space-between"
+            bg="white"
             rounded={6}
-            boxShadow='base'
+            boxShadow="base"
           >
             <Box flex={1}>
               <Box>
@@ -247,20 +243,20 @@ const MeasureId = () => {
               key={product.productName}
               mt={6}
               p={6}
-              bg='white'
+              bg="white"
               rounded={6}
-              boxShadow='base'
+              boxShadow="base"
             >
-              <Box fontSize='xl'>{product.productName}</Box>
+              <Box fontSize="xl">{product.productName}</Box>
               {Number(product?.price) !== 0 && (
                 <Box mt={2}>
-                  価格{' '}
+                  価格{" "}
                   {Math.round(Number(product.price) * TAX).toLocaleString()}
                   円（税込）
                 </Box>
               )}
               {product?.imageUrl && (
-                <Flex mt={6} justifyContent='center'>
+                <Flex mt={6} justifyContent="center">
                   <img src={product?.imageUrl} alt={product?.imageUrl} />
                 </Flex>
               )}
@@ -269,8 +265,8 @@ const MeasureId = () => {
                 <Box mt={6}>
                   <Flex
                     mb={2}
-                    alignItems='center'
-                    justifyContent='space-between'
+                    alignItems="center"
+                    justifyContent="space-between"
                   >
                     <Text>サイズ</Text>
                     {product?.sizeUrl && (
@@ -281,7 +277,7 @@ const MeasureId = () => {
                     <Box>
                       {product?.size.map((size: string) => (
                         <Input
-                          name='size'
+                          name="size"
                           key={size}
                           defaultValue={size}
                           isReadOnly
@@ -290,8 +286,8 @@ const MeasureId = () => {
                     </Box>
                   ) : (
                     <Select
-                      placeholder='サイズを選択してください'
-                      name='size'
+                      placeholder="サイズを選択してください"
+                      name="size"
                       onChange={(e) => handleSelectChange(e, index)}
                     >
                       {product?.size.map((size: string) => (
@@ -310,8 +306,8 @@ const MeasureId = () => {
                     <Text>数量</Text>
                     <Select
                       mt={2}
-                      name='quantity'
-                      placeholder='数量を選択してしてください'
+                      name="quantity"
+                      placeholder="数量を選択してしてください"
                       onChange={(e) => handleSelectChange(e, index)}
                     >
                       {array.map((num: string, index: number) => (
@@ -334,13 +330,13 @@ const MeasureId = () => {
                     <Text>裾上げ</Text>
                     <Select
                       mt={1}
-                      name='inseam'
-                      placeholder='裾上直しの長さを選択してください'
+                      name="inseam"
+                      placeholder="裾上直しの長さを選択してください"
                       onChange={(e) => handleSelectChange(e, index)}
                     >
-                      {Object.keys(['無し', ...Array(30)]).map(
+                      {Object.keys(["無し", ...Array(30)]).map(
                         (num: string, index: number) => (
-                          <option key={num?.toString()} value={index + 'cm'}>
+                          <option key={num?.toString()} value={index + "cm"}>
                             {index}cm
                           </option>
                         )
@@ -352,9 +348,9 @@ const MeasureId = () => {
             </Box>
           ))}
 
-          <Box mt={6} textAlign='center'>
+          <Box mt={6} textAlign="center">
             <Button
-              colorScheme='facebook'
+              colorScheme="facebook"
               onClick={updateStudent}
               disabled={items?.products?.some(
                 (product: any) => Number(product.quantity) === 0
