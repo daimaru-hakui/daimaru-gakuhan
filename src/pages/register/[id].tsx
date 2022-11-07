@@ -66,7 +66,7 @@ const RegisterId = () => {
       gender: "",
       sumTotal: 0,
       products: project?.products?.map((product: any) => {
-        const productName = product.productName ? product.productName : "";
+        const productName = "未記入";
         const price = product.price ? product.price : 0;
         const size = "未記入";
         const quantity = "0";
@@ -190,7 +190,7 @@ const RegisterId = () => {
               </RadioGroup>
             </Box>
           )}
-          {Number(project?.gender) === 3 && (
+          {/* {Number(project?.gender) === 3 && (
             <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
               <RadioGroup
                 name="gender"
@@ -210,7 +210,7 @@ const RegisterId = () => {
                 </Stack>
               </RadioGroup>
             </Box>
-          )}
+          )} */}
 
           <Box mt={6} textAlign="center">
             <Button
@@ -220,7 +220,7 @@ const RegisterId = () => {
                 !items.firstName ||
                 !items.lastName ||
                 !items.studentNumber ||
-                !items.gender ||
+                (Number(project?.gender) === 1 ? null : !items.gender) ||
                 !project.release
               }
             >

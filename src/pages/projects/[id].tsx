@@ -298,7 +298,6 @@ const ProjectId = () => {
                   <Radio value="2" pr={6}>
                     男性・女性
                   </Radio>
-                  <Radio value="3">男性・女性・その他</Radio>
                 </Stack>
               </RadioGroup>
             </Box>
