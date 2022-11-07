@@ -25,23 +25,24 @@ import {
   Switch,
   Text,
   useDisclosure,
-} from '@chakra-ui/react';
-import { BsXCircleFill } from 'react-icons/bs';
-import { useToast } from '@chakra-ui/react';
-import { arrayUnion, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+} from "@chakra-ui/react";
+import { BsXCircleFill } from "react-icons/bs";
+import { useToast } from "@chakra-ui/react";
+import { arrayUnion, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import {
   deleteObject,
   getDownloadURL,
   ref,
   uploadBytes,
-} from 'firebase/storage';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
-import { FaPlusCircle, FaEdit } from 'react-icons/fa';
-import { db, storage } from '../../../firebase';
-import { useSetRecoilState } from 'recoil';
-import { loadingState } from '../../../store';
+} from "firebase/storage";
+import { NextPage } from "next";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { FaPlusCircle, FaEdit } from "react-icons/fa";
+import { db, storage } from "../../../firebase";
+import { useSetRecoilState } from "recoil";
+import { loadingState } from "../../../store";
+import ProductInput from "./ProductInput";
 
 type Props = {
   productIndex: number;
@@ -57,100 +58,35 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   const [sizeFileUpload, setSizeFileUpload] = useState<any>();
   const [imageFileUpload, setImageFileUpload] = useState<any>();
   const [items, setItems] = useState<any>({
-    productName: '',
-    price: '',
-    size: [''],
-    inseam: '',
-    quantity: '',
-    sizeUrl: '',
-    sizePath: '',
-    imageUrl: '',
-    imagePath: '',
-    fixedQuantity: '',
+    productName: "",
+    price: "",
+    size: [""],
+    inseam: "",
+    quantity: "",
+    sizeUrl: "",
+    sizePath: "",
+    imageUrl: "",
+    imagePath: "",
+    fixedQuantity: "",
+    productNameA: "",
+    priceA: "",
+    sizeA: [""],
+    inseamA: "",
+    quantityA: "",
+    sizeUrlA: "",
+    sizePathA: "",
+    imageUrlA: "",
+    imagePathA: "",
+    fixedQuantityA: "",
   });
 
-  const sizeData1 = [
-    { id: 'F', label: 'F' },
-    { id: '3S', label: '3S' },
-    { id: 'SS', label: 'SS' },
-    { id: 'S', label: 'S' },
-    { id: 'M', label: 'M' },
-    { id: 'L', label: 'L' },
-  ];
-  const sizeData2 = [
-    { id: 'LL', label: 'LL' },
-    { id: 'EL', label: 'EL' },
-    { id: '3L', label: '3L' },
-    { id: '4L', label: '4L' },
-    { id: '5L', label: '5L' },
-    { id: '6L', label: '6L' },
-  ];
-  const sizeData3 = [
-    { id: '21.0cm', label: '21.0cm' },
-    { id: '21.5cm', label: '21.5cm' },
-    { id: '22.0cm', label: '22.0cm' },
-    { id: '22.5cm', label: '22.5cm' },
-    { id: '23.0cm', label: '23.0cm' },
-  ];
-  const sizeData4 = [
-    { id: '23.5cm', label: '23.5cm' },
-    { id: '24.0cm', label: '24.0cm' },
-    { id: '24.5cm', label: '24.5cm' },
-    { id: '25.0cm', label: '25.0cm' },
-    { id: '25.5cm', label: '25.5cm' },
-  ];
-
-  const sizeData5 = [
-    { id: '26.5cm', label: '26.5cm' },
-    { id: '27.0cm', label: '27.0cm' },
-    { id: '27.5cm', label: '27.5cm' },
-    { id: '28.0cm', label: '28.0cm' },
-    { id: '29.0cm', label: '29.0cm' },
-  ];
-  const sizeData6 = [{ id: '30.0cm', label: '30.0cm' }];
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setItems({ ...items, [name]: value });
-  };
-
-  const handleCheckedChange = (e: any) => {
-    if (e.target.checked) {
-      setItems({
-        ...items,
-        size: [...(items.size || ''), e.target.value],
-      });
-    } else {
-      setItems({
-        ...items,
-        size: [
-          ...items?.size?.filter((size: string) => size !== e.target.value),
-        ],
-      });
-    }
-  };
-
-  const handleSwitchChange = (type: string) => {
-    const value = items[type] ? false : true;
-    setItems({ ...items, [type]: value });
-  };
-
-  const handleRadioChange = (e: string, type: string) => {
-    const value = e;
-    setItems({ ...items, [type]: value });
-  };
-
-  const handleNumberChange = (e: any) => {
-    const value = e;
-    setItems({ ...items, fixedQuantity: value });
-  };
+  console.log(items);
 
   // projectのproductsを取得
   useEffect(() => {
     const getProject = async () => {
       const unsub = onSnapshot(
-        doc(db, 'projects', `${router.query.id}`),
+        doc(db, "projects", `${router.query.id}`),
         (doc) => {
           setProducts(doc.data()?.products);
           const product = doc.data()?.products[productIndex];
@@ -161,10 +97,20 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             quantity: product?.quantity || false,
             fixedQuantity: product?.fixedQuantity || 1,
             inseam: product?.inseam || false,
-            sizeUrl: product?.sizeUrl || '',
-            sizePath: product?.sizePath || '',
-            imageUrl: product?.imageUrl || '',
-            imagePath: product?.imagePath || '',
+            sizeUrl: product?.sizeUrl || "",
+            sizePath: product?.sizePath || "",
+            imageUrl: product?.imageUrl || "",
+            imagePath: product?.imagePath || "",
+            productNameA: product?.productNameA,
+            priceA: product?.priceA || 0,
+            sizeA: product?.sizeA || [],
+            quantityA: product?.quantityA || false,
+            fixedQuantityA: product?.fixedQuantityA || 1,
+            inseamA: product?.inseamA || false,
+            sizeUrlA: product?.sizeUrlA || "",
+            sizePathA: product?.sizePathA || "",
+            imageUrlA: product?.imageUrlA || "",
+            imagePathA: product?.imagePathA || "",
           });
         }
       );
@@ -175,37 +121,37 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   // 商品を登録
   const addProduct = async () => {
     setLoading(true);
-    let sizeUrl = items.sizeUrl || '';
-    let sizePath = items.sizePath || '';
-    let imageUrl = items.imageUrl || '';
-    let imagePath = items.imagePath || '';
+    let sizeUrl = items.sizeUrl || "";
+    let sizePath = items.sizePath || "";
+    let imageUrl = items.imageUrl || "";
+    let imagePath = items.imagePath || "";
 
     // 画像が登録されてなければ画像を登録
     if (!items.sizeUrl) {
       if (sizeFileUpload) {
         const file = sizeFileUpload[0];
-        const fileName = new Date().getTime() + '_' + file.name;
+        const fileName = new Date().getTime() + "_" + file.name;
         const path = `size/${fileName}`;
         const storageRef = ref(storage, path);
         await uploadBytes(storageRef, file);
         sizeUrl = await getDownloadURL(ref(storage, path));
         sizePath = storageRef.fullPath;
-        setSizeFileUpload('');
+        setSizeFileUpload("");
       }
     }
     if (!items.imageUrl) {
       if (imageFileUpload) {
         const file = imageFileUpload[0];
-        const fileName = new Date().getTime() + '_' + file.name;
+        const fileName = new Date().getTime() + "_" + file.name;
         const path = `size/${fileName}`;
         const storageRef = ref(storage, path);
         await uploadBytes(storageRef, file);
         imageUrl = await getDownloadURL(ref(storage, path));
         imagePath = storageRef.fullPath;
-        setImageFileUpload('');
+        setImageFileUpload("");
       }
     }
-    const docRef = doc(db, 'projects', `${router.query.id}`);
+    const docRef = doc(db, "projects", `${router.query.id}`);
     try {
       if (products[productIndex]) {
         const productsArray = products?.map((product: any, index: number) => {
@@ -219,8 +165,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           products: [...productsArray],
         });
         toast({
-          title: '商品登録を更新しました',
-          status: 'success',
+          title: "商品登録を更新しました",
+          status: "success",
           duration: 2000,
           isClosable: true,
         });
@@ -235,8 +181,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           }),
         });
         toast({
-          title: '商品登録を登録しました',
-          status: 'success',
+          title: "商品登録を登録しました",
+          status: "success",
           duration: 2000,
           isClosable: true,
         });
@@ -249,76 +195,6 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     }
   };
 
-  // サイズスペック画像削除
-  const deleteSizeSpec = async () => {
-    if (items.sizeUrl) {
-      const result = window.confirm('画像を削除して宜しいでしょうか');
-      if (!result) return;
-    }
-    setLoading(true);
-    const sizeRef = ref(storage, `${items.sizePath}`);
-    const docRef = doc(db, 'projects', `${router.query.id}`);
-    try {
-      await deleteObject(sizeRef);
-      if (products[productIndex]) {
-        const productsArray = products?.map((product: any, index: number) => {
-          if (index === productIndex) {
-            return {
-              ...items,
-              sizeUrl: '',
-              sizePath: '',
-            };
-          } else {
-            return product;
-          }
-        });
-        await updateDoc(docRef, {
-          products: [...productsArray],
-        });
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setSizeFileUpload(null);
-      setLoading(false);
-    }
-  };
-
-  // イメージ画像削除
-  const deleteImageGazo = async () => {
-    if (items.sizeUrl) {
-      const result = window.confirm('画像を削除して宜しいでしょうか');
-      if (!result) return;
-    }
-    setLoading(true);
-    const imageRef = ref(storage, `${items.imagePath}`);
-    const docRef = doc(db, 'projects', `${router.query.id}`);
-    try {
-      await deleteObject(imageRef);
-      if (products[productIndex]) {
-        const productsArray = products?.map((product: any, index: number) => {
-          if (index === productIndex) {
-            return {
-              ...items,
-              imageUrl: '',
-              imagePath: '',
-            };
-          } else {
-            return product;
-          }
-        });
-        await updateDoc(docRef, {
-          products: [...productsArray],
-        });
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setImageFileUpload(null);
-      setLoading(false);
-    }
-  };
-
   const onClear = () => {
     setItems({
       ...products[productIndex],
@@ -326,38 +202,20 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     setSizeFileUpload(null);
   };
 
-  // サイズ選択表示
-  const sizeList = (array: { id: string; label: string }[]) => (
-    <Box>
-      <Stack spacing={[1, 3]} mt={1} direction={['column', 'row']}>
-        {array.map((size) => (
-          <Checkbox
-            isChecked={true}
-            key={size.id}
-            value={size.label}
-            onChange={(e) => handleCheckedChange(e)}
-          >
-            {size.label}
-          </Checkbox>
-        ))}
-      </Stack>
-    </Box>
-  );
-
   return (
     <>
-      <Flex justifyContent='center'>
-        {buttonDesign === 'add' && (
+      <Flex justifyContent="center">
+        {buttonDesign === "add" && (
           <FaPlusCircle
-            size='25'
+            size="25"
             onClick={() => {
               onOpen();
             }}
-            cursor='pointer'
+            cursor="pointer"
           />
         )}
-        {buttonDesign === 'edit' && (
-          <FaEdit size='25' onClick={onOpen} cursor='pointer' />
+        {buttonDesign === "edit" && (
+          <FaEdit size="25" onClick={onOpen} cursor="pointer" />
         )}
       </Flex>
 
@@ -367,14 +225,27 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           onClose();
           onClear();
         }}
-        size='3xl'
+        size="3xl"
       >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>商品登録</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>商品名</Text>
+            <ProductInput
+              items={items}
+              setItems={setItems}
+              productIndex={productIndex}
+              type={""}
+            />
+            {/* <ProductInput
+              items={items}
+              setItems={setItems}
+              productIndex={productIndex}
+              type={"A"}
+            /> */}
+
+            {/* <Text>商品名</Text>
             <Input
               mt={1}
               type='text'
@@ -606,12 +477,12 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                   </Box>
                 </>
               )}
-            </Box>
+            </Box> */}
           </ModalBody>
 
           <ModalFooter>
             <Button
-              variant='ghost'
+              variant="ghost"
               mr={3}
               onClick={() => {
                 onClear();
@@ -622,7 +493,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             </Button>
             <Button
               disabled={!items.productName}
-              colorScheme='facebook'
+              colorScheme="facebook"
               onClick={addProduct}
             >
               登録
