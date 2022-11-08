@@ -28,24 +28,24 @@ import {
   Switch,
   Text,
   useDisclosure,
-} from "@chakra-ui/react";
-import { BsXCircleFill } from "react-icons/bs";
-import { useToast } from "@chakra-ui/react";
-import { arrayUnion, doc, onSnapshot, updateDoc } from "firebase/firestore";
+} from '@chakra-ui/react';
+import { BsXCircleFill } from 'react-icons/bs';
+import { useToast } from '@chakra-ui/react';
+import { arrayUnion, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import {
   deleteObject,
   getDownloadURL,
   ref,
   uploadBytes,
-} from "firebase/storage";
-import { NextPage } from "next";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { FaPlusCircle, FaEdit } from "react-icons/fa";
-import { db, storage } from "../../../firebase";
-import { useSetRecoilState } from "recoil";
-import { loadingState } from "../../../store";
-import ProductInput from "./ProductInput";
+} from 'firebase/storage';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { FaPlusCircle, FaEdit } from 'react-icons/fa';
+import { db, storage } from '../../../firebase';
+import { useSetRecoilState } from 'recoil';
+import { loadingState } from '../../../store';
+import ProductInput from './ProductInput';
 
 type Props = {
   productIndex: number;
@@ -62,27 +62,27 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   const [sizeFileUpload, setSizeFileUpload] = useState<any>();
   const [imageFileUpload, setImageFileUpload] = useState<any>();
   const [items, setItems] = useState<any>({
-    clothesType: "",
-    productName: "",
-    price: "",
-    size: [""],
-    inseam: "",
-    quantity: "",
-    sizeUrl: "",
-    sizePath: "",
-    imageUrl: "",
-    imagePath: "",
-    fixedQuantity: "",
-    productNameA: "",
-    priceA: "",
-    sizeA: [""],
-    inseamA: "",
-    quantityA: "",
-    sizeUrlA: "",
-    sizePathA: "",
-    imageUrlA: "",
-    imagePathA: "",
-    fixedQuantityA: "",
+    clothesType: '',
+    productName: '',
+    price: '',
+    size: [''],
+    inseam: '',
+    quantity: '',
+    sizeUrl: '',
+    sizePath: '',
+    imageUrl: '',
+    imagePath: '',
+    fixedQuantity: '',
+    productNameA: '',
+    priceA: '',
+    sizeA: [''],
+    inseamA: '',
+    quantityA: '',
+    sizeUrlA: '',
+    sizePathA: '',
+    imageUrlA: '',
+    imagePathA: '',
+    fixedQuantityA: '',
   });
 
   console.log(items);
@@ -90,33 +90,33 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   // projectのproductsを取得
   useEffect(() => {
     const getProject = async () => {
-      const unsub = onSnapshot(doc(db, "projects", `${projectId}`), (doc) => {
+      onSnapshot(doc(db, 'projects', `${projectId}`), (doc) => {
         setProducts(doc.data()?.products);
         const product = doc.data()?.products[productIndex];
         setItems({
           clothesType: product?.clothesType || 1,
 
-          productName: product?.productName,
+          productName: product?.productName || '',
           price: product?.price || 0,
           size: product?.size || [],
           quantity: product?.quantity || false,
           fixedQuantity: product?.fixedQuantity || 1,
           inseam: product?.inseam || false,
-          sizeUrl: product?.sizeUrl || "",
-          sizePath: product?.sizePath || "",
-          imageUrl: product?.imageUrl || "",
-          imagePath: product?.imagePath || "",
+          sizeUrl: product?.sizeUrl || '',
+          sizePath: product?.sizePath || '',
+          imageUrl: product?.imageUrl || '',
+          imagePath: product?.imagePath || '',
 
-          productNameA: product?.productNameA,
+          productNameA: product?.productNameA || '',
           priceA: product?.priceA || 0,
           sizeA: product?.sizeA || [],
           quantityA: product?.quantityA || false,
           fixedQuantityA: product?.fixedQuantityA || 1,
           inseamA: product?.inseamA || false,
-          sizeUrlA: product?.sizeUrlA || "",
-          sizePathA: product?.sizePathA || "",
-          imageUrlA: product?.imageUrlA || "",
-          imagePathA: product?.imagePathA || "",
+          sizeUrlA: product?.sizeUrlA || '',
+          sizePathA: product?.sizePathA || '',
+          imageUrlA: product?.imageUrlA || '',
+          imagePathA: product?.imagePathA || '',
         });
       });
     };
@@ -126,37 +126,37 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   // 商品を登録
   const addProduct = async () => {
     setLoading(true);
-    let sizeUrl = items.sizeUrl || "";
-    let sizePath = items.sizePath || "";
-    let imageUrl = items.imageUrl || "";
-    let imagePath = items.imagePath || "";
+    let sizeUrl = items.sizeUrl || '';
+    let sizePath = items.sizePath || '';
+    let imageUrl = items.imageUrl || '';
+    let imagePath = items.imagePath || '';
 
     // 画像が登録されてなければ画像を登録
     if (!items.sizeUrl) {
       if (sizeFileUpload) {
         const file = sizeFileUpload[0];
-        const fileName = new Date().getTime() + "_" + file.name;
+        const fileName = new Date().getTime() + '_' + file.name;
         const path = `size/${fileName}`;
         const storageRef = ref(storage, path);
         await uploadBytes(storageRef, file);
         sizeUrl = await getDownloadURL(ref(storage, path));
         sizePath = storageRef.fullPath;
-        setSizeFileUpload("");
+        setSizeFileUpload('');
       }
     }
     if (!items.imageUrl) {
       if (imageFileUpload) {
         const file = imageFileUpload[0];
-        const fileName = new Date().getTime() + "_" + file.name;
+        const fileName = new Date().getTime() + '_' + file.name;
         const path = `size/${fileName}`;
         const storageRef = ref(storage, path);
         await uploadBytes(storageRef, file);
         imageUrl = await getDownloadURL(ref(storage, path));
         imagePath = storageRef.fullPath;
-        setImageFileUpload("");
+        setImageFileUpload('');
       }
     }
-    const docRef = doc(db, "projects", `${projectId}`);
+    const docRef = doc(db, 'projects', `${projectId}`);
     try {
       if (products[productIndex]) {
         const productsArray = products?.map((product: any, index: number) => {
@@ -170,8 +170,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           products: [...productsArray],
         });
         toast({
-          title: "商品登録を更新しました",
-          status: "success",
+          title: '商品登録を更新しました',
+          status: 'success',
           duration: 2000,
           isClosable: true,
         });
@@ -186,8 +186,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           }),
         });
         toast({
-          title: "商品登録を登録しました",
-          status: "success",
+          title: '商品登録を登録しました',
+          status: 'success',
           duration: 2000,
           isClosable: true,
         });
@@ -215,18 +215,18 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
 
   return (
     <>
-      <Flex justifyContent="center">
-        {buttonDesign === "add" && (
+      <Flex justifyContent='center'>
+        {buttonDesign === 'add' && (
           <FaPlusCircle
-            size="25"
+            size='25'
             onClick={() => {
               onOpen();
             }}
-            cursor="pointer"
+            cursor='pointer'
           />
         )}
-        {buttonDesign === "edit" && (
-          <FaEdit size="25" onClick={onOpen} cursor="pointer" />
+        {buttonDesign === 'edit' && (
+          <FaEdit size='25' onClick={onOpen} cursor='pointer' />
         )}
       </Flex>
 
@@ -236,7 +236,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           onClose();
           onClear();
         }}
-        size="3xl"
+        size='3xl'
       >
         <ModalOverlay />
         <ModalContent>
@@ -246,11 +246,11 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             <Box mb={6}>
               <RadioGroup
                 value={Number(items.clothesType)}
-                defaultValue={1}
-                onChange={(e) => handleRadioChange(e, "clothesType")}
+                defaultValue='1'
+                onChange={(e) => handleRadioChange(e, 'clothesType')}
               >
-                <Box fontWeight="bold"></Box>
-                <Stack direction={["column", "row"]} mt={2}>
+                <Box fontWeight='bold'></Box>
+                <Stack direction={['column', 'row']} mt={2}>
                   <Radio value={1} pr={6}>
                     男女兼用
                   </Radio>
@@ -264,7 +264,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               items={items}
               setItems={setItems}
               productIndex={productIndex}
-              clothesSwitch={""}
+              clothesSwitch={''}
             />
             {Number(items.clothesType) === 2 && (
               <>
@@ -272,7 +272,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                   items={items}
                   setItems={setItems}
                   productIndex={productIndex}
-                  clothesSwitch={"A"}
+                  clothesSwitch={'A'}
                 />
               </>
             )}
@@ -514,7 +514,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
 
           <ModalFooter>
             <Button
-              variant="ghost"
+              variant='ghost'
               mr={3}
               onClick={() => {
                 onClear();
@@ -525,7 +525,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             </Button>
             <Button
               disabled={!items.productName}
-              colorScheme="facebook"
+              colorScheme='facebook'
               onClick={addProduct}
             >
               登録

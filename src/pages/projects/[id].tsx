@@ -19,18 +19,18 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/react";
-import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from "react-icons/fa";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { db, storage } from "../../../firebase";
-import { currentUserAuth, projectsState } from "../../../store";
-import InputModal from "../../components/projects/InputModal";
-import { deleteObject, ref } from "firebase/storage";
-import SignatureModal from "../../components/projects/SignatureModal";
+} from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
+import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from 'react-icons/fa';
+import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { db, storage } from '../../../firebase';
+import { currentUserAuth, projectsState } from '../../../store';
+import InputModal from '../../components/projects/InputModal';
+import { deleteObject, ref } from 'firebase/storage';
+import SignatureModal from '../../components/projects/SignatureModal';
 
 const ProjectId = () => {
   const router = useRouter();
@@ -41,16 +41,16 @@ const ProjectId = () => {
   const [students, setStudents] = useState<any>();
   const projectId = router.query.id;
   const [project, setProject] = useState<any>({
-    title: "",
-    desc: "",
-    schedule: "",
-    createdAt: "",
+    title: '',
+    desc: '',
+    schedule: '',
+    createdAt: '',
     products: [],
   });
 
   useEffect(() => {
     if (!currentUser) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [currentUser, router]);
 
@@ -71,9 +71,9 @@ const ProjectId = () => {
     const getSchool = async () => {
       const studentsCollectionRef = collection(
         db,
-        "schools",
+        'schools',
         `${projectId}`,
-        "students"
+        'students'
       );
       const querySnapshot = await getDocs(studentsCollectionRef);
       setStudents(
@@ -87,7 +87,7 @@ const ProjectId = () => {
 
   ////////// productを削除//////////
   const deleteProduct = async (productIndex: number) => {
-    const result = window.confirm("削除して宜しいでしょうか");
+    const result = window.confirm('削除して宜しいでしょうか');
     if (!result) return;
 
     // サイズスペック画像の削除
@@ -109,7 +109,7 @@ const ProjectId = () => {
     }
 
     // データベースから商品を削除
-    const docRef = doc(db, "projects", `${projectId}`);
+    const docRef = doc(db, 'projects', `${projectId}`);
     try {
       if (project.products[productIndex]) {
         const productsArray = project.products.filter(
@@ -127,7 +127,7 @@ const ProjectId = () => {
 
   // タイトルを編集
   const updateTitle = async () => {
-    const docRef = doc(db, "projects", `${projectId}`);
+    const docRef = doc(db, 'projects', `${projectId}`);
     try {
       await updateDoc(docRef, {
         title: project.title,
@@ -136,8 +136,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: "タイトルを変更しました",
-        status: "success",
+        title: 'タイトルを変更しました',
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
@@ -156,7 +156,7 @@ const ProjectId = () => {
     type: string
   ) => {
     const value = e.target.value;
-    const docRef = doc(db, "projects", `${projectId}`);
+    const docRef = doc(db, 'projects', `${projectId}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -165,8 +165,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: "採寸予定日を変更しました",
-        status: "success",
+        title: '採寸予定日を変更しました',
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
@@ -176,7 +176,7 @@ const ProjectId = () => {
   //　性別記入を変更
   const handleRadioChange = (e: string, type: string) => {
     const value = e;
-    const docRef = doc(db, "projects", `${projectId}`);
+    const docRef = doc(db, 'projects', `${projectId}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -185,8 +185,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: "性別記入を変更しました",
-        status: "success",
+        title: '性別記入を変更しました',
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
@@ -194,33 +194,94 @@ const ProjectId = () => {
   };
 
   const deleteSignature = async () => {
-    const docRef = doc(db, "projects", `${projectId}`);
+    const docRef = doc(db, 'projects', `${projectId}`);
     try {
       await updateDoc(docRef, {
-        signature: "",
+        signature: '',
       });
     } catch (err) {
       console.log(err);
     }
   };
 
+  const productNameElement = (index: number, prop: string) => (
+    <>
+      {project?.products[index][prop] ? (
+        <Box>{project?.products[index][prop]}</Box>
+      ) : (
+        <Box>未登録</Box>
+      )}
+    </>
+  );
+
+  const priceElement = (index: number, prop: string) => (
+    <>
+      {project?.products[index][prop] ? (
+        <>
+          <Box>
+            {Number(project?.products[index][prop])?.toLocaleString()}円
+          </Box>
+        </>
+      ) : (
+        <Box>未登録</Box>
+      )}
+    </>
+  );
+
+  const sizeElement = (index: number, prop: string) => (
+    <Breadcrumb cursor='default'>
+      {project?.products[index][prop]?.map((size: string) => (
+        <BreadcrumbItem key={size}>
+          <BreadcrumbLink cursor='default' style={{ textDecoration: 'none' }}>
+            {size}
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      ))}
+    </Breadcrumb>
+  );
+
+  const quantityElement = (index: number, prop: string, propSub: string) => (
+    <>
+      {Number(project?.products[index][prop]) === 1 ? (
+        <Box>入力値あり</Box>
+      ) : (
+        <Box>
+          <Box as='span' mr={2}>
+            固定数量
+          </Box>
+          {project?.products[index][propSub]}
+        </Box>
+      )}
+    </>
+  );
+
+  const inseamElement = (index: number, prop: string) => (
+    <>
+      {Number(project?.products[index][prop]) === 1 ? (
+        <FaRegCircle />
+      ) : (
+        <FaTimes />
+      )}
+    </>
+  );
+
   return (
     <>
-      <Box bg="white" boxShadow="xs">
-        <Container maxW="1000px" py={{ base: 6, md: 10 }}>
+      <Box bg='white' boxShadow='xs'>
+        <Container maxW='1000px' py={{ base: 6, md: 10 }}>
           {editTitle ? (
             <Box>
               <Input
-                name="title"
+                name='title'
                 value={project?.title}
                 onChange={handleInputChange}
               />
-              <Box mt={3} textAlign="right">
+              <Box mt={3} textAlign='right'>
                 <Button mr={2} onClick={() => setEditTitle((prev) => !prev)}>
                   キャンセル
                 </Button>
                 <Button
-                  colorScheme="facebook"
+                  colorScheme='facebook'
                   onClick={() => {
                     updateTitle();
                     setEditTitle((prev) => !prev);
@@ -231,53 +292,53 @@ const ProjectId = () => {
               </Box>
             </Box>
           ) : (
-            <Flex alignItems="center">
-              <Text mr={2} fontSize="3xl" fontWeight="bold">
+            <Flex alignItems='center'>
+              <Text mr={2} fontSize='3xl' fontWeight='bold'>
                 {project?.title}
               </Text>
               <FaEdit
-                cursor="pointer"
+                cursor='pointer'
                 onClick={() => setEditTitle((prev) => !prev)}
               />
             </Flex>
           )}
         </Container>
       </Box>
-      <Container maxW="1000px" py={6}>
+      <Container maxW='1000px' py={6}>
         {project?.desc && (
-          <Box p={6} bg="white" borderRadius={6} boxShadow="base">
+          <Box p={6} bg='white' borderRadius={6} boxShadow='base'>
             {project?.desc}
           </Box>
         )}
         {project?.schedule && (
-          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-            <Box fontWeight="bold">採寸日</Box>
+          <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+            <Box fontWeight='bold'>採寸日</Box>
             <Input
               mt={2}
-              type="date"
+              type='date'
               value={project?.schedule}
-              onChange={(e) => handleScheduleChange(e, "schedule")}
+              onChange={(e) => handleScheduleChange(e, 'schedule')}
             />
           </Box>
         )}
 
-        <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-          <Box fontWeight="bold">署名選択</Box>
+        <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+          <Box fontWeight='bold'>署名選択</Box>
           {project?.signature && (
             <Box
               mt={2}
               p={6}
-              rounded="md"
-              whiteSpace="pre-wrap"
-              border="1px"
-              borderColor="gray.200"
+              rounded='md'
+              whiteSpace='pre-wrap'
+              border='1px'
+              borderColor='gray.200'
             >
               {project?.signature}
             </Box>
           )}
-          <Box mt={2} textAlign={project?.signature ? "right" : "left"}>
+          <Box mt={2} textAlign={project?.signature ? 'right' : 'left'}>
             {project?.signature && (
-              <Button mr={2} colorScheme="red" onClick={deleteSignature}>
+              <Button mr={2} colorScheme='red' onClick={deleteSignature}>
                 削除
               </Button>
             )}
@@ -286,31 +347,31 @@ const ProjectId = () => {
         </Box>
         {students?.length === 0 ? (
           <>
-            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+            <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
               <RadioGroup
                 value={project?.gender}
-                onChange={(e) => handleRadioChange(e, "gender")}
+                onChange={(e) => handleRadioChange(e, 'gender')}
               >
-                <Box fontWeight="bold">性別記入</Box>
-                <Stack direction={["column", "row"]} mt={2}>
-                  <Radio value="1" pr={6}>
+                <Box fontWeight='bold'>性別記入</Box>
+                <Stack direction={['column', 'row']} mt={2}>
+                  <Radio value='1' pr={6}>
                     なし
                   </Radio>
-                  <Radio value="2" pr={6}>
+                  <Radio value='2' pr={6}>
                     男性・女性
                   </Radio>
                 </Stack>
               </RadioGroup>
             </Box>
 
-            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-              <Box fontWeight="bold">商品登録</Box>
+            <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+              <Box fontWeight='bold'>商品登録</Box>
               <Box mt={2}>
                 以下のボタンをクリックして採寸する商品を追加してください。
               </Box>
 
               <TableContainer mt={6}>
-                <Table variant="simple">
+                <Table variant='simple'>
                   {project?.products?.length > 0 && (
                     <Thead>
                       <Tr>
@@ -330,107 +391,58 @@ const ProjectId = () => {
                           {project?.products[index] && (
                             <>
                               <Td mr={2}>
-                                <Box>
-                                  {project?.products[index].productName}
-                                </Box>
+                                {productNameElement(index, 'productName')}
                                 {Number(
                                   project?.products[index].clothesType
-                                ) === 2 && (
-                                  <Box>
-                                    {project?.products[index].productNameA}
-                                  </Box>
-                                )}
+                                ) === 2 &&
+                                  productNameElement(index, 'productNameA')}
                               </Td>
+
                               <Td mr={2}>
-                                {project?.products[index].price ? (
-                                  <>
-                                    <Box>
-                                      {Number(
-                                        project?.products[index].price
-                                      )?.toLocaleString()}
-                                      円
-                                    </Box>
-                                  </>
-                                ) : (
-                                  <Box>未登録</Box>
+                                {priceElement(index, 'price')}
+                                {Number(
+                                  project?.products[index].clothesType
+                                ) === 2 && priceElement(index, 'priceA')}
+                              </Td>
+
+                              <Td>
+                                {sizeElement(index, 'size')}
+                                {Number(
+                                  project?.products[index].clothesType
+                                ) === 2 && sizeElement(index, 'sizeA')}
+                              </Td>
+
+                              <Td>
+                                {quantityElement(
+                                  index,
+                                  'quantity',
+                                  'fixedQuantity'
                                 )}
                                 {Number(
                                   project?.products[index].clothesType
-                                ) === 2 && (
-                                  <>
-                                    {project?.products[index].priceA ? (
-                                      <>
-                                        <Box>
-                                          {Number(
-                                            project?.products[index].priceA
-                                          )?.toLocaleString()}
-                                          円
-                                        </Box>
-                                      </>
-                                    ) : (
-                                      <Box>未登録</Box>
-                                    )}
-                                  </>
-                                )}
-                              </Td>
-                              <Td>
-                                <Breadcrumb cursor="default">
-                                  {project?.products[index].size?.map(
-                                    (size: string) => (
-                                      <BreadcrumbItem key={size}>
-                                        <BreadcrumbLink
-                                          cursor="default"
-                                          style={{ textDecoration: "none" }}
-                                        >
-                                          {size}
-                                        </BreadcrumbLink>
-                                      </BreadcrumbItem>
-                                    )
+                                ) === 2 &&
+                                  quantityElement(
+                                    index,
+                                    'quantityA',
+                                    'fixedQuantityA'
                                   )}
-                                </Breadcrumb>
+                              </Td>
+
+                              <Td>
+                                {inseamElement(index, 'inseam')}
                                 {Number(
                                   project?.products[index].clothesType
-                                ) === 2 && (
-                                  <Breadcrumb cursor="default">
-                                    {project?.products[index].sizeA?.map(
-                                      (size: string) => (
-                                        <BreadcrumbItem key={size}>
-                                          <BreadcrumbLink
-                                            cursor="default"
-                                            style={{ textDecoration: "none" }}
-                                          >
-                                            {size}
-                                          </BreadcrumbLink>
-                                        </BreadcrumbItem>
-                                      )
-                                    )}
-                                  </Breadcrumb>
-                                )}
+                                ) === 2 && inseamElement(index, 'inseamA')}
                               </Td>
-                              <Td>
-                                {Number(project?.products[index].quantity) ===
-                                1 ? (
-                                  <FaRegCircle />
-                                ) : (
-                                  <FaTimes />
-                                )}
-                              </Td>
-                              <Td>
-                                {Number(project?.products[index].inseam) ===
-                                1 ? (
-                                  <FaRegCircle />
-                                ) : (
-                                  <FaTimes />
-                                )}
-                              </Td>
+
                               <Td>
                                 <HStack spacing={6}>
                                   <InputModal
                                     productIndex={index}
-                                    buttonDesign="edit"
+                                    buttonDesign='edit'
                                   />
                                   <FaTrashAlt
-                                    cursor="pointer"
+                                    cursor='pointer'
                                     onClick={() => deleteProduct(index)}
                                   />
                                 </HStack>
@@ -447,7 +459,7 @@ const ProjectId = () => {
                 <Box key={i} mt={6}>
                   {!project?.products[index] &&
                     project?.products.length === index && (
-                      <InputModal productIndex={index} buttonDesign={"add"} />
+                      <InputModal productIndex={index} buttonDesign={'add'} />
                     )}
                 </Box>
               ))}
@@ -457,10 +469,10 @@ const ProjectId = () => {
           <Box
             p={6}
             mt={6}
-            bg="white"
-            rounded="md"
-            boxShadow="base"
-            textAlign="center"
+            bg='white'
+            rounded='md'
+            boxShadow='base'
+            textAlign='center'
           >
             採寸データが入力されているため編集できません。
           </Box>
