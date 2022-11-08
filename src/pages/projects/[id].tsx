@@ -34,11 +34,12 @@ import SignatureModal from "../../components/projects/SignatureModal";
 
 const ProjectId = () => {
   const router = useRouter();
+  const toast = useToast();
   const currentUser = useRecoilValue(currentUserAuth);
   const [editTitle, setEditTitle] = useState(false);
-  const toast = useToast();
   const projects = useRecoilValue(projectsState);
   const [students, setStudents] = useState<any>();
+  const projectId = router.query.id;
   const [project, setProject] = useState<any>({
     title: "",
     desc: "",
@@ -58,12 +59,12 @@ const ProjectId = () => {
     const getProject = async () => {
       setProject(
         projects.find((project: { id: string }) => {
-          if (project.id === `${router.query.id}`) return true;
+          if (project.id === `${projectId}`) return true;
         })
       );
     };
     getProject();
-  }, [router.query.id, projects]);
+  }, [projectId, projects]);
 
   // studentsデータを取得（採寸したデータ）
   useEffect(() => {
@@ -71,7 +72,7 @@ const ProjectId = () => {
       const studentsCollectionRef = collection(
         db,
         "schools",
-        `${router.query.id}`,
+        `${projectId}`,
         "students"
       );
       const querySnapshot = await getDocs(studentsCollectionRef);
@@ -82,7 +83,7 @@ const ProjectId = () => {
       );
     };
     getSchool();
-  }, [router.query.id]);
+  }, [projectId]);
 
   ////////// productを削除//////////
   const deleteProduct = async (productIndex: number) => {
@@ -108,7 +109,7 @@ const ProjectId = () => {
     }
 
     // データベースから商品を削除
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       if (project.products[productIndex]) {
         const productsArray = project.products.filter(
@@ -126,7 +127,7 @@ const ProjectId = () => {
 
   // タイトルを編集
   const updateTitle = async () => {
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       await updateDoc(docRef, {
         title: project.title,
@@ -155,7 +156,7 @@ const ProjectId = () => {
     type: string
   ) => {
     const value = e.target.value;
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -175,7 +176,7 @@ const ProjectId = () => {
   //　性別記入を変更
   const handleRadioChange = (e: string, type: string) => {
     const value = e;
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -193,7 +194,7 @@ const ProjectId = () => {
   };
 
   const deleteSignature = async () => {
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       await updateDoc(docRef, {
         signature: "",
@@ -329,18 +330,47 @@ const ProjectId = () => {
                           {project?.products[index] && (
                             <>
                               <Td mr={2}>
-                                {project?.products[index].productName}
+                                <Box>
+                                  {project?.products[index].productName}
+                                </Box>
+                                {Number(
+                                  project?.products[index].clothesType
+                                ) === 2 && (
+                                  <Box>
+                                    {project?.products[index].productNameA}
+                                  </Box>
+                                )}
                               </Td>
                               <Td mr={2}>
                                 {project?.products[index].price ? (
                                   <>
-                                    {Number(
-                                      project?.products[index].price
-                                    )?.toLocaleString()}
-                                    円
+                                    <Box>
+                                      {Number(
+                                        project?.products[index].price
+                                      )?.toLocaleString()}
+                                      円
+                                    </Box>
                                   </>
                                 ) : (
-                                  "未登録"
+                                  <Box>未登録</Box>
+                                )}
+                                {Number(
+                                  project?.products[index].clothesType
+                                ) === 2 && (
+                                  <>
+                                    {project?.products[index].priceA ? (
+                                      <>
+                                        <Box>
+                                          {Number(
+                                            project?.products[index].priceA
+                                          )?.toLocaleString()}
+                                          円
+                                        </Box>
+                                      </>
+                                    ) : (
+                                      <Box>未登録</Box>
+                                    )}
+                                  </>
                                 )}
                               </Td>
                               <Td>
@@ -358,6 +388,24 @@ const ProjectId = () => {
                                     )
                                   )}
                                 </Breadcrumb>
+                                {Number(
+                                  project?.products[index].clothesType
+                                ) === 2 && (
+                                  <Breadcrumb cursor="default">
+                                    {project?.products[index].sizeA?.map(
+                                      (size: string) => (
+                                        <BreadcrumbItem key={size}>
+                                          <BreadcrumbLink
+                                            cursor="default"
+                                            style={{ textDecoration: "none" }}
+                                          >
+                                            {size}
+                                          </BreadcrumbLink>
+                                        </BreadcrumbItem>
+                                      )
+                                    )}
+                                  </Breadcrumb>
+                                )}
                               </Td>
                               <Td>
                                 {Number(project?.products[index].quantity) ===

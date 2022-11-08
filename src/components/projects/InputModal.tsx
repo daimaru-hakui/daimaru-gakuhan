@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
+  Divider,
   Flex,
   FormControl,
   FormLabel,
@@ -20,6 +21,8 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Radio,
+  RadioGroup,
   Select,
   Stack,
   Switch,
@@ -55,9 +58,11 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const setLoading = useSetRecoilState(loadingState);
   const [products, setProducts] = useState<any>();
+  const projectId = router.query.id;
   const [sizeFileUpload, setSizeFileUpload] = useState<any>();
   const [imageFileUpload, setImageFileUpload] = useState<any>();
   const [items, setItems] = useState<any>({
+    clothesType: "",
     productName: "",
     price: "",
     size: [""],
@@ -85,38 +90,38 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   // projectのproductsを取得
   useEffect(() => {
     const getProject = async () => {
-      const unsub = onSnapshot(
-        doc(db, "projects", `${router.query.id}`),
-        (doc) => {
-          setProducts(doc.data()?.products);
-          const product = doc.data()?.products[productIndex];
-          setItems({
-            productName: product?.productName,
-            price: product?.price || 0,
-            size: product?.size || [],
-            quantity: product?.quantity || false,
-            fixedQuantity: product?.fixedQuantity || 1,
-            inseam: product?.inseam || false,
-            sizeUrl: product?.sizeUrl || "",
-            sizePath: product?.sizePath || "",
-            imageUrl: product?.imageUrl || "",
-            imagePath: product?.imagePath || "",
-            productNameA: product?.productNameA,
-            priceA: product?.priceA || 0,
-            sizeA: product?.sizeA || [],
-            quantityA: product?.quantityA || false,
-            fixedQuantityA: product?.fixedQuantityA || 1,
-            inseamA: product?.inseamA || false,
-            sizeUrlA: product?.sizeUrlA || "",
-            sizePathA: product?.sizePathA || "",
-            imageUrlA: product?.imageUrlA || "",
-            imagePathA: product?.imagePathA || "",
-          });
-        }
-      );
+      const unsub = onSnapshot(doc(db, "projects", `${projectId}`), (doc) => {
+        setProducts(doc.data()?.products);
+        const product = doc.data()?.products[productIndex];
+        setItems({
+          clothesType: product?.clothesType || 1,
+
+          productName: product?.productName,
+          price: product?.price || 0,
+          size: product?.size || [],
+          quantity: product?.quantity || false,
+          fixedQuantity: product?.fixedQuantity || 1,
+          inseam: product?.inseam || false,
+          sizeUrl: product?.sizeUrl || "",
+          sizePath: product?.sizePath || "",
+          imageUrl: product?.imageUrl || "",
+          imagePath: product?.imagePath || "",
+
+          productNameA: product?.productNameA,
+          priceA: product?.priceA || 0,
+          sizeA: product?.sizeA || [],
+          quantityA: product?.quantityA || false,
+          fixedQuantityA: product?.fixedQuantityA || 1,
+          inseamA: product?.inseamA || false,
+          sizeUrlA: product?.sizeUrlA || "",
+          sizePathA: product?.sizePathA || "",
+          imageUrlA: product?.imageUrlA || "",
+          imagePathA: product?.imagePathA || "",
+        });
+      });
     };
     getProject();
-  }, [router.query.id, productIndex]);
+  }, [projectId, productIndex]);
 
   // 商品を登録
   const addProduct = async () => {
@@ -151,7 +156,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
         setImageFileUpload("");
       }
     }
-    const docRef = doc(db, "projects", `${router.query.id}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       if (products[productIndex]) {
         const productsArray = products?.map((product: any, index: number) => {
@@ -195,6 +200,12 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     }
   };
 
+  const handleRadioChange = (e: string, type: string) => {
+    const value = e;
+    const name = type;
+    setItems({ ...items, [name]: value });
+  };
+
   const onClear = () => {
     setItems({
       ...products[productIndex],
@@ -232,18 +243,39 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           <ModalHeader>商品登録</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <Box mb={6}>
+              <RadioGroup
+                value={Number(items.clothesType)}
+                defaultValue={1}
+                onChange={(e) => handleRadioChange(e, "clothesType")}
+              >
+                <Box fontWeight="bold"></Box>
+                <Stack direction={["column", "row"]} mt={2}>
+                  <Radio value={1} pr={6}>
+                    男女兼用
+                  </Radio>
+                  <Radio value={2} pr={6}>
+                    男性用・女性用
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+            </Box>
             <ProductInput
               items={items}
               setItems={setItems}
               productIndex={productIndex}
-              type={""}
+              clothesSwitch={""}
             />
-            {/* <ProductInput
-              items={items}
-              setItems={setItems}
-              productIndex={productIndex}
-              type={"A"}
-            /> */}
+            {Number(items.clothesType) === 2 && (
+              <>
+                <ProductInput
+                  items={items}
+                  setItems={setItems}
+                  productIndex={productIndex}
+                  clothesSwitch={"A"}
+                />
+              </>
+            )}
 
             {/* <Text>商品名</Text>
             <Input

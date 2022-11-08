@@ -3,6 +3,7 @@ import {
   Box,
   Checkbox,
   CheckboxGroup,
+  Divider,
   Flex,
   FormControl,
   FormLabel,
@@ -31,14 +32,14 @@ type Props = {
   items: any;
   setItems: Function;
   productIndex: number;
-  type: string;
+  clothesSwitch: string;
 };
 
 const ProductInput: NextPage<Props> = ({
   items,
   setItems,
   productIndex,
-  type,
+  clothesSwitch,
 }) => {
   const router = useRouter();
   const setLoading = useSetRecoilState(loadingState);
@@ -47,6 +48,7 @@ const ProductInput: NextPage<Props> = ({
   const [imageFileUpload, setImageFileUpload] = useState<any>();
 
   const sizeData1 = [
+    { id: "別", label: "別" },
     { id: "F", label: "F" },
     { id: "3S", label: "3S" },
     { id: "SS", label: "SS" },
@@ -95,7 +97,7 @@ const ProductInput: NextPage<Props> = ({
             isChecked={true}
             key={size.id}
             value={size.label}
-            onChange={(e) => handleCheckedChange(e)}
+            onChange={(e) => handleCheckedChange(e, clothesSwitch)}
           >
             {size.label}
           </Checkbox>
@@ -126,17 +128,18 @@ const ProductInput: NextPage<Props> = ({
     setItems({ ...items, [name]: value });
   };
 
-  const handleCheckedChange = (e: any) => {
+  const handleCheckedChange = (e: any, type: string) => {
+    const name = "size" + type;
     if (e.target.checked) {
       setItems({
         ...items,
-        size: [...(items.size || ""), e.target.value],
+        [name]: [...(items[name] || ""), e.target.value],
       });
     } else {
       setItems({
         ...items,
-        size: [
-          ...items?.size?.filter((size: string) => size !== e.target.value),
+        [name]: [
+          ...items[name]?.filter((size: string) => size !== e.target.value),
         ],
       });
     }
@@ -214,13 +217,23 @@ const ProductInput: NextPage<Props> = ({
 
   return (
     <>
+      {Number(items.clothesType) === 2 &&
+        (clothesSwitch === "" ? (
+          <Box my={6} p={1} color="white" textAlign="center" bg="facebook.300">
+            男性用
+          </Box>
+        ) : (
+          <Box my={6} p={1} textAlign="center" bg="red.200">
+            女性用
+          </Box>
+        ))}
       <Text>商品名</Text>
       <Input
         mt={1}
         type="text"
         placeholder="商品名"
-        name={"productName" + type}
-        value={type === "" ? items.productName : items.productNameA}
+        name={"productName" + clothesSwitch}
+        value={clothesSwitch === "" ? items.productName : items.productNameA}
         onChange={(e) => handleInputChange(e)}
       />
       <Box mt={6}>
@@ -230,9 +243,11 @@ const ProductInput: NextPage<Props> = ({
           textAlign="right"
           maxW="100px"
           type="number"
-          name={"price" + type}
+          name={"price" + clothesSwitch}
           value={
-            type === "" ? Number(items?.price) || 0 : Number(items?.priceA) || 0
+            clothesSwitch === ""
+              ? Number(items?.price) || 0
+              : Number(items?.priceA) || 0
           }
           onChange={(e) => handleInputChange(e)}
         />
@@ -244,7 +259,7 @@ const ProductInput: NextPage<Props> = ({
       <Box mt={6}>
         <CheckboxGroup
           colorScheme="green"
-          defaultValue={type === "" ? items?.size : items?.sizeA}
+          defaultValue={clothesSwitch === "" ? items?.size : items?.sizeA}
         >
           <Text>サイズ</Text>
           <Flex flexDirection="column">
@@ -256,47 +271,77 @@ const ProductInput: NextPage<Props> = ({
             {sizeList(sizeData6)}
           </Flex>
         </CheckboxGroup>
-        {items?.size?.length > 0 && (
+        {clothesSwitch === "" ? (
           <>
-            <Flex mt={2} p={1} bgColor="green.100" w="100%">
-              <Box w="80px" mr={3}>
-                表示順
-              </Box>
-              <Flex flexWrap="wrap" w="100%">
-                {items.size.map((size: string) => (
-                  <Box key={size} mr={3}>
-                    {size}
-                  </Box>
-                ))}
+            {items?.size?.length > 0 && (
+              <Flex mt={2} p={1} bgColor="green.100" w="100%">
+                <Box w="80px" mr={3}>
+                  表示順
+                </Box>
+                <Flex flexWrap="wrap" w="100%">
+                  {items.size.map((size: string) => (
+                    <Box key={size} mr={3}>
+                      {size}
+                    </Box>
+                  ))}
+                </Flex>
               </Flex>
-            </Flex>
+            )}
+          </>
+        ) : (
+          <>
+            {items?.sizeA?.length > 0 && (
+              <Flex mt={2} p={1} bgColor="green.100" w="100%">
+                <Box w="80px" mr={3}>
+                  表示順
+                </Box>
+                <Flex flexWrap="wrap" w="100%">
+                  {items.sizeA.map((size: string) => (
+                    <Box key={size} mr={3}>
+                      {size}
+                    </Box>
+                  ))}
+                </Flex>
+              </Flex>
+            )}
           </>
         )}
       </Box>
 
       <Flex mt={6} justifyContent="flex-start" gap={6}>
         <FormControl display="flex" alignItems="center" w="auto">
-          <FormLabel htmlFor={"quantity" + type} w="80px" mb="0">
+          <FormLabel htmlFor={"quantity" + clothesSwitch} w="80px" mb="0">
             数量入力値
           </FormLabel>
           <Switch
-            id={"quantity" + type}
-            isChecked={type === "" ? items.quantity : items.quantityA}
-            onChange={() => handleSwitchChange("quantity" + type)}
+            id={"quantity" + clothesSwitch}
+            isChecked={clothesSwitch === "" ? items.quantity : items.quantityA}
+            onChange={() => handleSwitchChange("quantity" + clothesSwitch)}
           />
         </FormControl>
-        {(type === "" ? !items.quantity : !items.quantityA) && (
+        {(clothesSwitch === "" ? !items.quantity : !items.quantityA) && (
           <FormControl display="flex" alignItems="center">
-            <FormLabel htmlFor={"fixedqantity" + type} w="80px" mr={0} mb="0">
+            <FormLabel
+              htmlFor={"fixedqantity" + clothesSwitch}
+              w="80px"
+              mr={0}
+              mb="0"
+            >
               固定数量
             </FormLabel>
             <NumberInput
-              id={"fixedqantity" + type}
-              name={"fixedqantity" + type}
+              id={"fixedqantity" + clothesSwitch}
+              name={"fixedqantity" + clothesSwitch}
               min={1}
               w="80px"
-              value={type === "" ? items.fixedQuantity : items.fixedQuantityA}
-              onChange={(e) => handleNumberChange(e, "fixedQuantity" + type)}
+              value={
+                clothesSwitch === ""
+                  ? items.fixedQuantity
+                  : items.fixedQuantityA
+              }
+              onChange={(e) =>
+                handleNumberChange(e, "fixedQuantity" + clothesSwitch)
+              }
             >
               <NumberInputField />
               <NumberInputStepper>
@@ -310,13 +355,13 @@ const ProductInput: NextPage<Props> = ({
 
       <Box mt={6}>
         <FormControl display="flex" alignItems="center">
-          <FormLabel htmlFor={"inseam" + type} mb="0">
+          <FormLabel htmlFor={"inseam" + clothesSwitch} mb="0">
             股下修理
           </FormLabel>
           <Switch
             id="inseam"
-            isChecked={type === "" ? items.inseam : items.inseamA}
-            onChange={() => handleSwitchChange("inseam" + type)}
+            isChecked={clothesSwitch === "" ? items.inseam : items.inseamA}
+            onChange={() => handleSwitchChange("inseam" + clothesSwitch)}
           />
         </FormControl>
       </Box>
@@ -440,6 +485,7 @@ const ProductInput: NextPage<Props> = ({
           </>
         )}
       </Box>
+      <Divider my={6} />
     </>
   );
 };
