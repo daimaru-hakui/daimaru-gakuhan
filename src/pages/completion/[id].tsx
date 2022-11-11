@@ -21,7 +21,6 @@ const Completion = () => {
   const studentId = router.query.id;
   const [release, setRelease] = useState<boolean>(false);
   const [student, setStudent] = useState<any>();
-  const TAX = 1.1;
 
   // localstorage 取得
   useEffect(() => {
@@ -63,7 +62,7 @@ const Completion = () => {
 
           {release && (
             <Box mt={6}>
-              <ConfMail student={student} release={release} TAX={TAX} />
+              <ConfMail student={student} release={release} />
             </Box>
           )}
 
@@ -88,7 +87,7 @@ const Completion = () => {
                 合計金額
               </Box>
               <Box>
-                {Math.round(student?.sumTotal * TAX).toLocaleString()}円（税込）
+                {Math.round(student?.sumTotal).toLocaleString()}円（税込）
               </Box>
             </Flex>
             <Stack spacing={3}>

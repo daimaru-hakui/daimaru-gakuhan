@@ -30,14 +30,12 @@ type Props = {
   projectId: string;
   studentId: string;
   genderDisp: Function;
-  TAX: number;
 };
 
 const StudentModal: NextPage<Props> = ({
   projectId,
   studentId,
   genderDisp,
-  TAX,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [student, setStudent] = useState<any>();
@@ -93,10 +91,7 @@ const StudentModal: NextPage<Props> = ({
                   <Flex>
                     <Box>金額：</Box>
                     <Box>
-                      {Math.round(
-                        Number(student?.sumTotal) * TAX
-                      ).toLocaleString()}
-                      円
+                      {Math.round(Number(student?.sumTotal)).toLocaleString()}円
                     </Box>
                   </Flex>
                 )}

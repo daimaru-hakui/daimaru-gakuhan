@@ -8,6 +8,7 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  HStack,
   Input,
   Modal,
   ModalBody,
@@ -61,6 +62,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
   const projectId = router.query.id;
   const [sizeFileUpload, setSizeFileUpload] = useState<any>();
   const [imageFileUpload, setImageFileUpload] = useState<any>();
+  const [sizeFileUploadA, setSizeFileUploadA] = useState<any>();
+  const [imageFileUploadA, setImageFileUploadA] = useState<any>();
   const [items, setItems] = useState<any>({
     clothesType: '',
     productName: '',
@@ -73,6 +76,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     imageUrl: '',
     imagePath: '',
     fixedQuantity: '',
+
     productNameA: '',
     priceA: '',
     sizeA: [''],
@@ -84,8 +88,6 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     imagePathA: '',
     fixedQuantityA: '',
   });
-
-  console.log(items);
 
   // projectのproductsを取得
   useEffect(() => {
@@ -123,6 +125,32 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     getProject();
   }, [projectId, productIndex]);
 
+  // addProductに使う関数（画像を保存）
+  const addImage = async (
+    url: any,
+    fileupload: any,
+    setFileUpload: any,
+    basePath: any
+  ) => {
+    if (!url) {
+      if (fileupload) {
+        const file = fileupload[0];
+        const fileName = new Date().getTime() + '_' + file.name;
+        const path = `${basePath}/${fileName}`;
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, file);
+        let downloadUrl = await getDownloadURL(ref(storage, path));
+        let fullPath = storageRef.fullPath;
+        setFileUpload('');
+        return {
+          downloadUrl,
+          fullPath,
+        };
+      }
+    }
+    return;
+  };
+
   // 商品を登録
   const addProduct = async () => {
     setLoading(true);
@@ -130,38 +158,88 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     let sizePath = items.sizePath || '';
     let imageUrl = items.imageUrl || '';
     let imagePath = items.imagePath || '';
+    let sizeUrlA = items.sizeUrlA || '';
+    let sizePathA = items.sizePathA || '';
+    let imageUrlA = items.imageUrlA || '';
+    let imagePathA = items.imagePathA || '';
 
     // 画像が登録されてなければ画像を登録
-    if (!items.sizeUrl) {
-      if (sizeFileUpload) {
-        const file = sizeFileUpload[0];
-        const fileName = new Date().getTime() + '_' + file.name;
-        const path = `size/${fileName}`;
-        const storageRef = ref(storage, path);
-        await uploadBytes(storageRef, file);
-        sizeUrl = await getDownloadURL(ref(storage, path));
-        sizePath = storageRef.fullPath;
-        setSizeFileUpload('');
-      }
-    }
-    if (!items.imageUrl) {
-      if (imageFileUpload) {
-        const file = imageFileUpload[0];
-        const fileName = new Date().getTime() + '_' + file.name;
-        const path = `size/${fileName}`;
-        const storageRef = ref(storage, path);
-        await uploadBytes(storageRef, file);
-        imageUrl = await getDownloadURL(ref(storage, path));
-        imagePath = storageRef.fullPath;
-        setImageFileUpload('');
-      }
-    }
+    const sizeObj = await addImage(
+      items.sizeUrl,
+      sizeFileUpload,
+      setSizeFileUpload,
+      'sizes'
+    );
+    const imageObj = await addImage(
+      items.imageUrl,
+      imageFileUpload,
+      setImageFileUpload,
+      'images'
+    );
+    const sizeObjA = await addImage(
+      items.sizeUrlA,
+      sizeFileUploadA,
+      setSizeFileUploadA,
+      'sizes'
+    );
+    const imageObjA = await addImage(
+      items.imageUrlA,
+      imageFileUploadA,
+      setImageFileUploadA,
+      'images'
+    );
+
+    // if (!items.imageUrl) {
+    //   if (imageFileUpload) {
+    //     const file = imageFileUpload[0];
+    //     const fileName = new Date().getTime() + '_' + file.name;
+    //     const path = `images/${fileName}`;
+    //     const storageRef = ref(storage, path);
+    //     await uploadBytes(storageRef, file);
+    //     imageUrl = await getDownloadURL(ref(storage, path));
+    //     imagePath = storageRef.fullPath;
+    //   }
+    // }
+    // if (!items.sizeUrlA) {
+    //   if (sizeFileUploadA) {
+    //     const file = sizeFileUploadA[0];
+    //     const fileName = new Date().getTime() + '_' + file.name;
+    //     const path = `sizes/${fileName}`;
+    //     const storageRef = ref(storage, path);
+    //     await uploadBytes(storageRef, file);
+    //     sizeUrlA = await getDownloadURL(ref(storage, path));
+    //     sizePathA = storageRef.fullPath;
+    //     setSizeFileUploadA('');
+    //   }
+    // }
+    // if (!items.imageUrlA) {
+    //   if (imageFileUploadA) {
+    //     const file = imageFileUploadA[0];
+    //     const fileName = new Date().getTime() + '_' + file.name;
+    //     const path = `images/${fileName}`;
+    //     const storageRef = ref(storage, path);
+    //     await uploadBytes(storageRef, file);
+    //     imageUrlA = await getDownloadURL(ref(storage, path));
+    //     imagePathA = storageRef.fullPath;
+    //     setImageFileUploadA('');
+    //   }
+    // }
     const docRef = doc(db, 'projects', `${projectId}`);
     try {
       if (products[productIndex]) {
         const productsArray = products?.map((product: any, index: number) => {
           if (index === productIndex) {
-            return { ...items, sizeUrl, sizePath, imageUrl, imagePath };
+            return {
+              ...items,
+              sizeUrl: sizeObj?.downloadUrl || sizeUrl,
+              sizePath: sizeObj?.fullPath || sizePath,
+              imageUrl: imageObj?.downloadUrl || imageUrl,
+              imagePath: imageObj?.fullPath || imagePath,
+              sizeUrlA: sizeObjA?.downloadUrl || sizeUrlA,
+              sizePathA: sizeObjA?.fullPath || sizePathA,
+              imageUrlA: imageObjA?.downloadUrl || imageUrlA,
+              imagePathA: imageObjA?.fullPath || imagePathA,
+            };
           } else {
             return product;
           }
@@ -183,6 +261,10 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             sizePath,
             imageUrl,
             imagePath,
+            sizeUrlA,
+            sizePathA,
+            imageUrlA,
+            imagePathA,
           }),
         });
         toast({
@@ -197,6 +279,48 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     } finally {
       setLoading(false);
       onClose();
+    }
+  };
+
+  // サイズスペック画像削除
+  const deleteImage = async (
+    imageUrl: string,
+    imagePath: string,
+    propUrl: string,
+    propPath: string,
+    setFileUpload: any
+  ) => {
+    if (imageUrl) {
+      const result = window.confirm('画像を削除して宜しいでしょうか');
+      if (!result) return;
+    }
+    setLoading(true);
+    const imageRef = ref(storage, `${imagePath}`);
+    const docRef = doc(db, 'projects', `${projectId}`);
+    try {
+      await deleteObject(imageRef);
+      if (products[productIndex]) {
+        const productsArray = products?.map((product: any, index: number) => {
+          if (index === productIndex) {
+            return {
+              ...items,
+              [propUrl]: '',
+              [propPath]: '',
+            };
+          } else {
+            return product;
+          }
+        });
+
+        await updateDoc(docRef, {
+          products: [...productsArray],
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setFileUpload(null);
+      setLoading(false);
     }
   };
 
@@ -217,13 +341,15 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     <>
       <Flex justifyContent='center'>
         {buttonDesign === 'add' && (
-          <FaPlusCircle
-            size='25'
+          <Button
             onClick={() => {
               onOpen();
             }}
-            cursor='pointer'
-          />
+            colorScheme='facebook'
+            leftIcon={<FaPlusCircle size='25' cursor='pointer' />}
+          >
+            商品を追加
+          </Button>
         )}
         {buttonDesign === 'edit' && (
           <FaEdit size='25' onClick={onOpen} cursor='pointer' />
@@ -265,6 +391,15 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               setItems={setItems}
               productIndex={productIndex}
               clothesSwitch={''}
+              sizeFileUpload={sizeFileUpload}
+              setSizeFileUpload={setSizeFileUpload}
+              imageFileUpload={imageFileUpload}
+              setImageFileUpload={setImageFileUpload}
+              sizeFileUploadA={sizeFileUploadA}
+              imageFileUploadA={imageFileUploadA}
+              setSizeFileUploadA={setSizeFileUploadA}
+              setImageFileUploadA={setImageFileUploadA}
+              deleteImage={deleteImage}
             />
             {Number(items.clothesType) === 2 && (
               <>
@@ -273,243 +408,18 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                   setItems={setItems}
                   productIndex={productIndex}
                   clothesSwitch={'A'}
+                  sizeFileUpload={sizeFileUpload}
+                  setSizeFileUpload={setSizeFileUpload}
+                  imageFileUpload={imageFileUpload}
+                  setImageFileUpload={setImageFileUpload}
+                  sizeFileUploadA={sizeFileUploadA}
+                  imageFileUploadA={imageFileUploadA}
+                  setSizeFileUploadA={setSizeFileUploadA}
+                  setImageFileUploadA={setImageFileUploadA}
+                  deleteImage={deleteImage}
                 />
               </>
             )}
-
-            {/* <Text>商品名</Text>
-            <Input
-              mt={1}
-              type='text'
-              placeholder='商品名'
-              name='productName'
-              value={items.productName}
-              onChange={(e) => handleInputChange(e)}
-            />
-            <Box mt={6}>
-              <Text>金額（税抜き金額を入力してください）</Text>
-              <Input
-                mt={1}
-                textAlign='right'
-                maxW='100px'
-                type='number'
-                name='price'
-                value={Number(items?.price) || 0}
-                onChange={(e) => handleInputChange(e)}
-              />
-              <Box as='span' ml={1}>
-                円
-              </Box>
-            </Box>
-
-            <Box mt={6}>
-              <CheckboxGroup colorScheme='green' defaultValue={items?.size}>
-                <Text>サイズ</Text>
-                <Flex flexDirection='column'>
-                  {sizeList(sizeData1)}
-                  {sizeList(sizeData2)}
-                  {sizeList(sizeData3)}
-                  {sizeList(sizeData4)}
-                  {sizeList(sizeData5)}
-                  {sizeList(sizeData6)}
-                </Flex>
-              </CheckboxGroup>
-              {items?.size?.length > 0 && (
-                <>
-                  <Flex mt={2} p={1} bgColor='green.100' w='100%'>
-                    <Box w='80px' mr={3}>
-                      表示順
-                    </Box>
-                    <Flex flexWrap='wrap' w='100%'>
-                      {items.size.map((size: string) => (
-                        <Box key={size} mr={3}>
-                          {size}
-                        </Box>
-                      ))}
-                    </Flex>
-                  </Flex>
-                </>
-              )}
-            </Box>
-
-            <Flex mt={6} justifyContent='flex-start' gap={6}>
-              <FormControl display='flex' alignItems='center' w='auto'>
-                <FormLabel htmlFor='quantity' w='80px' mb='0'>
-                  数量入力値
-                </FormLabel>
-                <Switch
-                  id='quantity'
-                  isChecked={items.quantity}
-                  onChange={() => handleSwitchChange('quantity')}
-                />
-              </FormControl>
-              {!items.quantity && (
-                <FormControl display='flex' alignItems='center'>
-                  <FormLabel htmlFor='fixedqantity' w='80px' mr={0} mb='0'>
-                    固定数量
-                  </FormLabel>
-                  <NumberInput
-                    id='fixedqantity'
-                    name='fixedQantity'
-                    // defaultValue={1}
-                    min={1}
-                    w='80px'
-                    value={items.fixedQuantity}
-                    onChange={handleNumberChange}
-                  >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
-              )}
-            </Flex>
-
-            <Box mt={6}>
-              <FormControl display='flex' alignItems='center'>
-                <FormLabel htmlFor='inseam' mb='0'>
-                  股下修理
-                </FormLabel>
-                <Switch
-                  id='inseam'
-                  isChecked={items.inseam}
-                  onChange={() => handleSwitchChange('inseam')}
-                />
-              </FormControl>
-            </Box>
-
-            <Box mt={6}>
-              <Text>サイズスペック画像</Text>
-              {!items?.sizeUrl && !sizeFileUpload && (
-                <FormControl mt={2}>
-                  <FormLabel htmlFor='gazo' mb='0' w='150px' cursor='pointer'>
-                    <Box
-                      p={2}
-                      textAlign='center'
-                      color='white'
-                      bg='#385898'
-                      rounded='md'
-                    >
-                      アップロード
-                    </Box>
-                  </FormLabel>
-                  <Input
-                    mt={1}
-                    id='gazo'
-                    display='none'
-                    type='file'
-                    accept='image/*'
-                    value={sizeFileUpload ? sizeFileUpload.name : ''}
-                    onChange={(e) => setSizeFileUpload(e.target.files)}
-                  />
-                </FormControl>
-              )}
-
-              {(items?.sizeUrl || sizeFileUpload?.[0]) && (
-                <>
-                  <Box mt={2} position='relative' w='auto'>
-                    <Box
-                      position='absolute'
-                      left='50%'
-                      transform='translate(-50%,-50%)'
-                      rounded='50%'
-                      cursor='pointer'
-                      bg='white'
-                    >
-                      <BsXCircleFill fontSize='30px' onClick={deleteSizeSpec} />
-                    </Box>
-                    {items?.sizeUrl && (
-                      <img
-                        width='100%'
-                        src={items?.sizeUrl}
-                        alt={items?.sizeUrl}
-                      />
-                    )}
-                    {sizeFileUpload?.[0] && (
-                      <>
-                        <img
-                          width='100%'
-                          src={window.URL.createObjectURL(sizeFileUpload[0])}
-                          alt={sizeFileUpload[0].name}
-                        />
-                        <Text mt={1} fontWeight='bold'>
-                          ※プレビュー画像です。登録ボタンを押して確定してください。
-                        </Text>
-                      </>
-                    )}
-                  </Box>
-                </>
-              )}
-            </Box>
-
-            <Box mt={6}>
-              <Text>イメージ画像</Text>
-              {!items?.imageUrl && !imageFileUpload && (
-                <FormControl mt={2}>
-                  <FormLabel htmlFor='gazo' mb='0' w='150px' cursor='pointer'>
-                    <Box
-                      p={2}
-                      textAlign='center'
-                      color='white'
-                      bg='#385898'
-                      rounded='md'
-                    >
-                      アップロード
-                    </Box>
-                  </FormLabel>
-                  <Input
-                    mt={1}
-                    id='gazo'
-                    display='none'
-                    type='file'
-                    accept='image/*'
-                    value={imageFileUpload ? imageFileUpload.name : ''}
-                    onChange={(e) => setImageFileUpload(e.target.files)}
-                  />
-                </FormControl>
-              )}
-
-              {(items?.imageUrl || imageFileUpload?.[0]) && (
-                <>
-                  <Box mt={2} position='relative' w='auto'>
-                    <Box
-                      position='absolute'
-                      left='50%'
-                      transform='translate(-50%,-50%)'
-                      rounded='50%'
-                      cursor='pointer'
-                      bg='white'
-                    >
-                      <BsXCircleFill
-                        fontSize='30px'
-                        onClick={deleteImageGazo}
-                      />
-                    </Box>
-                    {items?.imageUrl && (
-                      <img
-                        width='100%'
-                        src={items?.imageUrl}
-                        alt={items?.imageUrl}
-                      />
-                    )}
-                    {imageFileUpload?.[0] && (
-                      <>
-                        <img
-                          width='100%'
-                          src={window.URL.createObjectURL(imageFileUpload[0])}
-                          alt={imageFileUpload[0].name}
-                        />
-                        <Text mt={1} fontWeight='bold'>
-                          ※プレビュー画像です。登録ボタンを押して確定してください。
-                        </Text>
-                      </>
-                    )}
-                  </Box>
-                </>
-              )}
-            </Box> */}
           </ModalBody>
 
           <ModalFooter>

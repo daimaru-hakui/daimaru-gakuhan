@@ -17,10 +17,9 @@ import React from 'react';
 type Props = {
   totals: string[];
   totalPrice: number;
-  TAX: number;
 };
 
-const TotalModal: NextPage<Props> = ({ totals, totalPrice, TAX }) => {
+const TotalModal: NextPage<Props> = ({ totals, totalPrice }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -41,7 +40,7 @@ const TotalModal: NextPage<Props> = ({ totals, totalPrice, TAX }) => {
               <>
                 <Box>合計金額 {Math.round(totalPrice)?.toLocaleString()}円</Box>
                 <Box>{`（税込み${Math.round(
-                  totalPrice * TAX
+                  totalPrice
                 ).toLocaleString()}円）`}</Box>
               </>
             )}

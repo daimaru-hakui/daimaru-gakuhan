@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React, { ReactNode } from 'react';
 import Header from './Header';
 import Loading from './Loading';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { loadingState } from '../../store';
 
 type Props = {

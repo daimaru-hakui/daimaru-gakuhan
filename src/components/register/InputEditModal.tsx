@@ -16,12 +16,12 @@ import {
   Stack,
   Text,
   useDisclosure,
-} from "@chakra-ui/react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { NextPage } from "next";
-import { NextRouter } from "next/router";
-import React from "react";
-import { db } from "../../../firebase";
+} from '@chakra-ui/react';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { NextPage } from 'next';
+import { NextRouter } from 'next/router';
+import React from 'react';
+import { db } from '../../../firebase';
 
 type Props = {
   items: any;
@@ -58,7 +58,7 @@ const InputEditModal: NextPage<Props> = ({
   const updateStudent = async () => {
     try {
       await updateDoc(
-        doc(db, "schools", `${project.id}`, "students", `${studentId}`),
+        doc(db, 'schools', `${project.id}`, 'students', `${studentId}`),
         {
           studentNumber: items.studentNumber,
           firstName: items.firstName,
@@ -68,6 +68,8 @@ const InputEditModal: NextPage<Props> = ({
       );
     } catch (err) {
       console.log(err);
+    } finally {
+      window.location.reload();
     }
   };
 
@@ -76,9 +78,9 @@ const InputEditModal: NextPage<Props> = ({
     const getStudent = async () => {
       const docRef = doc(
         db,
-        "schools",
+        'schools',
         `${project.id}`,
-        "students",
+        'students',
         `${studentId}`
       );
       const docSnap = await getDoc(docRef);
@@ -96,7 +98,7 @@ const InputEditModal: NextPage<Props> = ({
   };
   return (
     <>
-      <Button size="xs" onClick={onOpen}>
+      <Button size='xs' onClick={onOpen}>
         編集
       </Button>
 
@@ -107,57 +109,39 @@ const InputEditModal: NextPage<Props> = ({
           <ModalCloseButton />
           <ModalBody>
             <Box>
-              <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+              <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
                 <Text>学籍番号</Text>
                 <Input
-                  type="text"
+                  type='text'
                   mt={2}
-                  name="studentNumber"
-                  value={items.studentNumber || ""}
+                  name='studentNumber'
+                  value={items.studentNumber || ''}
                   onChange={handleInputChange}
                 />
               </Box>
 
-              <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+              <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
                 <Text>名前</Text>
                 <Flex gap={2}>
                   <Input
-                    type="text"
+                    type='text'
                     mt={2}
-                    name="lastName"
-                    value={items.lastName || ""}
+                    name='lastName'
+                    value={items.lastName || ''}
                     onChange={handleInputChange}
                   />
                   <Input
-                    type="text"
+                    type='text'
                     mt={2}
-                    name="firstName"
-                    value={items.firstName || ""}
+                    name='firstName'
+                    value={items.firstName || ''}
                     onChange={handleInputChange}
                   />
                 </Flex>
               </Box>
 
-              {Number(project?.gender) === 1 && ""}
+              {Number(project?.gender) === 1 && ''}
               {Number(project?.gender) === 2 && (
-                <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
-                  <RadioGroup
-                    name="gender"
-                    value={items.gender}
-                    onChange={(e) => handleRadioChange(e)}
-                  >
-                    <Stack spacing={5} direction="row">
-                      <Radio colorScheme="green" value="1">
-                        男性
-                      </Radio>
-                      <Radio colorScheme="green" value="2">
-                        女性
-                      </Radio>
-                    </Stack>
-                  </RadioGroup>
-                </Box>
-              )}
-              {/* {Number(project?.gender) === 3 && (
                 <Box mt={6} p={6} bg='white' rounded={6} boxShadow='base'>
                   <RadioGroup
                     name='gender'
@@ -171,13 +155,10 @@ const InputEditModal: NextPage<Props> = ({
                       <Radio colorScheme='green' value='2'>
                         女性
                       </Radio>
-                      <Radio colorScheme='green' value='3'>
-                        その他
-                      </Radio>
                     </Stack>
                   </RadioGroup>
                 </Box>
-              )} */}
+              )}
             </Box>
           </ModalBody>
 
@@ -192,7 +173,7 @@ const InputEditModal: NextPage<Props> = ({
               キャンセル
             </Button>
             <Button
-              colorScheme="blue"
+              colorScheme='blue'
               onClick={() => {
                 updateStudent();
                 onClose();

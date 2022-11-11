@@ -11,13 +11,14 @@ import {
 type Props = {
   tableWidth: number;
   setTableWidth: Function;
+  width: number;
 };
 
-const SliderWidth: NextPage<Props> = ({ tableWidth, setTableWidth }) => {
+const SliderWidth: NextPage<Props> = ({ tableWidth, setTableWidth, width }) => {
   return (
     <Slider
-      defaultValue={1200}
-      min={1200}
+      defaultValue={width}
+      min={width}
       max={3500}
       value={tableWidth}
       onChange={(e: any) => setTableWidth(e)}

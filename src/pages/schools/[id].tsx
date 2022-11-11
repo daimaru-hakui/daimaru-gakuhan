@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import {
   Box,
   Button,
@@ -13,7 +13,7 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   collection,
   deleteDoc,
@@ -22,15 +22,16 @@ import {
   onSnapshot,
   orderBy,
   query,
-} from "firebase/firestore";
-import { FaTrashAlt } from "react-icons/fa";
-import { useRecoilValue } from "recoil";
-import { db } from "../../../firebase";
-import { currentUserAuth } from "../../../store";
-import { CSVLink } from "react-csv";
-import TotalModal from "../../components/schools/TotalModal";
-import StudentModal from "../../components/schools/StudentModal";
-import SliderWidth from "../../components/schools/SliderWidth";
+} from 'firebase/firestore';
+import { FaTrashAlt } from 'react-icons/fa';
+import { useRecoilValue } from 'recoil';
+import { db } from '../../../firebase';
+import { currentUserAuth } from '../../../store';
+import { CSVLink } from 'react-csv';
+import TotalModal from '../../components/schools/TotalModal';
+import StudentModal from '../../components/schools/StudentModal';
+import SliderWidth from '../../components/SliderWidth';
+import Link from 'next/link';
 
 const SchoolId = () => {
   const router = useRouter();
@@ -39,17 +40,16 @@ const SchoolId = () => {
   const [students, setStudents] = useState<any>();
   const [project, setProject] = useState<any>();
   const [totals, setTotals] = useState<any>();
-  const [unRegister, setUnRegister] = useState("");
-  const [deleteCheck, setDeleteCheck] = useState("");
-  const [csvData, setCsvData] = useState("");
+  const [unRegister, setUnRegister] = useState('');
+  const [deleteCheck, setDeleteCheck] = useState('');
+  const [csvData, setCsvData] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
   const [tableWidth, setTableWidth] = useState(1200);
-  const TAX = 1.1;
 
   // ログインしてなければloginページへ移動
   useEffect(() => {
     if (!currentUser) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [currentUser, router]);
 
@@ -58,11 +58,11 @@ const SchoolId = () => {
     const getStudents = async () => {
       const collectionRef = collection(
         db,
-        "schools",
+        'schools',
         `${projectId}`,
-        "students"
+        'students'
       );
-      const q = query(collectionRef, orderBy("studentNumber", "asc"));
+      const q = query(collectionRef, orderBy('studentNumber', 'asc'));
       onSnapshot(q, (querySnapshot) => {
         setStudents(
           querySnapshot.docs.map((doc) => ({
@@ -78,7 +78,7 @@ const SchoolId = () => {
   // 学販projectデータ取得
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, "projects", `${projectId}`);
+      const docRef = doc(db, 'projects', `${projectId}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setProject({ ...docSnap.data(), id: docSnap.id });
@@ -93,7 +93,7 @@ const SchoolId = () => {
       const result = students?.filter(
         (student: { updatedAt: Date }) => !student.updatedAt
       );
-      setUnRegister(result?.length === 0 ? "" : result?.length);
+      setUnRegister(result?.length === 0 ? '' : result?.length);
     };
     getUnregister();
   }, [students]);
@@ -111,20 +111,20 @@ const SchoolId = () => {
 
   // 生徒の登録情報を削除
   const deleteStudent = (studentId: string) => {
-    const result = window.confirm("削除して宜しいでしょうか");
+    const result = window.confirm('削除して宜しいでしょうか');
     if (!result) return;
-    deleteDoc(doc(db, "schools", `${projectId}`, "students", studentId));
+    deleteDoc(doc(db, 'schools', `${projectId}`, 'students', studentId));
   };
 
   //性別を表示
   const genderDisp = (gender: string) => {
     switch (gender) {
-      case "1":
-        return "男性";
-      case "2":
-        return "女性";
+      case '1':
+        return '男性';
+      case '2':
+        return '女性';
       default:
-        return "未記入";
+        return '未記入';
     }
   };
 
@@ -132,15 +132,15 @@ const SchoolId = () => {
   const getDateTime = (d: Date) => {
     const date = new Date(d);
     let month = String(date.getMonth() + 1);
-    month = ("0" + month).slice(-2);
+    month = ('0' + month).slice(-2);
     let day = String(date.getDate());
-    day = ("0" + day).slice(-2);
+    day = ('0' + day).slice(-2);
     let hours = String(date.getHours());
-    hours = ("0" + hours).slice(-2);
+    hours = ('0' + hours).slice(-2);
     let min = String(date.getMinutes());
-    min = ("0" + min).slice(-2);
+    min = ('0' + min).slice(-2);
     let sec = String(date.getSeconds());
-    sec = ("0" + sec).slice(-2);
+    sec = ('0' + sec).slice(-2);
     return `${month}月${day}日${hours}:${min}:${sec}`;
   };
 
@@ -151,9 +151,9 @@ const SchoolId = () => {
     const elap = Math.floor((afterTime - beforeTime) / 1000);
     const hour = Math.floor(Number(elap) / 3600);
     let min = String(Math.floor((elap / 60) % 60));
-    min = ("0" + min).slice(-2);
+    min = ('0' + min).slice(-2);
     let sec = String(Math.floor(elap % 60));
-    sec = ("0" + sec).slice(-2);
+    sec = ('0' + sec).slice(-2);
     const result = `${hour}時間 ${min}分 ${sec}秒`;
     return result;
   };
@@ -174,10 +174,10 @@ const SchoolId = () => {
           index: number
         ) => {
           // keyの名前を作成
-          const nameProduct = "商品名" + Number(index + 1);
-          const nameSize = "サイズ" + Number(index + 1);
-          const nameQuantity = "数量" + Number(index + 1);
-          const nameInseam = "股下修理" + Number(index + 1);
+          const nameProduct = '商品名' + Number(index + 1);
+          const nameSize = 'サイズ' + Number(index + 1);
+          const nameQuantity = '数量' + Number(index + 1);
+          const nameInseam = '股下修理' + Number(index + 1);
 
           // keyに各項目名を入れてオブジェクトを作成
           const obj = {
@@ -234,7 +234,7 @@ const SchoolId = () => {
     const header = csvData[0]
       .map((csv: any) => Object.keys(csv))
       .map((key: any) => key[0])
-      .join(",");
+      .join(',');
 
     // CSVファイルの内容を作成
     const body = csvData
@@ -242,12 +242,12 @@ const SchoolId = () => {
         csv
           .map((c: any) => Object.values(c))
           .map((value: any) => value[0])
-          .join(",")
+          .join(',')
       )
-      .join("\n");
+      .join('\n');
 
     //　項目と内容を合わせてCSVファイルを作成
-    const csvFile = header + "\n" + body;
+    const csvFile = header + '\n' + body;
     setCsvData(csvFile);
   };
 
@@ -262,7 +262,7 @@ const SchoolId = () => {
     for (let i = 0; i < productsLen; i++) {
       // サイズ規格を取得
       let productSize = project?.products[i]?.size;
-      productSize?.push("未記入");
+      productSize?.push('未記入');
       // 商品名を取得
       let productName = project?.products[i]?.productName;
 
@@ -325,36 +325,52 @@ const SchoolId = () => {
 
   return (
     <Container maxW={`${tableWidth}px`} py={6}>
-      <SliderWidth tableWidth={tableWidth} setTableWidth={setTableWidth} />
-      <Box as="h2" mt={3} fontWeight="bold">
+      <SliderWidth
+        tableWidth={tableWidth}
+        setTableWidth={setTableWidth}
+        width={1200}
+      />
+      <Box as='h2' mt={3} fontWeight='bold'>
         {project?.title}
       </Box>
       {students?.length > 0 ? (
         <>
-          <Flex mt={3} alignItems="center" justifyContent="space-between">
+          <Flex mt={3} alignItems='center' justifyContent='space-between'>
             <Box>
               全{students?.length}件
               {unRegister && (
-                <Box as="span">{`（未提出者 ${unRegister}名）`}</Box>
+                <Box as='span'>{`（未提出者 ${unRegister}名）`}</Box>
               )}
             </Box>
             <Flex>
+              <Link href={`/schools/limit/${projectId}`}>
+                <a>
+                  <Button size='sm' mr={2} colorScheme='facebook'>
+                    学生閲覧用ぺージ
+                  </Button>
+                </a>
+              </Link>
               <CSVLink
                 data={csvData}
                 filename={
                   new Date().toLocaleString() + `_${project?.title}.csv`
                 }
               >
-                <Button size="sm" mr={2} onClick={onClickCsv}>
+                <Button
+                  size='sm'
+                  mr={2}
+                  colorScheme='facebook'
+                  onClick={onClickCsv}
+                >
                   CSV
                 </Button>
               </CSVLink>
-              <TotalModal totals={totals} totalPrice={totalPrice} TAX={TAX} />
+              {/* <TotalModal totals={totals} totalPrice={totalPrice} /> */}
             </Flex>
           </Flex>
 
           <TableContainer mt={6}>
-            <Table variant="striped" colorScheme="gray" size="sm">
+            <Table variant='striped' colorScheme='gray' size='sm'>
               <Thead>
                 <Tr>
                   <Th>学生番号</Th>
@@ -372,10 +388,10 @@ const SchoolId = () => {
                       index: number
                     ) => (
                       <React.Fragment key={index}>
-                        {product?.productName && <Th w="80px">商品名</Th>}
-                        {product?.size && <Th w="80px">サイズ</Th>}
-                        {product?.quantity && <Th w="50px">数量</Th>}
-                        {product?.inseam && <Th w="50px">股下修理</Th>}
+                        {product?.productName && <Th w='80px'>商品名</Th>}
+                        {product?.size && <Th w='80px'>サイズ</Th>}
+                        {product?.quantity && <Th w='50px'>数量</Th>}
+                        {product?.inseam && <Th w='50px'>股下修理</Th>}
                       </React.Fragment>
                     )
                   )}
@@ -390,36 +406,34 @@ const SchoolId = () => {
                 {students?.map((student: any) => (
                   <Tr
                     key={student.id}
-                    textColor={student?.updatedAt || "red.500"}
+                    textColor={student?.updatedAt || 'red.500'}
                   >
                     <Td>{student?.studentNumber}</Td>
                     <Td>{`${student?.lastName} ${student?.firstName}`}</Td>
                     <Td>{genderDisp(student.gender)}</Td>
                     <Td isNumeric>
                       {student.sumTotal
-                        ? Math.round(
-                            Number(student.sumTotal * TAX)
-                          ).toLocaleString()
+                        ? Math.round(Number(student.sumTotal)).toLocaleString()
                         : 0}
                       円
                     </Td>
                     {student.products.map((product: any, index: number) => (
                       <React.Fragment key={index}>
                         {product.productName && (
-                          <Td w="80px">{product.productName}</Td>
+                          <Td w='80px'>{product.productName}</Td>
                         )}
                         {product.size && (
-                          <Td w="80px" textAlign="center">
+                          <Td w='80px' textAlign='center'>
                             {product.size}
                           </Td>
                         )}
                         {product.quantity && (
-                          <Td w="50px" textAlign="right">
+                          <Td w='50px' textAlign='right'>
                             {product.quantity}
                           </Td>
                         )}
                         {product.inseam && (
-                          <Td w="50px" textAlign="right">
+                          <Td w='50px' textAlign='right'>
                             {product.inseam}
                           </Td>
                         )}
@@ -442,12 +456,11 @@ const SchoolId = () => {
                         projectId={project?.id}
                         studentId={student?.id}
                         genderDisp={genderDisp}
-                        TAX={TAX}
                       />
                     </Td>
                     <Td>
                       <FaTrashAlt
-                        cursor="pointer"
+                        cursor='pointer'
                         onClick={() => deleteCheck && deleteStudent(student.id)}
                       />
                     </Td>
@@ -459,7 +472,7 @@ const SchoolId = () => {
           <Box mt={6}>
             <Checkbox
               value={deleteCheck}
-              name="check"
+              name='check'
               onChange={(e: any) => setDeleteCheck(e.target.checked)}
             >
               削除する場合はチェックを入れてください

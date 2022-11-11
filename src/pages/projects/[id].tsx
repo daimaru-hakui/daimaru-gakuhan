@@ -10,6 +10,10 @@ import {
   Input,
   Radio,
   RadioGroup,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   Stack,
   Table,
   TableContainer,
@@ -31,6 +35,7 @@ import { currentUserAuth, projectsState } from '../../../store';
 import InputModal from '../../components/projects/InputModal';
 import { deleteObject, ref } from 'firebase/storage';
 import SignatureModal from '../../components/projects/SignatureModal';
+import SliderWidth from '../../components/SliderWidth';
 
 const ProjectId = () => {
   const router = useRouter();
@@ -39,6 +44,7 @@ const ProjectId = () => {
   const [editTitle, setEditTitle] = useState(false);
   const projects = useRecoilValue(projectsState);
   const [students, setStudents] = useState<any>();
+  const [tableWidth, setTableWidth] = useState(1000);
   const projectId = router.query.id;
   const [project, setProject] = useState<any>({
     title: '',
@@ -304,7 +310,7 @@ const ProjectId = () => {
           )}
         </Container>
       </Box>
-      <Container maxW='1000px' py={6}>
+      <Container maxW={`${tableWidth}px`} py={6}>
         {project?.desc && (
           <Box p={6} bg='white' borderRadius={6} boxShadow='base'>
             {project?.desc}
@@ -345,127 +351,8 @@ const ProjectId = () => {
             <SignatureModal />
           </Box>
         </Box>
-        {students?.length === 0 ? (
-          <>
-            <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
-              <RadioGroup
-                value={project?.gender}
-                onChange={(e) => handleRadioChange(e, 'gender')}
-              >
-                <Box fontWeight='bold'>性別記入</Box>
-                <Stack direction={['column', 'row']} mt={2}>
-                  <Radio value='1' pr={6}>
-                    なし
-                  </Radio>
-                  <Radio value='2' pr={6}>
-                    男性・女性
-                  </Radio>
-                </Stack>
-              </RadioGroup>
-            </Box>
 
-            <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
-              <Box fontWeight='bold'>商品登録</Box>
-              <Box mt={2}>
-                以下のボタンをクリックして採寸する商品を追加してください。
-              </Box>
-
-              <TableContainer mt={6}>
-                <Table variant='simple'>
-                  {project?.products?.length > 0 && (
-                    <Thead>
-                      <Tr>
-                        <Th>商品名</Th>
-                        <Th>金額</Th>
-                        <Th>サイズ展開</Th>
-                        <Th>数量入力</Th>
-                        <Th>股下修理</Th>
-                        <Th>編集・削除</Th>
-                      </Tr>
-                    </Thead>
-                  )}
-                  <Tbody>
-                    {Object.keys([...Array(9)]).map(
-                      (i: string, index: number) => (
-                        <Tr key={i} mt={6}>
-                          {project?.products[index] && (
-                            <>
-                              <Td mr={2}>
-                                {productNameElement(index, 'productName')}
-                                {Number(
-                                  project?.products[index].clothesType
-                                ) === 2 &&
-                                  productNameElement(index, 'productNameA')}
-                              </Td>
-
-                              <Td mr={2}>
-                                {priceElement(index, 'price')}
-                                {Number(
-                                  project?.products[index].clothesType
-                                ) === 2 && priceElement(index, 'priceA')}
-                              </Td>
-
-                              <Td>
-                                {sizeElement(index, 'size')}
-                                {Number(
-                                  project?.products[index].clothesType
-                                ) === 2 && sizeElement(index, 'sizeA')}
-                              </Td>
-
-                              <Td>
-                                {quantityElement(
-                                  index,
-                                  'quantity',
-                                  'fixedQuantity'
-                                )}
-                                {Number(
-                                  project?.products[index].clothesType
-                                ) === 2 &&
-                                  quantityElement(
-                                    index,
-                                    'quantityA',
-                                    'fixedQuantityA'
-                                  )}
-                              </Td>
-
-                              <Td>
-                                {inseamElement(index, 'inseam')}
-                                {Number(
-                                  project?.products[index].clothesType
-                                ) === 2 && inseamElement(index, 'inseamA')}
-                              </Td>
-
-                              <Td>
-                                <HStack spacing={6}>
-                                  <InputModal
-                                    productIndex={index}
-                                    buttonDesign='edit'
-                                  />
-                                  <FaTrashAlt
-                                    cursor='pointer'
-                                    onClick={() => deleteProduct(index)}
-                                  />
-                                </HStack>
-                              </Td>
-                            </>
-                          )}
-                        </Tr>
-                      )
-                    )}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-              {Object.keys([...Array(9)]).map((i: string, index: number) => (
-                <Box key={i} mt={6}>
-                  {!project?.products[index] &&
-                    project?.products.length === index && (
-                      <InputModal productIndex={index} buttonDesign={'add'} />
-                    )}
-                </Box>
-              ))}
-            </Box>
-          </>
-        ) : (
+        {students?.length > 0 && (
           <Box
             p={6}
             mt={6}
@@ -477,6 +364,135 @@ const ProjectId = () => {
             採寸データが入力されているため編集できません。
           </Box>
         )}
+        <>
+          <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+            <RadioGroup
+              isDisabled={students?.length > 0}
+              value={project?.gender}
+              onChange={(e) => handleRadioChange(e, 'gender')}
+            >
+              <Box fontWeight='bold'>性別記入</Box>
+              <Stack direction={['column', 'row']} mt={2}>
+                <Radio value='1' pr={6}>
+                  なし
+                </Radio>
+                <Radio value='2' pr={6}>
+                  男性・女性
+                </Radio>
+              </Stack>
+            </RadioGroup>
+          </Box>
+          <Box mt={6}>
+            <SliderWidth
+              tableWidth={tableWidth}
+              setTableWidth={setTableWidth}
+              width={1000}
+            />
+          </Box>
+          <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+            <Box fontWeight='bold'>商品登録</Box>
+
+            <TableContainer mt={6}>
+              <Table variant='simple'>
+                {project?.products?.length > 0 && (
+                  <Thead>
+                    <Tr>
+                      <Th>商品名</Th>
+                      <Th>金額</Th>
+                      <Th>サイズ展開</Th>
+                      <Th>数量入力</Th>
+                      <Th>股下修理</Th>
+                      <Th>編集・削除</Th>
+                    </Tr>
+                  </Thead>
+                )}
+                <Tbody>
+                  {Object.keys([...Array(9)]).map(
+                    (i: string, index: number) => (
+                      <Tr key={i} mt={6}>
+                        {project?.products[index] && (
+                          <>
+                            <Td mr={2}>
+                              {productNameElement(index, 'productName')}
+                              {Number(project?.products[index].clothesType) ===
+                                2 && productNameElement(index, 'productNameA')}
+                            </Td>
+
+                            <Td mr={2}>
+                              {priceElement(index, 'price')}
+                              {Number(project?.products[index].clothesType) ===
+                                2 && priceElement(index, 'priceA')}
+                            </Td>
+
+                            <Td>
+                              {sizeElement(index, 'size')}
+                              {Number(project?.products[index].clothesType) ===
+                                2 && sizeElement(index, 'sizeA')}
+                            </Td>
+
+                            <Td>
+                              {quantityElement(
+                                index,
+                                'quantity',
+                                'fixedQuantity'
+                              )}
+                              {Number(project?.products[index].clothesType) ===
+                                2 &&
+                                quantityElement(
+                                  index,
+                                  'quantityA',
+                                  'fixedQuantityA'
+                                )}
+                            </Td>
+
+                            <Td>
+                              {inseamElement(index, 'inseam')}
+                              {Number(project?.products[index].clothesType) ===
+                                2 && inseamElement(index, 'inseamA')}
+                            </Td>
+
+                            <Td>
+                              <HStack spacing={6}>
+                                {students?.length > 0 ? (
+                                  <>
+                                    <Box>編集不可</Box>
+                                  </>
+                                ) : (
+                                  <>
+                                    <InputModal
+                                      productIndex={index}
+                                      buttonDesign='edit'
+                                    />
+                                    <FaTrashAlt
+                                      cursor='pointer'
+                                      onClick={() => deleteProduct(index)}
+                                    />
+                                  </>
+                                )}
+                              </HStack>
+                            </Td>
+                          </>
+                        )}
+                      </Tr>
+                    )
+                  )}
+                </Tbody>
+              </Table>
+            </TableContainer>
+            {Object.keys([...Array(9)]).map((i: string, index: number) => (
+              <Box key={i} mt={6}>
+                {!project?.products[index] &&
+                  project?.products.length === index && (
+                    <>
+                      {students?.length === 0 && (
+                        <InputModal productIndex={index} buttonDesign={'add'} />
+                      )}
+                    </>
+                  )}
+              </Box>
+            ))}
+          </Box>
+        </>
       </Container>
     </>
   );

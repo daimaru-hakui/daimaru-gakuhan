@@ -63,7 +63,7 @@ const Dashboard = () => {
   }, [setProjects]);
 
   return (
-    <Container maxW='1200px'>
+    <Container maxW='1200px' mb={6}>
       <Flex
         flexDirection={{ base: 'column', md: 'row' }}
         justifyContent='space-between'
@@ -83,7 +83,7 @@ const Dashboard = () => {
             />
           </InputGroup>
         </Box>
-        <Box pt={6}>
+        <Box py={6}>
           <Link href='/new'>
             <a>
               <Button colorScheme='facebook'>新しい採寸を追加</Button>
