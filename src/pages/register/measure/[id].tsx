@@ -92,7 +92,7 @@ const MeasureId = () => {
         ) {
           productName = product?.productNameA || '';
           price = product?.priceA || null;
-          quantity = product?.quantityA ? '0' : product?.fixedQuantityA;
+          quantity = product?.quantityA ? '' : product?.fixedQuantityA;
           size = product.sizeA ? product.sizeA : null;
           size = product?.sizeA.length === 1 ? product?.sizeA[0] : '未記入';
           sizeUrl = product?.sizeUrlA ? product?.sizeUrlA : '';
@@ -100,7 +100,7 @@ const MeasureId = () => {
         } else {
           productName = product?.productName || '';
           price = product?.price || null;
-          quantity = product.quantity ? '0' : product.fixedQuantity;
+          quantity = product.quantity ? '' : product.fixedQuantity;
           size = product.size ? product.size : null;
           size = product.size.length === 1 ? product.size[0] : '未記入';
           sizeUrl = product?.sizeUrl ? product?.sizeUrl : '';
@@ -190,7 +190,7 @@ const MeasureId = () => {
       case '2':
         return '女性';
       default:
-        return '未記入';
+        return '';
     }
   };
 
@@ -339,12 +339,14 @@ const MeasureId = () => {
                   {items.lastName} {items.firstName}
                 </Box>
               </Box>
-              <Box mt={3}>
-                <Text>性別</Text>
-                <Box mt={1} ml={3}>
-                  {genderDisp(items.gender)}
+              {Number(project.gender) === 2 && (
+                <Box mt={3}>
+                  <Text>性別</Text>
+                  <Box mt={1} ml={3}>
+                    {genderDisp(items.gender)}
+                  </Box>
                 </Box>
-              </Box>
+              )}
             </Box>
             <InputEditModal
               items={items}
@@ -401,7 +403,7 @@ const MeasureId = () => {
               colorScheme='facebook'
               onClick={updateStudent}
               disabled={items?.products?.some(
-                (product: any) => Number(product.quantity) === 0
+                (product: any) => product.quantity === ''
               )}
             >
               登録

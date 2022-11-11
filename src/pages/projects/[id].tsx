@@ -210,6 +210,7 @@ const ProjectId = () => {
     }
   };
 
+  // 商品
   const productNameElement = (index: number, prop: string) => (
     <>
       {project?.products[index][prop] ? (
@@ -220,6 +221,7 @@ const ProjectId = () => {
     </>
   );
 
+  // 価格
   const priceElement = (index: number, prop: string) => (
     <>
       {project?.products[index][prop] ? (
@@ -234,6 +236,7 @@ const ProjectId = () => {
     </>
   );
 
+  // サイズ
   const sizeElement = (index: number, prop: string) => (
     <Breadcrumb cursor='default'>
       {project?.products[index][prop]?.map((size: string) => (
@@ -246,6 +249,7 @@ const ProjectId = () => {
     </Breadcrumb>
   );
 
+  // 入力値
   const quantityElement = (index: number, prop: string, propSub: string) => (
     <>
       {Number(project?.products[index][prop]) === 1 ? (
@@ -261,6 +265,7 @@ const ProjectId = () => {
     </>
   );
 
+  // 股下
   const inseamElement = (index: number, prop: string) => (
     <>
       {Number(project?.products[index][prop]) === 1 ? (
@@ -269,6 +274,11 @@ const ProjectId = () => {
         <FaTimes />
       )}
     </>
+  );
+
+  // イメージ画像・サイズ画像
+  const choiceElement = (index: number, prop: string) => (
+    <>{project?.products[index][prop] ? <FaRegCircle /> : <FaTimes />}</>
   );
 
   return (
@@ -402,6 +412,8 @@ const ProjectId = () => {
                       <Th>サイズ展開</Th>
                       <Th>数量入力</Th>
                       <Th>股下修理</Th>
+                      <Th>サイズ画像</Th>
+                      <Th>イメージ画像</Th>
                       <Th>編集・削除</Th>
                     </Tr>
                   </Thead>
@@ -414,20 +426,20 @@ const ProjectId = () => {
                           <>
                             <Td mr={2}>
                               {productNameElement(index, 'productName')}
-                              {Number(project?.products[index].clothesType) ===
-                                2 && productNameElement(index, 'productNameA')}
+                              {project?.products[index].clothesType === '2' &&
+                                productNameElement(index, 'productNameA')}
                             </Td>
 
                             <Td mr={2}>
                               {priceElement(index, 'price')}
-                              {Number(project?.products[index].clothesType) ===
-                                2 && priceElement(index, 'priceA')}
+                              {project?.products[index].clothesType === '2' &&
+                                priceElement(index, 'priceA')}
                             </Td>
 
                             <Td>
                               {sizeElement(index, 'size')}
-                              {Number(project?.products[index].clothesType) ===
-                                2 && sizeElement(index, 'sizeA')}
+                              {project?.products[index].clothesType === '2' &&
+                                sizeElement(index, 'sizeA')}
                             </Td>
 
                             <Td>
@@ -436,8 +448,7 @@ const ProjectId = () => {
                                 'quantity',
                                 'fixedQuantity'
                               )}
-                              {Number(project?.products[index].clothesType) ===
-                                2 &&
+                              {project?.products[index].clothesType === '2' &&
                                 quantityElement(
                                   index,
                                   'quantityA',
@@ -447,8 +458,20 @@ const ProjectId = () => {
 
                             <Td>
                               {inseamElement(index, 'inseam')}
-                              {Number(project?.products[index].clothesType) ===
-                                2 && inseamElement(index, 'inseamA')}
+                              {project?.products[index].clothesType === '2' &&
+                                inseamElement(index, 'inseamA')}
+                            </Td>
+
+                            <Td>
+                              {choiceElement(index, 'sizeUrl')}
+                              {project?.products[index].clothesType === '2' &&
+                                choiceElement(index, 'sizeUrlA')}
+                            </Td>
+
+                            <Td>
+                              {choiceElement(index, 'imageUrl')}
+                              {project?.products[index].clothesType === '2' &&
+                                choiceElement(index, 'imageUrlA')}
                             </Td>
 
                             <Td>

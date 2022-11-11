@@ -54,6 +54,14 @@ const InputEditModal: NextPage<Props> = ({
     setItems({ ...items, gender: value });
   };
 
+  //学籍番号の数字を抜き出す
+  const serialNumber = (str: string) => {
+    const regex = /[^0-9]/g;
+    const result = str.replace(regex, '');
+    const number = parseInt(result);
+    return number;
+  };
+
   // 学籍番号と名前と性別を更新
   const updateStudent = async () => {
     try {
@@ -61,6 +69,7 @@ const InputEditModal: NextPage<Props> = ({
         doc(db, 'schools', `${project.id}`, 'students', `${studentId}`),
         {
           studentNumber: items.studentNumber,
+          serialNumber: serialNumber(items?.studentNumber) || '',
           firstName: items.firstName,
           lastName: items.lastName,
           gender: items.gender,

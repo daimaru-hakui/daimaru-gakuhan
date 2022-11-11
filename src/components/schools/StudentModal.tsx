@@ -95,6 +95,10 @@ const StudentModal: NextPage<Props> = ({
                     </Box>
                   </Flex>
                 )}
+                <Flex>
+                  <Box>Email：</Box>
+                  <Box>{student?.email}</Box>
+                </Flex>
               </Stack>
               <Box textAlign='center'>
                 <QRCode

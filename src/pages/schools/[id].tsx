@@ -62,7 +62,7 @@ const SchoolId = () => {
         `${projectId}`,
         'students'
       );
-      const q = query(collectionRef, orderBy('studentNumber', 'asc'));
+      const q = query(collectionRef, orderBy('serialNumber', 'asc'));
       onSnapshot(q, (querySnapshot) => {
         setStudents(
           querySnapshot.docs.map((doc) => ({
@@ -212,6 +212,7 @@ const SchoolId = () => {
         { 名前: student?.lastName + student?.firstName },
         { 性別: gender },
         { 金額: student?.sumTotal },
+        { Email: student?.email },
         { 作成日: getDateTime(student?.createdAt?.toDate()) },
         {
           採寸完了日:
@@ -398,6 +399,7 @@ const SchoolId = () => {
                   <Th>登録日</Th>
                   <Th>採寸完了日</Th>
                   <Th>経過時間</Th>
+                  <Th>Email</Th>
                   <Th>詳細</Th>
                   <Th>削除</Th>
                 </Tr>
@@ -406,6 +408,7 @@ const SchoolId = () => {
                 {students?.map((student: any) => (
                   <Tr
                     key={student.id}
+                    fontWeight={student?.updatedAt || 'bold'}
                     textColor={student?.updatedAt || 'red.500'}
                   >
                     <Td>{student?.studentNumber}</Td>
@@ -423,7 +426,12 @@ const SchoolId = () => {
                           <Td w='80px'>{product.productName}</Td>
                         )}
                         {product.size && (
-                          <Td w='80px' textAlign='center'>
+                          <Td
+                            w='80px'
+                            textAlign='center'
+                            fontWeight={product.size === '未記入' ? 'bold' : ''}
+                            color={product.size === '未記入' ? 'red' : ''}
+                          >
                             {product.size}
                           </Td>
                         )}
@@ -433,7 +441,14 @@ const SchoolId = () => {
                           </Td>
                         )}
                         {product.inseam && (
-                          <Td w='50px' textAlign='right'>
+                          <Td
+                            w='50px'
+                            textAlign='right'
+                            fontWeight={
+                              product.inseam === '未記入' ? 'bold' : ''
+                            }
+                            color={product.inseam === '未記入' ? 'red' : ''}
+                          >
                             {product.inseam}
                           </Td>
                         )}
@@ -451,9 +466,10 @@ const SchoolId = () => {
                           student?.updatedAt.toDate()
                         )}
                     </Td>
+                    <Td>{student?.email && student?.email}</Td>
                     <Td>
                       <StudentModal
-                        projectId={project?.id}
+                        projectId={student?.projectId}
                         studentId={student?.id}
                         genderDisp={genderDisp}
                       />

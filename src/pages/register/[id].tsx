@@ -93,6 +93,7 @@ const RegisterId = () => {
         collection(db, 'schools', `${projectId}`, 'students'),
         {
           ...items,
+          serialNumber: serialNumber(items?.studentNumber) || '',
           title: project?.title,
           projectId: project?.id,
           createdAt: serverTimestamp(),
@@ -120,6 +121,14 @@ const RegisterId = () => {
   const handleRadioChange = (e: string) => {
     const value = e;
     setItems({ ...items, gender: value });
+  };
+
+  //学籍番号の数字を抜き出す
+  const serialNumber = (str: string) => {
+    const regex = /[^0-9]/g;
+    const result = str.replace(regex, '');
+    const number = parseInt(result);
+    return number;
   };
 
   return (

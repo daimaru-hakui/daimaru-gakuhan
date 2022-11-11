@@ -4,6 +4,8 @@ import { Box, Button, Flex, Input, Textarea } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { loadingState } from '../../../store';
 import { useSetRecoilState } from 'recoil';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../firebase';
 
 type Props = {
   student: any;
@@ -81,6 +83,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
         }
       )
       .finally(() => {
+        updateStudent();
         setLoading(false);
         setSend({ ...send, email: '' });
       });
@@ -95,6 +98,23 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
     if (!result) return;
     sendEmail(e);
   };
+
+  // emailアドレスを更新
+  const updateStudent = async () => {
+    try {
+      await updateDoc(
+        doc(db, 'schools', `${student.projectId}`, 'students', `${student.id}`),
+        {
+          email: send.email,
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      window.location.reload();
+    }
+  };
+
   return (
     <form ref={form} onSubmit={handleSendClick}>
       <label htmlFor='email'>
