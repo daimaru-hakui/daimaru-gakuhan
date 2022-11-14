@@ -52,7 +52,7 @@ const LimitId = () => {
         `${projectId}`,
         "students"
       );
-      const q = query(collectionRef, orderBy("studentNumber", "asc"));
+      const q = query(collectionRef, orderBy("serialNumber", "asc"));
       onSnapshot(q, (querySnapshot) => {
         setStudents(
           querySnapshot.docs.map((doc) => ({
