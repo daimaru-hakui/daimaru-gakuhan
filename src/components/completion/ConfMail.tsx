@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import emailjs from '@emailjs/browser';
-import { Box, Button, Flex, Input, Textarea } from '@chakra-ui/react';
-import { NextPage } from 'next';
-import { loadingState } from '../../../store';
-import { useSetRecoilState } from 'recoil';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../firebase';
+import React, { useEffect, useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
+import { Box, Button, Flex, Input, Textarea } from "@chakra-ui/react";
+import { NextPage } from "next";
+import { loadingState } from "../../../store";
+import { useSetRecoilState } from "recoil";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../firebase";
 
 type Props = {
   student: any;
@@ -15,14 +15,14 @@ type Props = {
 const ConfMail: NextPage<Props> = ({ student, release }) => {
   const setLoading = useSetRecoilState(loadingState);
   const [send, setSend] = useState({
-    email: '',
-    title: '',
-    content: '',
-    studentNumber: '',
-    lastName: '',
-    firstName: '',
-    sumTotal: '',
-    signature: '',
+    email: "",
+    title: "",
+    content: "",
+    studentNumber: "",
+    lastName: "",
+    firstName: "",
+    sumTotal: "",
+    signature: "",
   });
   const form = useRef<HTMLFormElement>(
     null
@@ -46,20 +46,20 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
       }) => {
         let row: string;
         row =
-          '<div>' +
+          "<div>" +
           (product.productName
             ? `<div>商品名 ${product.productName}</div>`
-            : '') +
-          (product.size ? `<div>サイズ ${product.size}</div>` : '') +
-          (product.quantity ? `<div>数量 ${product.quantity}</div>` : '') +
-          (product.inseam ? `<div>裾上げ ${product.inseam}</div>` : '') +
-          '</div>';
-        content.push(row + '<br/>');
+            : "") +
+          (product.size ? `<div>サイズ ${product.size}</div>` : "") +
+          (product.quantity ? `<div>数量 ${product.quantity}</div>` : "") +
+          (product.inseam ? `<div>裾上げ ${product.inseam}</div>` : "") +
+          "</div>";
+        content.push(row + "<br/>");
       }
     );
-    let signature = student?.signature.split('\n');
-    signature = `<div>${signature.join('<br/>')}</div>`;
-    setSend({ ...send, content: content.join('').trim(), signature });
+    let signature = student?.signature.split("\n");
+    signature = `<div>${signature.join("<br/>")}</div>`;
+    setSend({ ...send, content: content.join("").trim(), signature });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [student?.products]);
 
@@ -68,14 +68,14 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
     e.preventDefault();
     if (!release) return;
     setLoading(true);
-    const PUBLIC_KEY = 'user_7yd9EbIQJSbzjqGUXUbJt';
-    const SERVICE_ID = 'service_764mpxv';
-    const TEMPLATE_ID = 'template_70iyw39';
+    const PUBLIC_KEY = "user_7yd9EbIQJSbzjqGUXUbJt";
+    const SERVICE_ID = "service_764mpxv";
+    const TEMPLATE_ID = "template_70iyw39";
     emailjs
       .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
       .then(
         (result) => {
-          window.alert('確認メールを送信致しました。');
+          window.alert("確認メールを送信致しました。");
           console.log(result.text);
         },
         (error) => {
@@ -85,7 +85,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
       .finally(() => {
         updateStudent();
         setLoading(false);
-        setSend({ ...send, email: '' });
+        setSend({ ...send, email: "" });
       });
   };
 
@@ -99,11 +99,19 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
     sendEmail(e);
   };
 
+  // emailアドレス正規表現
+  const isValid = (email: string) => {
+    const regex =
+      /^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/;
+    const result = regex.test(email);
+    return result;
+  };
+
   // emailアドレスを更新
   const updateStudent = async () => {
     try {
       await updateDoc(
-        doc(db, 'schools', `${student.projectId}`, 'students', `${student.id}`),
+        doc(db, "schools", `${student.projectId}`, "students", `${student.id}`),
         {
           email: send.email,
         }
@@ -117,67 +125,72 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
 
   return (
     <form ref={form} onSubmit={handleSendClick}>
-      <label htmlFor='email'>
-        <Box fontSize='xs'>確認メールを受け取る</Box>
+      <label htmlFor="email">
+        <Box fontSize="xs">確認メールを受け取る</Box>
       </label>
       <Flex gap={3}>
         <Box flex={1}>
           <Input
-            size='sm'
-            rounded='md'
-            fontSize='sm'
-            id='email'
-            placeholder='emailを入力してください'
-            type='email'
-            name='email'
+            size="sm"
+            rounded="md"
+            fontSize="sm"
+            id="email"
+            placeholder="emailを入力してください"
+            type="email"
+            name="email"
             value={send.email}
             onChange={handleInputChange}
           />
         </Box>
-        <Button type='submit' colorScheme='facebook' size='sm'>
+        <Button
+          type="submit"
+          colorScheme="facebook"
+          isDisabled={!isValid(send.email)}
+          size="sm"
+        >
           送信
         </Button>
 
         <Input
-          type='text'
-          name='title'
+          type="text"
+          name="title"
           defaultValue={student.title}
           onChange={handleInputChange}
-          display='none'
+          display="none"
         />
         <Input
-          type='text'
-          name='studentNumber'
+          type="text"
+          name="studentNumber"
           defaultValue={student.studentNumber}
           onChange={handleInputChange}
-          display='none'
+          display="none"
         />
         <Input
-          type='text'
-          name='lastName'
+          type="text"
+          name="lastName"
           defaultValue={student.lastName}
           onChange={handleInputChange}
-          display='none'
+          display="none"
         />
         <Input
-          type='text'
-          name='firstName'
+          type="text"
+          name="firstName"
           defaultValue={student.firstName}
           onChange={handleInputChange}
-          display='none'
+          display="none"
         />
         <Input
-          type='text'
-          name='sumTotal'
+          type="text"
+          name="sumTotal"
           defaultValue={Math.round(student.sumTotal)}
           onChange={handleInputChange}
-          display='none'
+          display="none"
         />
-        <Textarea name='content' defaultValue={send.content} display='none' />
+        <Textarea name="content" defaultValue={send.content} display="none" />
         <Textarea
-          name='signature'
+          name="signature"
           defaultValue={send.signature}
-          display='none'
+          display="none"
         />
       </Flex>
     </form>
