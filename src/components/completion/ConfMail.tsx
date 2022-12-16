@@ -58,7 +58,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
       }
     );
     let signature = student?.signature.split("\n");
-    signature = `<div>${signature.join("<br/>")}</div>`;
+    signature = `<div>${signature?.join("<br/>")}</div>`;
     setSend({ ...send, content: content.join("").trim(), signature });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [student?.products]);
