@@ -58,7 +58,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
       }
     );
     let signature = student?.signature.split("\n");
-    signature = `<div>${signature.join("<br/>")}</div>`;
+    signature = `<div>${signature?.join("<br/>")}</div>`;
     setSend({ ...send, content: content.join("").trim(), signature });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [student?.products]);
@@ -179,13 +179,15 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
           onChange={handleInputChange}
           display="none"
         />
-        <Input
-          type="text"
-          name="sumTotal"
-          defaultValue={Math.round(student.sumTotal)}
-          onChange={handleInputChange}
-          display="none"
-        />
+        {student.sumTotal > 0 && (
+          <Input
+            type="text"
+            name="sumTotal"
+            defaultValue={Math.round(student.sumTotal)}
+            onChange={handleInputChange}
+            display="none"
+          />
+        )}
         <Textarea name="content" defaultValue={send.content} display="none" />
         <Textarea
           name="signature"

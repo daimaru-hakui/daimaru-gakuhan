@@ -6,29 +6,29 @@ import {
   Input,
   Text,
   Textarea,
-} from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../firebase';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { currentUserAuth, loadingState } from '../../store';
+} from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { currentUserState, loadingState } from "../../store";
 
 const New = () => {
   const router = useRouter();
-  const currentUser = useRecoilValue(currentUserAuth);
+  const currentUser = useRecoilValue(currentUserState);
   const setLoading = useSetRecoilState(loadingState);
   const [inputData, setInputData] = useState({
-    title: '',
-    desc: '',
-    schedule: '',
+    title: "",
+    desc: "",
+    schedule: "",
     gender: 1,
   });
 
   useEffect(() => {
     if (!currentUser) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [currentUser, router]);
 
@@ -39,7 +39,7 @@ const New = () => {
   };
 
   const addTitle = async () => {
-    const projectsRef = collection(db, 'projects');
+    const projectsRef = collection(db, "projects");
     try {
       setLoading(true);
       const docRef = await addDoc(projectsRef, {
@@ -48,6 +48,7 @@ const New = () => {
         schedule: inputData.schedule,
         gender: 1,
         createdAt: serverTimestamp(),
+        createUser: currentUser,
         products: [],
       });
       router.push(`/projects/${docRef.id}`);
@@ -59,17 +60,17 @@ const New = () => {
   };
   return (
     <>
-      <Container maxW='800px' pt={12}>
-        <Box as='h1' color='black' fontWeight='bold'>
+      <Container maxW="800px" pt={12}>
+        <Box as="h1" color="black" fontWeight="bold">
           学校名＋年度などの一意の名前を登録してください。
         </Box>
-        <Flex flexDirection='column' alignItems='left' mt={2} gap={2}>
+        <Flex flexDirection="column" alignItems="left" mt={2} gap={2}>
           <Text>■ 学校名</Text>
           <Input
-            type='text'
-            placeholder='例）帝塚山大学 心理学学科　春'
-            bgColor='white'
-            name='title'
+            type="text"
+            placeholder="例）帝塚山大学 心理学学科　春"
+            bgColor="white"
+            name="title"
             value={inputData.title}
             onChange={handleInputChange}
           />
@@ -83,22 +84,22 @@ const New = () => {
           /> */}
           <Text mt={2}>■ 採寸日</Text>
           <Input
-            type='date'
-            bgColor='white'
+            type="date"
+            bgColor="white"
             w={200}
-            name='schedule'
+            name="schedule"
             value={inputData.schedule}
             onChange={handleInputChange}
           />
-          <Flex w='100%' justifyContent='flex-end' gap={2}>
-            <Link href='/dashboard'>
+          <Flex w="100%" justifyContent="flex-end" gap={2}>
+            <Link href="/dashboard">
               <a>
-                <Button variant='outline'>戻る</Button>
+                <Button variant="outline">戻る</Button>
               </a>
             </Link>
             <Button
-              colorScheme='facebook'
-              disabled={!inputData.title}
+              colorScheme="facebook"
+              disabled={!inputData.title || !inputData.schedule}
               onClick={addTitle}
             >
               登録

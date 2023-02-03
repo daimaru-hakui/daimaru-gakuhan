@@ -10,21 +10,22 @@ import {
   Select,
   Stack,
   Text,
-} from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+} from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   doc,
   getDoc,
   onSnapshot,
   serverTimestamp,
   updateDoc,
-} from 'firebase/firestore';
-import { db } from '../../../../firebase';
-import { useSetRecoilState } from 'recoil';
-import { loadingState } from '../../../../store';
-import SizeSpecModal from '../../../components/register/SizeSpecModal';
-import InputEditModal from '../../../components/register/InputEditModal';
+} from "firebase/firestore";
+import { db } from "../../../../firebase";
+import { useSetRecoilState } from "recoil";
+import { loadingState } from "../../../../store";
+import SizeSpecModal from "../../../components/register/SizeSpecModal";
+import InputEditModal from "../../../components/register/InputEditModal";
+import { ProjectType } from "../../../types/ProjectType";
 
 const MeasureId = () => {
   const router = useRouter();
@@ -41,7 +42,7 @@ const MeasureId = () => {
   useEffect(() => {
     const getStudent = async () => {
       onSnapshot(
-        doc(db, 'schools', `${projectId}`, 'students', `${studentId}`),
+        doc(db, "schools", `${projectId}`, "students", `${studentId}`),
         (doc) => {
           setStudent({ ...doc.data(), id: doc.id });
         }
@@ -50,7 +51,7 @@ const MeasureId = () => {
 
     let i = 0;
     while (i <= 20) {
-      history.pushState(null, 'null', null);
+      history.pushState(null, "null", null);
       i++;
     }
 
@@ -59,11 +60,11 @@ const MeasureId = () => {
 
   useEffect(() => {
     const getProject = async () => {
-      const docRef = doc(db, 'projects', `${projectId}`);
+      const docRef = doc(db, "projects", `${projectId}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         if (docSnap?.data().release === false) {
-          router.push('/register');
+          router.push("/register");
           return;
         }
         setProject({ ...docSnap.data(), id: docSnap.id });
@@ -84,29 +85,36 @@ const MeasureId = () => {
         let inseam;
         let sizeUrl;
         let imageUrl;
+
         // 男女兼用・女性を選択した場合
         if (
-          student?.gender === '2' &&
-          project?.gender === '2' &&
-          product?.clothesType === '2'
+          student?.gender === "2" && // 女性
+          project?.gender === "2" && //男女兼用
+          product?.clothesType === "2" //男女兼用
         ) {
-          productName = product?.productNameA || '';
+          productName = product?.productNameA || "";
           price = product?.priceA || null;
-          quantity = product?.quantityA ? '' : product?.fixedQuantityA;
+          quantity = product?.quantityA ? "" : product?.fixedQuantityA;
           size = product.sizeA ? product.sizeA : null;
-          size = product?.sizeA.length === 1 ? product?.sizeA[0] : '未記入';
-          sizeUrl = product?.sizeUrlA ? product?.sizeUrlA : '';
-          imageUrl = product.imageUrlA ? product.imageUrlA : '';
+          size = product?.sizeA.length === 1 ? product?.sizeA[0] : "";
+          sizeUrl = product?.sizeUrlA ? product?.sizeUrlA : "";
+          imageUrl = product.imageUrlA ? product.imageUrlA : "";
         } else {
-          productName = product?.productName || '';
+          productName = product?.productName || "";
           price = product?.price || null;
-          quantity = product.quantity ? '' : product.fixedQuantity;
+          quantity = product.quantity ? "" : product.fixedQuantity;
           size = product.size ? product.size : null;
-          size = product.size.length === 1 ? product.size[0] : '未記入';
-          sizeUrl = product?.sizeUrl ? product?.sizeUrl : '';
-          imageUrl = product.imageUrl ? product.imageUrl : '';
+          size = product.size.length === 1 ? product.size[0] : "";
+          sizeUrl = product?.sizeUrl ? product?.sizeUrl : "";
+          imageUrl = product.imageUrl ? product.imageUrl : "";
         }
-        inseam = product?.inseamA || product?.inseamA ? 'なし' : null;
+
+        inseam = product?.inseam || product?.inseamA ? "なし" : null;
+        if (product?.inseam && inseam === "なし" && student?.gender === "1")
+          inseam = "";
+        if (product?.inseamA && inseam === "なし" && student?.gender === "2")
+          inseam = "";
+        // inseam = product?.inseamA || product?.inseamA ? "なし" : null;
 
         return {
           productName,
@@ -123,14 +131,16 @@ const MeasureId = () => {
 
   // 採寸登録
   const updateStudent = async () => {
-    const result = window.confirm('登録して宜しいでしょうか');
+    const result = window.confirm("登録して宜しいでしょうか");
     if (!result) return;
     setLoading(true);
     try {
       await updateDoc(
-        doc(db, 'schools', `${projectId}`, 'students', `${studentId}`),
+        doc(db, "schools", `${projectId}`, "students", `${studentId}`),
         {
           ...items,
+          inseam:
+            items.inseam === null ? null : items.inseam ? items.inseam : "なし",
           sumTotal,
           updatedAt: serverTimestamp(),
         }
@@ -164,7 +174,7 @@ const MeasureId = () => {
           index === rowIndex ? { ...product, [name]: value } : { ...product }
         );
       }
-      return { ...items, products: [...(newItems || '')] };
+      return { ...items, products: [...(newItems || "")] };
     });
   };
 
@@ -185,12 +195,12 @@ const MeasureId = () => {
   //性別を表示
   const genderDisp = (gender: string) => {
     switch (gender) {
-      case '1':
-        return '男性';
-      case '2':
-        return '女性';
+      case "1":
+        return "男性";
+      case "2":
+        return "女性";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -208,7 +218,7 @@ const MeasureId = () => {
   const imageUrlElement = (imageUrl: string) => (
     <>
       {imageUrl && (
-        <Flex mt={6} justifyContent='center'>
+        <Flex mt={6} justifyContent="center">
           <img src={imageUrl} alt={imageUrl} />
         </Flex>
       )}
@@ -219,20 +229,20 @@ const MeasureId = () => {
     <>
       {size.length >= 1 && (
         <Box mt={6}>
-          <Flex mb={2} alignItems='center' justifyContent='space-between'>
+          <Flex mb={2} alignItems="center" justifyContent="space-between">
             <Text>サイズ</Text>
             {sizeUrl && <SizeSpecModal sizeUrl={sizeUrl} />}
           </Flex>
           {size.length === 1 ? (
             <Box>
               {size.map((size: string) => (
-                <Input name='size' key={size} defaultValue={size} isReadOnly />
+                <Input name="size" key={size} defaultValue={size} isReadOnly />
               ))}
             </Box>
           ) : (
             <Select
-              placeholder='サイズを選択してください'
-              name='size'
+              placeholder="サイズを選択してください"
+              name="size"
               onChange={(e) => handleSelectChange(e, index)}
             >
               {size.map((size: string) => (
@@ -258,8 +268,8 @@ const MeasureId = () => {
           <Text>数量</Text>
           <Select
             mt={2}
-            name='quantity'
-            placeholder='数量を選択してしてください'
+            name="quantity"
+            placeholder="数量を選択してしてください"
             onChange={(e) => handleSelectChange(e, index)}
           >
             {array.map((num: string, i: number) => (
@@ -285,13 +295,13 @@ const MeasureId = () => {
           <Text>裾上げ</Text>
           <Select
             mt={1}
-            name='inseam'
-            placeholder='裾上直しの長さを選択してください'
+            name="inseam"
+            placeholder="裾上直しの長さを選択してください"
             onChange={(e) => handleSelectChange(e, index)}
           >
-            {Object.keys(['無し', ...Array(30)]).map(
+            {Object.keys(["無し", ...Array(30)]).map(
               (num: string, i: number) => (
-                <option key={num?.toString()} value={i + 'cm'}>
+                <option key={num?.toString()} value={i + "cm"}>
                   {i}cm
                 </option>
               )
@@ -302,18 +312,20 @@ const MeasureId = () => {
     </Box>
   );
 
+  console.log("items", items);
+
   return (
-    <Container maxW='600px' py={6} minH='100vh'>
+    <Container maxW="600px" py={6} minH="100vh">
       {student?.release && (
         <>
           {items?.title && (
             <Box
               p={6}
-              fontSize='3xl'
-              fontWeight='bold'
-              bg='white'
+              fontSize="3xl"
+              fontWeight="bold"
+              bg="white"
               rounded={6}
-              boxShadow='base'
+              boxShadow="base"
             >
               {items?.title}
             </Box>
@@ -321,10 +333,10 @@ const MeasureId = () => {
           <Flex
             mt={6}
             p={6}
-            justifyContent='space-between'
-            bg='white'
+            justifyContent="space-between"
+            bg="white"
             rounded={6}
-            boxShadow='base'
+            boxShadow="base"
           >
             <Box flex={1}>
               <Box>
@@ -362,15 +374,15 @@ const MeasureId = () => {
               key={index}
               mt={6}
               p={6}
-              bg='white'
+              bg="white"
               rounded={6}
-              boxShadow='base'
+              boxShadow="base"
             >
-              {project?.gender === '2' &&
-              student?.gender === '2' &&
-              product.clothesType === '2' ? (
+              {project?.gender === "2" &&
+              student?.gender === "2" &&
+              product.clothesType === "2" ? (
                 <>
-                  <Box fontSize='xl'>{product.productNameA}</Box>
+                  <Box fontSize="xl">{product.productNameA}</Box>
                   {priceElement(product.priceA)}
                   {imageUrlElement(product.imageUrlA)}
                   {sizeElement(product.sizeA, product.sizeUrlA, index)}
@@ -383,7 +395,7 @@ const MeasureId = () => {
                 </>
               ) : (
                 <>
-                  <Box fontSize='xl'>{product.productName}</Box>
+                  <Box fontSize="xl">{product.productName}</Box>
                   {priceElement(product.price)}
                   {imageUrlElement(product.imageUrl)}
                   {sizeElement(product.size, product.sizeUrl, index)}
@@ -398,13 +410,21 @@ const MeasureId = () => {
             </Box>
           ))}
 
-          <Box mt={6} textAlign='center'>
+          <Box mt={6} textAlign="center">
             <Button
-              colorScheme='facebook'
+              colorScheme="facebook"
               onClick={updateStudent}
-              disabled={items?.products?.some(
-                (product: any) => product.quantity === ''
-              )}
+              disabled={
+                items?.products?.some(
+                  (product: { quantity: string }) => product.quantity === ""
+                ) ||
+                items?.products?.some(
+                  (product: { size: string }) => product.size === ""
+                ) ||
+                items?.products?.some(
+                  (product: { inseam: string }) => product.inseam === ""
+                )
+              }
             >
               登録
             </Button>
