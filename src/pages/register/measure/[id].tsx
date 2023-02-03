@@ -312,8 +312,6 @@ const MeasureId = () => {
     </Box>
   );
 
-  console.log("items", items);
-
   return (
     <Container maxW="600px" py={6} minH="100vh">
       {student?.release && (

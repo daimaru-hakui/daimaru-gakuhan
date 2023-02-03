@@ -21,6 +21,7 @@ import {
   Text,
   Input,
 } from "@chakra-ui/react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { NextPage } from "next";
 import React, { useEffect, useRef, useState } from "react";
@@ -34,16 +35,20 @@ type Props = {
   projectId: string;
   studentId: string;
   genderDisp: Function;
+  students: any;
 };
 
 const StudentModal: NextPage<Props> = ({
   projectId,
   studentId,
   genderDisp,
+  students,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const setLoading = useSetRecoilState(loadingState);
   const [student, setStudent] = useState<any>();
+  const [studentIdTemp, setStudentIdTemp] = useState(studentId);
+  const [studentNumOrder, setStudentNumOrder] = useState(0);
   const [send, setSend] = useState({
     email: "",
     title: "",
@@ -72,14 +77,43 @@ const StudentModal: NextPage<Props> = ({
         "schools",
         `${projectId}`,
         "students",
-        `${studentId}`
+        `${studentIdTemp}`
       );
       onSnapshot(studentRef, (querySnapshot) => {
         setStudent({ ...querySnapshot?.data() });
       });
     };
     getStudent();
-  }, [projectId, studentId]);
+  }, [projectId, studentIdTemp]);
+
+  // リストの順番を取得
+  useEffect(() => {
+    const array = students.map((student: any) => student.id);
+    let studentIndex = array?.indexOf(studentIdTemp) + 1;
+    setStudentNumOrder(studentIndex);
+  }, [studentIdTemp, students]);
+
+  // 次の生徒を取得
+  const getNextStudent = () => {
+    const array = students.map((student: any) => student.id);
+    let studentIndex = array?.indexOf(studentIdTemp);
+    if (array.length === studentIndex + 1) return;
+    setStudentIdTemp(array[studentIndex + 1]);
+  };
+
+  // 前の生徒を取得
+  const getPrevStudent = () => {
+    const array = students.map((student: any) => student.id);
+    let studentIndex = array?.indexOf(studentIdTemp);
+    if (studentIndex === 0) return;
+    setStudentIdTemp(array[studentIndex - 1]);
+  };
+
+  // 生徒インデックスをリセット
+  const resetStudentIndex = () => {
+    setStudentIdTemp(studentId);
+    setStudentNumOrder(0);
+  };
 
   // emailで送る内容をstateで管理
   useEffect(() => {
@@ -188,10 +222,18 @@ const StudentModal: NextPage<Props> = ({
         詳細
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          resetStudentIndex();
+          onClose();
+        }}
+        size="4xl"
+      >
         <ModalOverlay bg="#000000bf" />
         <ModalContent>
           <ModalHeader>採寸データ</ModalHeader>
+
           <ModalCloseButton />
           <ModalBody p={6}>
             <Flex justifyContent="space-between">
@@ -218,50 +260,12 @@ const StudentModal: NextPage<Props> = ({
                 )}
                 <Flex>
                   <Box>Email：</Box>
-                  <Box>{student?.email}</Box>
+                  <Box>{student?.email ? student?.email : "未登録"}</Box>
                 </Flex>
-                <Box>
-                  <form ref={form} onSubmit={handleSendClick}>
-                    <Box display="none">
-                      <Input name="title" defaultValue={send?.title} />
-                      <Input
-                        name="strudentNumber"
-                        defaultValue={send?.studentNumber}
-                      />
-                      <Input name="firstName" defaultValue={send?.firstName} />
-                      <Input name="lastName" defaultValue={send?.lastName} />
-                      <Input name="sumTotal" defaultValue={send?.sumTotal} />
-                      <Input name="signature" defaultValue={send?.signature} />
-                      <Input name="content" defaultValue={send?.content} />
-                    </Box>
-                    <Flex gap={2}>
-                      <Input
-                        w="300px"
-                        size="sm"
-                        rounded="md"
-                        fontSize="sm"
-                        id="email"
-                        placeholder="emailを入力してください"
-                        type="email"
-                        name="email"
-                        value={send.email}
-                        onChange={handleInputChange}
-                      />
-                      <Button
-                        type="submit"
-                        colorScheme="facebook"
-                        isDisabled={!isValid(send.email)}
-                        size="sm"
-                      >
-                        送信
-                      </Button>
-                    </Flex>
-                  </form>
-                </Box>
               </Stack>
               <Box textAlign="center">
                 <QRCode
-                  value={`${location.origin}/register/measure/${projectId}?studentId=${studentId}/`}
+                  value={`${location.origin}/register/measure/${projectId}?studentId=${studentIdTemp}/`}
                   renderAs="canvas"
                   size={100}
                 />
@@ -270,6 +274,44 @@ const StudentModal: NextPage<Props> = ({
                 </Text>
               </Box>
             </Flex>
+            <Box mt={3}>
+              <form ref={form} onSubmit={handleSendClick}>
+                <Box display="none">
+                  <Input name="title" defaultValue={send?.title} />
+                  <Input
+                    name="strudentNumber"
+                    defaultValue={send?.studentNumber}
+                  />
+                  <Input name="firstName" defaultValue={send?.firstName} />
+                  <Input name="lastName" defaultValue={send?.lastName} />
+                  <Input name="sumTotal" defaultValue={send?.sumTotal} />
+                  <Input name="signature" defaultValue={send?.signature} />
+                  <Input name="content" defaultValue={send?.content} />
+                </Box>
+                <Flex gap={2}>
+                  <Input
+                    maxW="300px"
+                    size="sm"
+                    rounded="md"
+                    fontSize="sm"
+                    id="email"
+                    placeholder="emailを追加・更新"
+                    type="email"
+                    name="email"
+                    value={send.email}
+                    onChange={handleInputChange}
+                  />
+                  <Button
+                    type="submit"
+                    colorScheme="facebook"
+                    isDisabled={!isValid(send.email)}
+                    size="sm"
+                  >
+                    送信
+                  </Button>
+                </Flex>
+              </form>
+            </Box>
             <TableContainer mt={6}>
               <Table variant="simple">
                 <Thead>
@@ -295,12 +337,36 @@ const StudentModal: NextPage<Props> = ({
               </Table>
             </TableContainer>
           </ModalBody>
-
           <ModalFooter>
-            <Button mr={3} onClick={onClose}>
+            <Button
+              mr={3}
+              onClick={() => {
+                resetStudentIndex();
+                onClose();
+              }}
+            >
               Close
             </Button>
           </ModalFooter>
+          <Flex justifyContent="space-between" p={6} pt={0}>
+            <FaChevronLeft
+              cursor="pointer"
+              opacity={studentNumOrder > 1 ? 1 : 0}
+              onClick={getPrevStudent}
+            >
+              prev
+            </FaChevronLeft>
+            <Box>
+              {studentNumOrder}/{students.length}
+            </Box>
+            <FaChevronRight
+              cursor="pointer"
+              opacity={studentNumOrder !== students.length ? 1 : 0}
+              onClick={getNextStudent}
+            >
+              next
+            </FaChevronRight>
+          </Flex>
         </ModalContent>
       </Modal>
     </>
