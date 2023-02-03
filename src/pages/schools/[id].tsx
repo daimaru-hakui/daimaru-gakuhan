@@ -472,6 +472,7 @@ const SchoolId = () => {
                         projectId={student?.projectId}
                         studentId={student?.id}
                         genderDisp={genderDisp}
+                        students={students}
                       />
                     </Td>
                     <Td>
