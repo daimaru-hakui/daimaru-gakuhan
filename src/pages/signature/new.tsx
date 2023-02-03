@@ -4,11 +4,11 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { db } from "../../../firebase";
-import { currentUserAuth, loadingState } from "../../../store";
+import { currentUserState, loadingState } from "../../../store";
 
 const SignatureNew = () => {
   const router = useRouter();
-  const currentUser = useRecoilValue(currentUserAuth);
+  const currentUser = useRecoilValue(currentUserState);
   const setLoading = useSetRecoilState(loadingState);
   const [content, setContent] = useState("");
 

@@ -179,13 +179,15 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
           onChange={handleInputChange}
           display="none"
         />
-        <Input
-          type="text"
-          name="sumTotal"
-          defaultValue={Math.round(student.sumTotal)}
-          onChange={handleInputChange}
-          display="none"
-        />
+        {student.sumTotal > 0 && (
+          <Input
+            type="text"
+            name="sumTotal"
+            defaultValue={Math.round(student.sumTotal)}
+            onChange={handleInputChange}
+            display="none"
+          />
+        )}
         <Textarea name="content" defaultValue={send.content} display="none" />
         <Textarea
           name="signature"

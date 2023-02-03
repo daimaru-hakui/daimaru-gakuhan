@@ -4,10 +4,10 @@ import Link from "next/link";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useRecoilState } from "recoil";
-import { currentUserAuth } from "../../store";
+import { currentUserState } from "../../store";
 
 const Header = () => {
-  const [currentUser, setCurrentUser] = useRecoilState(currentUserAuth);
+  const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
 
   const signOutUser = () => {
     signOut(auth)

@@ -12,19 +12,16 @@ import {
 } from "react-icons/fa";
 import { db } from "../../firebase";
 import QrModal from "./QrModal";
+import { useRecoilValue } from "recoil";
+import { currentUserState } from "../../store";
+import { ProjectType } from "../types/ProjectType";
 
 type Props = {
-  project: {
-    id: string;
-    title: string;
-    desc: string;
-    schedule: string;
-    release: boolean;
-    createdAt: Timestamp;
-  };
+  project: ProjectType;
 };
 
 const Card: NextPage<Props> = ({ project }) => {
+  const currentUser = useRecoilValue(currentUserState);
   // projectを削除
   const deleteProject = async () => {
     let result = window.confirm("削除して宜しいでしょうか");
@@ -39,7 +36,7 @@ const Card: NextPage<Props> = ({ project }) => {
   };
 
   // 採寸ページの表示非表示の切り替え
-  const updateProject = async (boolean: boolean) => {
+  const ChangeVisibility = async (boolean: boolean) => {
     if (project.release) {
       const result = window.confirm(
         "非公開にして宜しいでしょうか？\n採寸中に『非公開』にすると採寸ができなくなり危険です。\n必ず採寸が終了してから非公開にしてください。"
@@ -52,71 +49,94 @@ const Card: NextPage<Props> = ({ project }) => {
     });
   };
 
+  const adminAuth = (uid: string) => {
+    if (
+      uid === "tQE3PqDfn0gOB21Ly7DT1ggMhQp1" ||
+      uid === "D90K7WdEAYPGeBWr6cZPmzkF9H43"
+    )
+      return true;
+  };
+
   return (
-    <GridItem borderRadius={6} bg="white" boxShadow="base" p={6}>
-      <Flex flexDirection="column" justifyContent="space-between" h="100%">
-        <Box>
-          <Flex justifyContent="space-between">
-            <Flex alignItems="center" gap={3}>
-              <FaSchool size="30px" />
-              <Box>
-                <Link href={`/schools/${project.id}/`}>
-                  <a>
-                    <Text fontSize="base" fontWeight="bold">
-                      {project?.title}
-                    </Text>
-                  </a>
-                </Link>
-                <Text fontSize="xs">採寸日 {project?.schedule}</Text>
-              </Box>
-            </Flex>
-            {project?.release ? (
-              <Button
-                size="xs"
-                onClick={() => updateProject(false)}
-                colorScheme="facebook"
-              >
-                公開
-              </Button>
-            ) : (
-              <Button size="xs" onClick={() => updateProject(true)}>
-                非公開
-              </Button>
-            )}
-          </Flex>
-          <Box mt={2} fontSize="xs">
-            {project?.desc}
-          </Box>
-        </Box>
-        <Flex justifyContent="space-around" alignItems="center" mt={4}>
-          <a
-            href={`/register/${project.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <>
+      {currentUser && (
+        <GridItem borderRadius={6} bg="white" boxShadow="base" p={6}>
+          <Flex flexDirection="column" justifyContent="space-between" h="100%">
             <Box>
-              <FaExternalLinkAlt />
-            </Box>
-          </a>
-
-          <Box>
-            <QrModal projectId={`/register/${project.id}`} />
-          </Box>
-
-          <Link href={`/projects/${project.id}`}>
-            <a>
-              <Box>
-                <FaEdit size="19px" />
+              <Flex justifyContent="space-between">
+                <Flex alignItems="center" gap={3}>
+                  <FaSchool size="30px" />
+                  <Box>
+                    <Link href={`/schools/${project.id}/`}>
+                      <a>
+                        <Text fontSize="base" fontWeight="bold">
+                          {project?.title}
+                        </Text>
+                      </a>
+                    </Link>
+                    <Text fontSize="xs">採寸日 {project?.schedule}</Text>
+                  </Box>
+                </Flex>
+                {(currentUser === project.createUser ||
+                  adminAuth(currentUser)) &&
+                  (project?.release ? (
+                    <Button
+                      size="xs"
+                      onClick={() => ChangeVisibility(false)}
+                      colorScheme="facebook"
+                    >
+                      公開
+                    </Button>
+                  ) : (
+                    <Button size="xs" onClick={() => ChangeVisibility(true)}>
+                      非公開
+                    </Button>
+                  ))}
+              </Flex>
+              <Box mt={2} fontSize="xs">
+                {project?.desc}
               </Box>
-            </a>
-          </Link>
+            </Box>
+            <Flex
+              justifyContent="space-around"
+              alignItems="center"
+              mt={4}
+              h="5"
+            >
+              <a
+                href={`/register/${project.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Box>
+                  <FaExternalLinkAlt />
+                </Box>
+              </a>
 
-          <Box>
-            <FaTrashAlt cursor="pointer" onClick={deleteProject} />
-          </Box>
-        </Flex>
-      </Flex>
-    </GridItem>
+              <Box>
+                <QrModal projectId={`/register/${project.id}`} />
+              </Box>
+              {(currentUser === project.createUser ||
+                adminAuth(currentUser)) && (
+                <>
+                  <Link href={`/projects/${project.id}`}>
+                    <a>
+                      <Box>
+                        <FaEdit size="19px" />
+                      </Box>
+                    </a>
+                  </Link>
+
+                  <Box>
+                    <FaTrashAlt cursor="pointer" onClick={deleteProject} />
+                  </Box>
+                </>
+              )}
+            </Flex>
+          </Flex>
+        </GridItem>
+      )}
+    </>
   );
 };
 

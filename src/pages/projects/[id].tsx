@@ -23,40 +23,40 @@ import {
   Th,
   Thead,
   Tr,
-} from '@chakra-ui/react';
-import { useToast } from '@chakra-ui/react';
-import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from 'react-icons/fa';
-import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { db, storage } from '../../../firebase';
-import { currentUserAuth, projectsState } from '../../../store';
-import InputModal from '../../components/projects/InputModal';
-import { deleteObject, ref } from 'firebase/storage';
-import SignatureModal from '../../components/projects/SignatureModal';
-import SliderWidth from '../../components/SliderWidth';
+} from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
+import { FaTrashAlt, FaTimes, FaRegCircle, FaEdit } from "react-icons/fa";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { db, storage } from "../../../firebase";
+import { currentUserState, projectsState } from "../../../store";
+import InputModal from "../../components/projects/InputModal";
+import { deleteObject, ref } from "firebase/storage";
+import SignatureModal from "../../components/projects/SignatureModal";
+import SliderWidth from "../../components/SliderWidth";
 
 const ProjectId = () => {
   const router = useRouter();
   const toast = useToast();
-  const currentUser = useRecoilValue(currentUserAuth);
+  const currentUser = useRecoilValue(currentUserState);
   const [editTitle, setEditTitle] = useState(false);
   const projects = useRecoilValue(projectsState);
   const [students, setStudents] = useState<any>();
   const [tableWidth, setTableWidth] = useState(1000);
   const projectId = router.query.id;
   const [project, setProject] = useState<any>({
-    title: '',
-    desc: '',
-    schedule: '',
-    createdAt: '',
+    title: "",
+    desc: "",
+    schedule: "",
+    createdAt: "",
     products: [],
   });
 
   useEffect(() => {
     if (!currentUser) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [currentUser, router]);
 
@@ -77,9 +77,9 @@ const ProjectId = () => {
     const getSchool = async () => {
       const studentsCollectionRef = collection(
         db,
-        'schools',
+        "schools",
         `${projectId}`,
-        'students'
+        "students"
       );
       const querySnapshot = await getDocs(studentsCollectionRef);
       setStudents(
@@ -93,7 +93,7 @@ const ProjectId = () => {
 
   ////////// productを削除//////////
   const deleteProduct = async (productIndex: number) => {
-    const result = window.confirm('削除して宜しいでしょうか');
+    const result = window.confirm("削除して宜しいでしょうか");
     if (!result) return;
 
     // サイズスペック画像の削除
@@ -115,7 +115,7 @@ const ProjectId = () => {
     }
 
     // データベースから商品を削除
-    const docRef = doc(db, 'projects', `${projectId}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       if (project.products[productIndex]) {
         const productsArray = project.products.filter(
@@ -133,7 +133,7 @@ const ProjectId = () => {
 
   // タイトルを編集
   const updateTitle = async () => {
-    const docRef = doc(db, 'projects', `${projectId}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       await updateDoc(docRef, {
         title: project.title,
@@ -142,8 +142,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: 'タイトルを変更しました',
-        status: 'success',
+        title: "タイトルを変更しました",
+        status: "success",
         duration: 2000,
         isClosable: true,
       });
@@ -162,7 +162,7 @@ const ProjectId = () => {
     type: string
   ) => {
     const value = e.target.value;
-    const docRef = doc(db, 'projects', `${projectId}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -171,8 +171,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: '採寸予定日を変更しました',
-        status: 'success',
+        title: "採寸予定日を変更しました",
+        status: "success",
         duration: 2000,
         isClosable: true,
       });
@@ -182,7 +182,7 @@ const ProjectId = () => {
   //　性別記入を変更
   const handleRadioChange = (e: string, type: string) => {
     const value = e;
-    const docRef = doc(db, 'projects', `${projectId}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       updateDoc(docRef, {
         [type]: value,
@@ -191,8 +191,8 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: '性別記入を変更しました',
-        status: 'success',
+        title: "性別記入を変更しました",
+        status: "success",
         duration: 2000,
         isClosable: true,
       });
@@ -200,10 +200,10 @@ const ProjectId = () => {
   };
 
   const deleteSignature = async () => {
-    const docRef = doc(db, 'projects', `${projectId}`);
+    const docRef = doc(db, "projects", `${projectId}`);
     try {
       await updateDoc(docRef, {
-        signature: '',
+        signature: "",
       });
     } catch (err) {
       console.log(err);
@@ -238,10 +238,10 @@ const ProjectId = () => {
 
   // サイズ
   const sizeElement = (index: number, prop: string) => (
-    <Breadcrumb cursor='default'>
+    <Breadcrumb cursor="default">
       {project?.products[index][prop]?.map((size: string) => (
         <BreadcrumbItem key={size}>
-          <BreadcrumbLink cursor='default' style={{ textDecoration: 'none' }}>
+          <BreadcrumbLink cursor="default" style={{ textDecoration: "none" }}>
             {size}
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -256,7 +256,7 @@ const ProjectId = () => {
         <Box>入力値あり</Box>
       ) : (
         <Box>
-          <Box as='span' mr={2}>
+          <Box as="span" mr={2}>
             固定数量
           </Box>
           {project?.products[index][propSub]}
@@ -283,21 +283,21 @@ const ProjectId = () => {
 
   return (
     <>
-      <Box bg='white' boxShadow='xs'>
-        <Container maxW='1000px' py={{ base: 6, md: 10 }}>
+      <Box bg="white" boxShadow="xs">
+        <Container maxW="1000px" py={{ base: 6, md: 10 }}>
           {editTitle ? (
             <Box>
               <Input
-                name='title'
+                name="title"
                 value={project?.title}
                 onChange={handleInputChange}
               />
-              <Box mt={3} textAlign='right'>
+              <Box mt={3} textAlign="right">
                 <Button mr={2} onClick={() => setEditTitle((prev) => !prev)}>
                   キャンセル
                 </Button>
                 <Button
-                  colorScheme='facebook'
+                  colorScheme="facebook"
                   onClick={() => {
                     updateTitle();
                     setEditTitle((prev) => !prev);
@@ -308,12 +308,12 @@ const ProjectId = () => {
               </Box>
             </Box>
           ) : (
-            <Flex alignItems='center'>
-              <Text mr={2} fontSize='3xl' fontWeight='bold'>
+            <Flex alignItems="center">
+              <Text mr={2} fontSize="3xl" fontWeight="bold">
                 {project?.title}
               </Text>
               <FaEdit
-                cursor='pointer'
+                cursor="pointer"
                 onClick={() => setEditTitle((prev) => !prev)}
               />
             </Flex>
@@ -322,39 +322,39 @@ const ProjectId = () => {
       </Box>
       <Container maxW={`${tableWidth}px`} py={6}>
         {project?.desc && (
-          <Box p={6} bg='white' borderRadius={6} boxShadow='base'>
+          <Box p={6} bg="white" borderRadius={6} boxShadow="base">
             {project?.desc}
           </Box>
         )}
         {project?.schedule && (
-          <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
-            <Box fontWeight='bold'>採寸日</Box>
+          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+            <Box fontWeight="bold">採寸日</Box>
             <Input
               mt={2}
-              type='date'
+              type="date"
               value={project?.schedule}
-              onChange={(e) => handleScheduleChange(e, 'schedule')}
+              onChange={(e) => handleScheduleChange(e, "schedule")}
             />
           </Box>
         )}
 
-        <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
-          <Box fontWeight='bold'>署名選択</Box>
+        <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+          <Box fontWeight="bold">署名選択</Box>
           {project?.signature && (
             <Box
               mt={2}
               p={6}
-              rounded='md'
-              whiteSpace='pre-wrap'
-              border='1px'
-              borderColor='gray.200'
+              rounded="md"
+              whiteSpace="pre-wrap"
+              border="1px"
+              borderColor="gray.200"
             >
               {project?.signature}
             </Box>
           )}
-          <Box mt={2} textAlign={project?.signature ? 'right' : 'left'}>
+          <Box mt={2} textAlign={project?.signature ? "right" : "left"}>
             {project?.signature && (
-              <Button mr={2} colorScheme='red' onClick={deleteSignature}>
+              <Button mr={2} colorScheme="red" onClick={deleteSignature}>
                 削除
               </Button>
             )}
@@ -366,27 +366,27 @@ const ProjectId = () => {
           <Box
             p={6}
             mt={6}
-            bg='white'
-            rounded='md'
-            boxShadow='base'
-            textAlign='center'
+            bg="white"
+            rounded="md"
+            boxShadow="base"
+            textAlign="center"
           >
             採寸データが入力されているため編集できません。
           </Box>
         )}
         <>
-          <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
+          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
             <RadioGroup
               isDisabled={students?.length > 0}
               value={project?.gender}
-              onChange={(e) => handleRadioChange(e, 'gender')}
+              onChange={(e) => handleRadioChange(e, "gender")}
             >
-              <Box fontWeight='bold'>性別記入</Box>
-              <Stack direction={['column', 'row']} mt={2}>
-                <Radio value='1' pr={6}>
+              <Box fontWeight="bold">性別記入</Box>
+              <Stack direction={["column", "row"]} mt={2}>
+                <Radio value="1" pr={6}>
                   なし
                 </Radio>
-                <Radio value='2' pr={6}>
+                <Radio value="2" pr={6}>
                   男性・女性
                 </Radio>
               </Stack>
@@ -399,11 +399,11 @@ const ProjectId = () => {
               width={1000}
             />
           </Box>
-          <Box p={6} mt={6} bg='white' borderRadius={6} boxShadow='base'>
-            <Box fontWeight='bold'>商品登録</Box>
+          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+            <Box fontWeight="bold">商品登録</Box>
 
             <TableContainer mt={6}>
-              <Table variant='simple'>
+              <Table variant="simple">
                 {project?.products?.length > 0 && (
                   <Thead>
                     <Tr>
@@ -425,53 +425,53 @@ const ProjectId = () => {
                         {project?.products[index] && (
                           <>
                             <Td mr={2}>
-                              {productNameElement(index, 'productName')}
-                              {project?.products[index].clothesType === '2' &&
-                                productNameElement(index, 'productNameA')}
+                              {productNameElement(index, "productName")}
+                              {project?.products[index].clothesType === "2" &&
+                                productNameElement(index, "productNameA")}
                             </Td>
 
                             <Td mr={2}>
-                              {priceElement(index, 'price')}
-                              {project?.products[index].clothesType === '2' &&
-                                priceElement(index, 'priceA')}
+                              {priceElement(index, "price")}
+                              {project?.products[index].clothesType === "2" &&
+                                priceElement(index, "priceA")}
                             </Td>
 
                             <Td>
-                              {sizeElement(index, 'size')}
-                              {project?.products[index].clothesType === '2' &&
-                                sizeElement(index, 'sizeA')}
+                              {sizeElement(index, "size")}
+                              {project?.products[index].clothesType === "2" &&
+                                sizeElement(index, "sizeA")}
                             </Td>
 
                             <Td>
                               {quantityElement(
                                 index,
-                                'quantity',
-                                'fixedQuantity'
+                                "quantity",
+                                "fixedQuantity"
                               )}
-                              {project?.products[index].clothesType === '2' &&
+                              {project?.products[index].clothesType === "2" &&
                                 quantityElement(
                                   index,
-                                  'quantityA',
-                                  'fixedQuantityA'
+                                  "quantityA",
+                                  "fixedQuantityA"
                                 )}
                             </Td>
 
                             <Td>
-                              {inseamElement(index, 'inseam')}
-                              {project?.products[index].clothesType === '2' &&
-                                inseamElement(index, 'inseamA')}
+                              {inseamElement(index, "inseam")}
+                              {project?.products[index].clothesType === "2" &&
+                                inseamElement(index, "inseamA")}
                             </Td>
 
                             <Td>
-                              {choiceElement(index, 'sizeUrl')}
-                              {project?.products[index].clothesType === '2' &&
-                                choiceElement(index, 'sizeUrlA')}
+                              {choiceElement(index, "sizeUrl")}
+                              {project?.products[index].clothesType === "2" &&
+                                choiceElement(index, "sizeUrlA")}
                             </Td>
 
                             <Td>
-                              {choiceElement(index, 'imageUrl')}
-                              {project?.products[index].clothesType === '2' &&
-                                choiceElement(index, 'imageUrlA')}
+                              {choiceElement(index, "imageUrl")}
+                              {project?.products[index].clothesType === "2" &&
+                                choiceElement(index, "imageUrlA")}
                             </Td>
 
                             <Td>
@@ -484,10 +484,10 @@ const ProjectId = () => {
                                   <>
                                     <InputModal
                                       productIndex={index}
-                                      buttonDesign='edit'
+                                      buttonDesign="edit"
                                     />
                                     <FaTrashAlt
-                                      cursor='pointer'
+                                      cursor="pointer"
                                       onClick={() => deleteProduct(index)}
                                     />
                                   </>
@@ -508,7 +508,7 @@ const ProjectId = () => {
                   project?.products.length === index && (
                     <>
                       {students?.length === 0 && (
-                        <InputModal productIndex={index} buttonDesign={'add'} />
+                        <InputModal productIndex={index} buttonDesign={"add"} />
                       )}
                     </>
                   )}

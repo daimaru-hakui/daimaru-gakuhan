@@ -23,13 +23,13 @@ import {
 
 import { useRecoilValue } from "recoil";
 import { db } from "../../../../firebase";
-import { currentUserAuth } from "../../../../store";
+import { currentUserState } from "../../../../store";
 import SliderWidth from "../../../components/SliderWidth";
 
 const LimitId = () => {
   const router = useRouter();
   const projectId = router.query.id;
-  const currentUser = useRecoilValue(currentUserAuth);
+  const currentUser = useRecoilValue(currentUserState);
   const [students, setStudents] = useState<any>();
   const [project, setProject] = useState<any>();
   const [unRegister, setUnRegister] = useState("");
@@ -147,7 +147,7 @@ const LimitId = () => {
       {students?.length > 0 ? (
         <>
           <Flex mt={3} alignItems="center" justifyContent="space-between">
-            <Box>
+            <Box fontSize="2xl">
               全{students?.length}件
               {unRegister && (
                 <Box as="span">{`（未提出者 ${unRegister}名）`}</Box>
@@ -155,44 +155,30 @@ const LimitId = () => {
             </Box>
           </Flex>
 
-          <TableContainer mt={6}>
-            <Table variant="striped" colorScheme="gray" size="sm">
-              <Thead>
-                <Tr>
-                  <Th>学生番号</Th>
-                  <Th>名前</Th>
-                  <Th>性別</Th>
-                  <Th>登録日</Th>
-                  <Th>採寸完了日</Th>
-                  <Th>経過時間</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {students?.map((student: any) => (
-                  <Tr
-                    key={student.id}
-                    textColor={student?.updatedAt || "red.500"}
-                  >
-                    <Td>{student?.studentNumber}</Td>
-                    <Td>{`${student?.lastName} ${student?.firstName}`}</Td>
-                    <Td>{genderDisp(student.gender)}</Td>
-                    <Td>{getDateTime(student?.createdAt.toDate())}</Td>
-                    <Td>
-                      {student?.updatedAt &&
-                        getDateTime(student?.updatedAt.toDate())}
-                    </Td>
-                    <Td>
-                      {student?.updatedAt &&
-                        getElapsedtime(
-                          student?.createdAt.toDate(),
-                          student?.updatedAt.toDate()
-                        )}
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
+          <Flex
+            mt={6}
+            w="full"
+            wrap="wrap"
+            justifyContent="space-around"
+            gap={1}
+          >
+            {students?.map((student: any) => (
+              <Flex
+                key={student.id}
+                minW="175px"
+                p={1}
+                gap={2}
+                fontSize="sm"
+                textColor={student?.updatedAt ? "black" : "gray.100"}
+                bg={student?.updatedAt ? "gray.100" : "red.500"}
+              >
+                <Box>{student?.studentNumber}</Box>
+                <Box
+                  flex={1}
+                >{`${student?.lastName} ${student?.firstName}`}</Box>
+              </Flex>
+            ))}
+          </Flex>
         </>
       ) : (
         <Box mt={6}>現在、登録情報はありません。</Box>
