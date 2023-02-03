@@ -159,7 +159,7 @@ const LimitId = () => {
             mt={6}
             w="full"
             wrap="wrap"
-            justifyContent="space-around"
+            justifyContent="space-between"
             gap={1}
           >
             {students?.map((student: any) => (
