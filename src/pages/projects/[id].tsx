@@ -283,240 +283,251 @@ const ProjectId = () => {
 
   return (
     <>
-      <Box bg="white" boxShadow="xs">
-        <Container maxW="1000px" py={{ base: 6, md: 10 }}>
-          {editTitle ? (
-            <Box>
-              <Input
-                name="title"
-                value={project?.title}
-                onChange={handleInputChange}
-              />
-              <Box mt={3} textAlign="right">
-                <Button mr={2} onClick={() => setEditTitle((prev) => !prev)}>
-                  キャンセル
-                </Button>
-                <Button
-                  colorScheme="facebook"
-                  onClick={() => {
-                    updateTitle();
-                    setEditTitle((prev) => !prev);
-                  }}
-                >
-                  OK
-                </Button>
-              </Box>
-            </Box>
-          ) : (
-            <Flex alignItems="center">
-              <Text mr={2} fontSize="3xl" fontWeight="bold">
-                {project?.title}
-              </Text>
-              <FaEdit
-                cursor="pointer"
-                onClick={() => setEditTitle((prev) => !prev)}
-              />
-            </Flex>
-          )}
-        </Container>
-      </Box>
-      <Container maxW={`${tableWidth}px`} py={6}>
-        {project?.desc && (
-          <Box p={6} bg="white" borderRadius={6} boxShadow="base">
-            {project?.desc}
-          </Box>
-        )}
-        {project?.schedule && (
-          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-            <Box fontWeight="bold">採寸日</Box>
-            <Input
-              mt={2}
-              type="date"
-              value={project?.schedule}
-              onChange={(e) => handleScheduleChange(e, "schedule")}
-            />
-          </Box>
-        )}
-
-        <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-          <Box fontWeight="bold">署名選択</Box>
-          {project?.signature && (
-            <Box
-              mt={2}
-              p={6}
-              rounded="md"
-              whiteSpace="pre-wrap"
-              border="1px"
-              borderColor="gray.200"
-            >
-              {project?.signature}
-            </Box>
-          )}
-          <Box mt={2} textAlign={project?.signature ? "right" : "left"}>
-            {project?.signature && (
-              <Button mr={2} colorScheme="red" onClick={deleteSignature}>
-                削除
-              </Button>
-            )}
-            <SignatureModal />
-          </Box>
-        </Box>
-
-        {students?.length > 0 && (
-          <Box
-            p={6}
-            mt={6}
-            bg="white"
-            rounded="md"
-            boxShadow="base"
-            textAlign="center"
-          >
-            採寸データが入力されているため編集できません。
-          </Box>
-        )}
+      {currentUser && (
         <>
-          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-            <RadioGroup
-              isDisabled={students?.length > 0}
-              value={project?.gender}
-              onChange={(e) => handleRadioChange(e, "gender")}
-            >
-              <Box fontWeight="bold">性別記入</Box>
-              <Stack direction={["column", "row"]} mt={2}>
-                <Radio value="1" pr={6}>
-                  なし
-                </Radio>
-                <Radio value="2" pr={6}>
-                  男性・女性
-                </Radio>
-              </Stack>
-            </RadioGroup>
+          <Box bg="white" boxShadow="xs">
+            <Container maxW="1000px" py={{ base: 6, md: 10 }}>
+              {editTitle ? (
+                <Box>
+                  <Input
+                    name="title"
+                    value={project?.title}
+                    onChange={handleInputChange}
+                  />
+                  <Box mt={3} textAlign="right">
+                    <Button
+                      mr={2}
+                      onClick={() => setEditTitle((prev) => !prev)}
+                    >
+                      キャンセル
+                    </Button>
+                    <Button
+                      colorScheme="facebook"
+                      onClick={() => {
+                        updateTitle();
+                        setEditTitle((prev) => !prev);
+                      }}
+                    >
+                      OK
+                    </Button>
+                  </Box>
+                </Box>
+              ) : (
+                <Flex alignItems="center">
+                  <Text mr={2} fontSize="3xl" fontWeight="bold">
+                    {project?.title}
+                  </Text>
+                  <FaEdit
+                    cursor="pointer"
+                    onClick={() => setEditTitle((prev) => !prev)}
+                  />
+                </Flex>
+              )}
+            </Container>
           </Box>
-          <Box mt={6}>
-            <SliderWidth
-              tableWidth={tableWidth}
-              setTableWidth={setTableWidth}
-              width={1000}
-            />
-          </Box>
-          <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
-            <Box fontWeight="bold">商品登録</Box>
-
-            <TableContainer mt={6}>
-              <Table variant="simple">
-                {project?.products?.length > 0 && (
-                  <Thead>
-                    <Tr>
-                      <Th>商品名</Th>
-                      <Th>金額</Th>
-                      <Th>サイズ展開</Th>
-                      <Th>数量入力</Th>
-                      <Th>股下修理</Th>
-                      <Th>サイズ画像</Th>
-                      <Th>イメージ画像</Th>
-                      <Th>編集・削除</Th>
-                    </Tr>
-                  </Thead>
-                )}
-                <Tbody>
-                  {Object.keys([...Array(9)]).map(
-                    (i: string, index: number) => (
-                      <Tr key={i} mt={6}>
-                        {project?.products[index] && (
-                          <>
-                            <Td mr={2}>
-                              {productNameElement(index, "productName")}
-                              {project?.products[index].clothesType === "2" &&
-                                productNameElement(index, "productNameA")}
-                            </Td>
-
-                            <Td mr={2}>
-                              {priceElement(index, "price")}
-                              {project?.products[index].clothesType === "2" &&
-                                priceElement(index, "priceA")}
-                            </Td>
-
-                            <Td>
-                              {sizeElement(index, "size")}
-                              {project?.products[index].clothesType === "2" &&
-                                sizeElement(index, "sizeA")}
-                            </Td>
-
-                            <Td>
-                              {quantityElement(
-                                index,
-                                "quantity",
-                                "fixedQuantity"
-                              )}
-                              {project?.products[index].clothesType === "2" &&
-                                quantityElement(
-                                  index,
-                                  "quantityA",
-                                  "fixedQuantityA"
-                                )}
-                            </Td>
-
-                            <Td>
-                              {inseamElement(index, "inseam")}
-                              {project?.products[index].clothesType === "2" &&
-                                inseamElement(index, "inseamA")}
-                            </Td>
-
-                            <Td>
-                              {choiceElement(index, "sizeUrl")}
-                              {project?.products[index].clothesType === "2" &&
-                                choiceElement(index, "sizeUrlA")}
-                            </Td>
-
-                            <Td>
-                              {choiceElement(index, "imageUrl")}
-                              {project?.products[index].clothesType === "2" &&
-                                choiceElement(index, "imageUrlA")}
-                            </Td>
-
-                            <Td>
-                              <HStack spacing={6}>
-                                {students?.length > 0 ? (
-                                  <>
-                                    <Box>編集不可</Box>
-                                  </>
-                                ) : (
-                                  <>
-                                    <InputModal
-                                      productIndex={index}
-                                      buttonDesign="edit"
-                                    />
-                                    <FaTrashAlt
-                                      cursor="pointer"
-                                      onClick={() => deleteProduct(index)}
-                                    />
-                                  </>
-                                )}
-                              </HStack>
-                            </Td>
-                          </>
-                        )}
-                      </Tr>
-                    )
-                  )}
-                </Tbody>
-              </Table>
-            </TableContainer>
-            {Object.keys([...Array(9)]).map((i: string, index: number) => (
-              <Box key={i} mt={6}>
-                {!project?.products[index] &&
-                  project?.products.length === index && (
-                    <>
-                      {students?.length === 0 && (
-                        <InputModal productIndex={index} buttonDesign={"add"} />
-                      )}
-                    </>
-                  )}
+          <Container maxW={`${tableWidth}px`} py={6}>
+            {project?.desc && (
+              <Box p={6} bg="white" borderRadius={6} boxShadow="base">
+                {project?.desc}
               </Box>
-            ))}
-          </Box>
+            )}
+
+            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+              <Box fontWeight="bold">採寸日</Box>
+              <Input
+                mt={2}
+                type="date"
+                value={project?.schedule}
+                onChange={(e) => handleScheduleChange(e, "schedule")}
+              />
+            </Box>
+
+            <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+              <Box fontWeight="bold">署名選択</Box>
+              {project?.signature && (
+                <Box
+                  mt={2}
+                  p={6}
+                  rounded="md"
+                  whiteSpace="pre-wrap"
+                  border="1px"
+                  borderColor="gray.200"
+                >
+                  {project?.signature}
+                </Box>
+              )}
+              <Box mt={2} textAlign={project?.signature ? "right" : "left"}>
+                {project?.signature && (
+                  <Button mr={2} colorScheme="red" onClick={deleteSignature}>
+                    削除
+                  </Button>
+                )}
+                <SignatureModal />
+              </Box>
+            </Box>
+
+            {students?.length > 0 && (
+              <Box
+                p={6}
+                mt={6}
+                bg="white"
+                rounded="md"
+                boxShadow="base"
+                textAlign="center"
+              >
+                採寸データが入力されているため編集できません。
+              </Box>
+            )}
+            <>
+              <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+                <RadioGroup
+                  isDisabled={students?.length > 0}
+                  value={project?.gender}
+                  onChange={(e) => handleRadioChange(e, "gender")}
+                >
+                  <Box fontWeight="bold">性別記入</Box>
+                  <Stack direction={["column", "row"]} mt={2}>
+                    <Radio value="1" pr={6}>
+                      なし
+                    </Radio>
+                    <Radio value="2" pr={6}>
+                      男性・女性
+                    </Radio>
+                  </Stack>
+                </RadioGroup>
+              </Box>
+              <Box mt={6}>
+                <SliderWidth
+                  tableWidth={tableWidth}
+                  setTableWidth={setTableWidth}
+                  width={1000}
+                />
+              </Box>
+              <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+                <Box fontWeight="bold">商品登録</Box>
+
+                <TableContainer mt={6}>
+                  <Table variant="simple">
+                    {project?.products?.length > 0 && (
+                      <Thead>
+                        <Tr>
+                          <Th>商品名</Th>
+                          <Th>金額</Th>
+                          <Th>サイズ展開</Th>
+                          <Th>数量入力</Th>
+                          <Th>股下修理</Th>
+                          <Th>サイズ画像</Th>
+                          <Th>イメージ画像</Th>
+                          <Th>編集・削除</Th>
+                        </Tr>
+                      </Thead>
+                    )}
+                    <Tbody>
+                      {Object.keys([...Array(9)]).map(
+                        (i: string, index: number) => (
+                          <Tr key={i} mt={6}>
+                            {project?.products[index] && (
+                              <>
+                                <Td mr={2}>
+                                  {productNameElement(index, "productName")}
+                                  {project?.products[index].clothesType ===
+                                    "2" &&
+                                    productNameElement(index, "productNameA")}
+                                </Td>
+
+                                <Td mr={2}>
+                                  {priceElement(index, "price")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && priceElement(index, "priceA")}
+                                </Td>
+
+                                <Td>
+                                  {sizeElement(index, "size")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && sizeElement(index, "sizeA")}
+                                </Td>
+
+                                <Td>
+                                  {quantityElement(
+                                    index,
+                                    "quantity",
+                                    "fixedQuantity"
+                                  )}
+                                  {project?.products[index].clothesType ===
+                                    "2" &&
+                                    quantityElement(
+                                      index,
+                                      "quantityA",
+                                      "fixedQuantityA"
+                                    )}
+                                </Td>
+
+                                <Td>
+                                  {inseamElement(index, "inseam")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && inseamElement(index, "inseamA")}
+                                </Td>
+
+                                <Td>
+                                  {choiceElement(index, "sizeUrl")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && choiceElement(index, "sizeUrlA")}
+                                </Td>
+
+                                <Td>
+                                  {choiceElement(index, "imageUrl")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && choiceElement(index, "imageUrlA")}
+                                </Td>
+
+                                <Td>
+                                  <HStack spacing={6}>
+                                    {students?.length > 0 ? (
+                                      <>
+                                        <Box>編集不可</Box>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <InputModal
+                                          productIndex={index}
+                                          buttonDesign="edit"
+                                        />
+                                        <FaTrashAlt
+                                          cursor="pointer"
+                                          onClick={() => deleteProduct(index)}
+                                        />
+                                      </>
+                                    )}
+                                  </HStack>
+                                </Td>
+                              </>
+                            )}
+                          </Tr>
+                        )
+                      )}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+                {Object.keys([...Array(9)]).map((i: string, index: number) => (
+                  <Box key={i} mt={6}>
+                    {!project?.products[index] &&
+                      project?.products.length === index && (
+                        <>
+                          {students?.length === 0 && (
+                            <InputModal
+                              productIndex={index}
+                              buttonDesign={"add"}
+                            />
+                          )}
+                        </>
+                      )}
+                  </Box>
+                ))}
+              </Box>
+            </>
+          </Container>
         </>
-      </Container>
+      )}
     </>
   );
 };

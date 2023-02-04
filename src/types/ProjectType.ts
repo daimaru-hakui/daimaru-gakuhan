@@ -3,9 +3,9 @@ export type ProjectType = {
   title: string;
   desc: string;
   schedule: string;
-  gender: number;
+  gender: string;
   release: boolean;
-  products: string[];
+  products: { sizePath: string; imagePath: string }[];
   createdAt: Date;
   createUser: string;
 };

@@ -32,7 +32,7 @@ const MeasureId = () => {
   const projectId = router.query.id;
   const studentId = router.query.studentId;
   const [student, setStudent] = useState<any>();
-  const [project, setProject] = useState<any>();
+  const [project, setProject] = useState({} as ProjectType);
   const [items, setItems] = useState<any>({});
   const [sumTotal, setSumTotal] = useState(0);
   const array = Object.keys([...Array(10)]);
@@ -67,7 +67,7 @@ const MeasureId = () => {
           router.push("/register");
           return;
         }
-        setProject({ ...docSnap.data(), id: docSnap.id });
+        setProject({ ...docSnap.data(), id: docSnap.id } as ProjectType);
       }
     };
     getProject();
@@ -314,7 +314,7 @@ const MeasureId = () => {
 
   return (
     <Container maxW="600px" py={6} minH="100vh">
-      {student?.release && (
+      {project?.release && (
         <>
           {items?.title && (
             <Box
