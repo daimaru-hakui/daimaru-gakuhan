@@ -69,7 +69,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
     if (!release) return;
     setLoading(true);
     const PUBLIC_KEY = "user_7yd9EbIQJSbzjqGUXUbJt";
-    const SERVICE_ID = "service_764mpxv";
+    const SERVICE_ID = "service_ydb4c7f";
     const TEMPLATE_ID = "template_70iyw39";
     emailjs
       .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
