@@ -29,11 +29,16 @@ import { useSetRecoilState } from "recoil";
 import { db } from "../../../firebase";
 import { loadingState } from "../../../store";
 
+type SignatureType = {
+  id: string;
+  content: string;
+};
+
 const SignatureModal = () => {
   const router = useRouter();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [signatures, setSignatures] = useState<any>();
+  const [signatures, setSignatures] = useState([] as SignatureType[]);
   const setLoading = useSetRecoilState(loadingState);
 
   useEffect(() => {
@@ -44,7 +49,9 @@ const SignatureModal = () => {
       );
       const querySnap = await getDocs(q);
       setSignatures(
-        querySnap.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+        querySnap.docs.map(
+          (doc) => ({ ...doc.data(), id: doc.id } as SignatureType)
+        )
       );
     };
     getSignatures();
@@ -87,12 +94,14 @@ const SignatureModal = () => {
               p={6}
               gap={6}
             >
-              {signatures?.map((signature: any) => (
+              {signatures?.map((signature: SignatureType) => (
                 <Box
                   key={signature.id}
                   p={3}
                   boxShadow="lg"
                   cursor="pointer"
+                  border="1px solid white"
+                  _hover={{ border: "1px", borderColor: "#1669d8" }}
                   onClick={() => addProjectSignature(signature.content)}
                 >
                   <Box whiteSpace="pre-wrap">{signature.content}</Box>

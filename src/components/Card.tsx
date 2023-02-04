@@ -74,7 +74,9 @@ const Card: NextPage<Props> = ({ project }) => {
                         </Text>
                       </a>
                     </Link>
-                    <Text fontSize="xs">採寸日 {project?.schedule}</Text>
+                    <Text fontSize="xs">
+                      採寸日 {project?.schedule ? project?.schedule : "未定"}
+                    </Text>
                   </Box>
                 </Flex>
                 {(currentUser === project.createUser ||

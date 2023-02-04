@@ -326,178 +326,188 @@ const SchoolId = () => {
 
   return (
     <Container maxW={`${tableWidth}px`} py={6}>
-      <SliderWidth
-        tableWidth={tableWidth}
-        setTableWidth={setTableWidth}
-        width={1200}
-      />
-      <Box as="h2" mt={3} fontWeight="bold">
-        {project?.title}
-      </Box>
-      {students?.length > 0 ? (
+      {currentUser && (
         <>
-          <Flex mt={3} alignItems="center" justifyContent="space-between">
-            <Box>
-              全{students?.length}件
-              {unRegister && (
-                <Box as="span">{`（未提出者 ${unRegister}名）`}</Box>
-              )}
-            </Box>
-            <Flex>
-              <Link href={`/schools/limit/${projectId}`}>
-                <a>
-                  <Button size="sm" mr={2} colorScheme="facebook">
-                    学生閲覧用ぺージ
-                  </Button>
-                </a>
-              </Link>
-              <CSVLink
-                data={csvData}
-                filename={
-                  new Date().toLocaleString() + `_${project?.title}.csv`
-                }
-              >
-                <Button
-                  size="sm"
-                  mr={2}
-                  colorScheme="facebook"
-                  onClick={onClickCsv}
-                >
-                  CSV
-                </Button>
-              </CSVLink>
-              {/* <TotalModal totals={totals} totalPrice={totalPrice} /> */}
-            </Flex>
-          </Flex>
-
-          <TableContainer mt={6}>
-            <Table variant="striped" colorScheme="gray" size="sm">
-              <Thead>
-                <Tr>
-                  <Th>学生番号</Th>
-                  <Th>名前</Th>
-                  <Th>性別</Th>
-                  <Th isNumeric>金額（税込）</Th>
-                  {students[0]?.products.map(
-                    (
-                      product: {
-                        productName: string;
-                        size: string[];
-                        quantity: string;
-                        inseam: string;
-                      },
-                      index: number
-                    ) => (
-                      <React.Fragment key={index}>
-                        {product?.productName && <Th w="80px">商品名</Th>}
-                        {product?.size && <Th w="80px">サイズ</Th>}
-                        {product?.quantity && <Th w="50px">数量</Th>}
-                        {product?.inseam && <Th w="50px">股下修理</Th>}
-                      </React.Fragment>
-                    )
-                  )}
-                  <Th>登録日</Th>
-                  <Th>採寸完了日</Th>
-                  <Th>経過時間</Th>
-                  <Th>Email</Th>
-                  <Th>詳細</Th>
-                  <Th>削除</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {students?.map((student: any) => (
-                  <Tr
-                    key={student.id}
-                    fontWeight={student?.updatedAt || "bold"}
-                    textColor={student?.updatedAt || "red.500"}
-                  >
-                    <Td>{student?.studentNumber}</Td>
-                    <Td>{`${student?.lastName} ${student?.firstName}`}</Td>
-                    <Td>{genderDisp(student.gender)}</Td>
-                    <Td isNumeric>
-                      {student.sumTotal
-                        ? Math.round(Number(student.sumTotal)).toLocaleString()
-                        : 0}
-                      円
-                    </Td>
-                    {student.products.map((product: any, index: number) => (
-                      <React.Fragment key={index}>
-                        {product.productName && (
-                          <Td w="80px">{product.productName}</Td>
-                        )}
-                        {product.size && (
-                          <Td
-                            w="80px"
-                            textAlign="center"
-                            fontWeight={product.size === "未記入" ? "bold" : ""}
-                            color={product.size === "未記入" ? "red" : ""}
-                          >
-                            {product.size}
-                          </Td>
-                        )}
-                        {product.quantity && (
-                          <Td w="50px" textAlign="right">
-                            {product.quantity}
-                          </Td>
-                        )}
-                        {product.inseam && (
-                          <Td
-                            w="50px"
-                            textAlign="right"
-                            fontWeight={
-                              product.inseam === "未記入" ? "bold" : ""
-                            }
-                            color={product.inseam === "未記入" ? "red" : ""}
-                          >
-                            {product.inseam}
-                          </Td>
-                        )}
-                      </React.Fragment>
-                    ))}
-                    <Td>{getDateTime(student?.createdAt.toDate())}</Td>
-                    <Td>
-                      {student?.updatedAt &&
-                        getDateTime(student?.updatedAt.toDate())}
-                    </Td>
-                    <Td>
-                      {student?.updatedAt &&
-                        getElapsedtime(
-                          student?.createdAt.toDate(),
-                          student?.updatedAt.toDate()
-                        )}
-                    </Td>
-                    <Td>{student?.email && student?.email}</Td>
-                    <Td>
-                      <StudentModal
-                        projectId={student?.projectId}
-                        studentId={student?.id}
-                        genderDisp={genderDisp}
-                        students={students}
-                      />
-                    </Td>
-                    <Td>
-                      <FaTrashAlt
-                        cursor="pointer"
-                        onClick={() => deleteCheck && deleteStudent(student.id)}
-                      />
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
-          <Box mt={6}>
-            <Checkbox
-              value={deleteCheck}
-              name="check"
-              onChange={(e: any) => setDeleteCheck(e.target.checked)}
-            >
-              削除する場合はチェックを入れてください
-            </Checkbox>
+          <SliderWidth
+            tableWidth={tableWidth}
+            setTableWidth={setTableWidth}
+            width={1200}
+          />
+          <Box as="h2" mt={3} fontWeight="bold">
+            {project?.title}
           </Box>
+          {students?.length > 0 ? (
+            <>
+              <Flex mt={3} alignItems="center" justifyContent="space-between">
+                <Box>
+                  全{students?.length}件
+                  {unRegister && (
+                    <Box as="span">{`（未提出者 ${unRegister}名）`}</Box>
+                  )}
+                </Box>
+                <Flex>
+                  <Link href={`/schools/limit/${projectId}`}>
+                    <a>
+                      <Button size="sm" mr={2} colorScheme="facebook">
+                        学生閲覧用ぺージ
+                      </Button>
+                    </a>
+                  </Link>
+                  <CSVLink
+                    data={csvData}
+                    filename={
+                      new Date().toLocaleString() + `_${project?.title}.csv`
+                    }
+                  >
+                    <Button
+                      size="sm"
+                      mr={2}
+                      colorScheme="facebook"
+                      onClick={onClickCsv}
+                    >
+                      CSV
+                    </Button>
+                  </CSVLink>
+                  {/* <TotalModal totals={totals} totalPrice={totalPrice} /> */}
+                </Flex>
+              </Flex>
+
+              <TableContainer mt={6}>
+                <Table variant="striped" colorScheme="gray" size="sm">
+                  <Thead>
+                    <Tr>
+                      <Th>学生番号</Th>
+                      <Th>名前</Th>
+                      <Th>性別</Th>
+                      <Th isNumeric>金額（税込）</Th>
+                      {students[0]?.products.map(
+                        (
+                          product: {
+                            productName: string;
+                            size: string[];
+                            quantity: string;
+                            inseam: string;
+                          },
+                          index: number
+                        ) => (
+                          <React.Fragment key={index}>
+                            {product?.productName && <Th w="80px">商品名</Th>}
+                            {product?.size && <Th w="80px">サイズ</Th>}
+                            {product?.quantity && <Th w="50px">数量</Th>}
+                            {product?.inseam && <Th w="50px">股下修理</Th>}
+                          </React.Fragment>
+                        )
+                      )}
+                      <Th>登録日</Th>
+                      <Th>採寸完了日</Th>
+                      <Th>経過時間</Th>
+                      <Th>Email</Th>
+                      <Th>詳細</Th>
+                      <Th>削除</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {students?.map((student: any) => (
+                      <Tr
+                        key={student.id}
+                        fontWeight={student?.updatedAt || "bold"}
+                        textColor={student?.updatedAt || "red.500"}
+                      >
+                        <Td>{student?.studentNumber}</Td>
+                        <Td>{`${student?.lastName} ${student?.firstName}`}</Td>
+                        <Td>{genderDisp(student.gender)}</Td>
+                        <Td isNumeric>
+                          {student.sumTotal
+                            ? Math.round(
+                                Number(student.sumTotal)
+                              ).toLocaleString()
+                            : 0}
+                          円
+                        </Td>
+                        {student.products.map((product: any, index: number) => (
+                          <React.Fragment key={index}>
+                            {product.productName && (
+                              <Td w="80px">{product.productName}</Td>
+                            )}
+                            {product.size && (
+                              <Td
+                                w="80px"
+                                textAlign="center"
+                                fontWeight={
+                                  product.size === "未記入" ? "bold" : ""
+                                }
+                                color={product.size === "未記入" ? "red" : ""}
+                              >
+                                {product.size}
+                              </Td>
+                            )}
+                            {product.quantity && (
+                              <Td w="50px" textAlign="right">
+                                {product.quantity}
+                              </Td>
+                            )}
+                            {product.inseam && (
+                              <Td
+                                w="50px"
+                                textAlign="right"
+                                fontWeight={
+                                  product.inseam === "未記入" ? "bold" : ""
+                                }
+                                color={product.inseam === "未記入" ? "red" : ""}
+                              >
+                                {product.inseam}
+                              </Td>
+                            )}
+                          </React.Fragment>
+                        ))}
+                        <Td>{getDateTime(student?.createdAt.toDate())}</Td>
+                        <Td>
+                          {student?.updatedAt &&
+                            getDateTime(student?.updatedAt.toDate())}
+                        </Td>
+                        <Td>
+                          {student?.updatedAt &&
+                            getElapsedtime(
+                              student?.createdAt.toDate(),
+                              student?.updatedAt.toDate()
+                            )}
+                        </Td>
+                        <Td>{student?.email && student?.email}</Td>
+                        <Td>
+                          <StudentModal
+                            projectId={student?.projectId}
+                            studentId={student?.id}
+                            genderDisp={genderDisp}
+                            students={students}
+                          />
+                        </Td>
+                        <Td>
+                          <FaTrashAlt
+                            cursor="pointer"
+                            onClick={() =>
+                              deleteCheck && deleteStudent(student.id)
+                            }
+                          />
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
+              <Box mt={6}>
+                <Checkbox
+                  value={deleteCheck}
+                  name="check"
+                  onChange={(e: any) => setDeleteCheck(e.target.checked)}
+                >
+                  削除する場合はチェックを入れてください
+                </Checkbox>
+              </Box>
+            </>
+          ) : (
+            <Box mt={6}>現在、登録情報はありません。</Box>
+          )}
         </>
-      ) : (
-        <Box mt={6}>現在、登録情報はありません。</Box>
       )}
     </Container>
   );
