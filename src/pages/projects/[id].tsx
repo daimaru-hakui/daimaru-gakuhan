@@ -20,6 +20,7 @@ import {
   Tbody,
   Td,
   Text,
+  Textarea,
   Th,
   Thead,
   Tr,
@@ -42,6 +43,7 @@ const ProjectId = () => {
   const toast = useToast();
   const currentUser = useRecoilValue(currentUserState);
   const [editTitle, setEditTitle] = useState(false);
+  const [editDesc, setEditDesc] = useState(false);
   const projects = useRecoilValue(projectsState);
   const [students, setStudents] = useState<any>();
   const [tableWidth, setTableWidth] = useState(1000);
@@ -150,7 +152,28 @@ const ProjectId = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // タイトルを編集
+  const updateDesc = async () => {
+    const docRef = doc(db, "projects", `${projectId}`);
+    try {
+      await updateDoc(docRef, {
+        desc: project.desc,
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      toast({
+        title: "説明文を変更しました",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const name = e.target.name;
     const value = e.target.value;
     setProject({ ...project, [name]: value });
@@ -326,12 +349,6 @@ const ProjectId = () => {
             </Container>
           </Box>
           <Container maxW={`${tableWidth}px`} py={6}>
-            {project?.desc && (
-              <Box p={6} bg="white" borderRadius={6} boxShadow="base">
-                {project?.desc}
-              </Box>
-            )}
-
             <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
               <Box fontWeight="bold">採寸日</Box>
               <Input
@@ -402,6 +419,46 @@ const ProjectId = () => {
                   setTableWidth={setTableWidth}
                   width={1000}
                 />
+              </Box>
+              <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+                <Box fontWeight="bold">説明文</Box>
+                {editDesc ? (
+                  <>
+                    <Textarea
+                      mt={2}
+                      name="desc"
+                      value={project?.desc}
+                      onChange={handleInputChange}
+                    />
+                    <Box mt={3} textAlign="right">
+                      <Button
+                        mr={2}
+                        onClick={() => setEditDesc((prev) => !prev)}
+                      >
+                        キャンセル
+                      </Button>
+                      <Button
+                        colorScheme="facebook"
+                        onClick={() => {
+                          updateDesc();
+                          setEditDesc((prev) => !prev);
+                        }}
+                      >
+                        OK
+                      </Button>
+                    </Box>
+                  </>
+                ) : (
+                  <Flex mt={2} alignItems="center">
+                    <Text mr={2} fontSize="md" whiteSpace="pre-wrap">
+                      {project?.desc}
+                    </Text>
+                    <FaEdit
+                      cursor="pointer"
+                      onClick={() => setEditDesc((prev) => !prev)}
+                    />
+                  </Flex>
+                )}
               </Box>
               <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
                 <Box fontWeight="bold">商品登録</Box>
