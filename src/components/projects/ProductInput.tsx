@@ -92,13 +92,14 @@ const ProductInput: NextPage<Props> = ({
   ];
 
   const sizeData5 = [
+    { id: "26.0cm", label: "26.0cm" },
     { id: "26.5cm", label: "26.5cm" },
     { id: "27.0cm", label: "27.0cm" },
     { id: "27.5cm", label: "27.5cm" },
     { id: "28.0cm", label: "28.0cm" },
-    { id: "28.5cm", label: "28.5cm" },
   ];
   const sizeData6 = [
+    { id: "28.5cm", label: "28.5cm" },
     { id: "29.0cm", label: "29.0cm" },
     { id: "30.0cm", label: "30.0cm" },
   ];
