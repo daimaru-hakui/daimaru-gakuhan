@@ -366,6 +366,16 @@ const MeasureId = () => {
               router={router}
             />
           </Flex>
+          {project?.desc && (
+            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+              <Box fontWeight="bold" fontSize="xl">
+                説明
+              </Box>
+              <Box mt={2} whiteSpace="pre-wrap">
+                {project.desc}
+              </Box>
+            </Box>
+          )}
 
           {project?.products.map((product: any, index: number) => (
             <Box

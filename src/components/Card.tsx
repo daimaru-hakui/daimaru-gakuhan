@@ -95,14 +95,11 @@ const Card: NextPage<Props> = ({ project }) => {
                     </Button>
                   ))}
               </Flex>
-              <Box mt={2} fontSize="xs">
-                {project?.desc}
-              </Box>
             </Box>
             <Flex
               justifyContent="space-around"
               alignItems="center"
-              mt={4}
+              mt={6}
               h="5"
             >
               <a
