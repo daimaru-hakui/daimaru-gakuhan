@@ -46,7 +46,8 @@ const ProjectId = () => {
   const [editDesc, setEditDesc] = useState(false);
   const projects = useRecoilValue(projectsState);
   const [students, setStudents] = useState<any>();
-  const [tableWidth, setTableWidth] = useState(1000);
+  const [tableWidth, setTableWidth] = useState(1100);
+  const [dragIndex, setDragIndex] = useState(null)
   const projectId = router.query.id;
   const [project, setProject] = useState<any>({
     title: "",
@@ -222,6 +223,7 @@ const ProjectId = () => {
     }
   };
 
+  // 署名削除
   const deleteSignature = async () => {
     const docRef = doc(db, "projects", `${projectId}`);
     try {
@@ -232,6 +234,34 @@ const ProjectId = () => {
       console.log(err);
     }
   };
+
+  // ドラッグ&ドロップ
+  const dragStart = (index: any) => {
+    setDragIndex(index)
+  }
+
+  const dragEnter = (index: any) => {
+    if (index === dragIndex) return
+    let array = []
+    array = [...project?.products]
+    setProject(() => {
+      let array = [...project?.products]
+      let deleteElement = array.splice(Number(dragIndex), 1)[0]
+      array.splice(index, 0, deleteElement)
+      return {
+        ...project, products: array
+      }
+    })
+    setDragIndex(index)
+  }
+
+  const dragEnd = () => {
+    const docRef = doc(db, "projects", `${projectId}`);
+    updateDoc(docRef, {
+      ...project
+    })
+    setDragIndex(null)
+  }
 
   // 商品
   const productNameElement = (index: number, prop: string) => (
@@ -309,7 +339,7 @@ const ProjectId = () => {
       {currentUser && (
         <>
           <Box bg="white" boxShadow="xs">
-            <Container maxW="1000px" py={{ base: 6, md: 10 }}>
+            <Container maxW="1100px" py={{ base: 6, md: 10 }}>
               {editTitle ? (
                 <Box>
                   <Input
@@ -480,9 +510,19 @@ const ProjectId = () => {
                       </Thead>
                     )}
                     <Tbody>
-                      {Object.keys([...Array(9)]).map(
+                      {/* {Object.keys([...Array(9)]).map( */}
+                      {project?.products?.map(
                         (i: string, index: number) => (
-                          <Tr key={i} mt={6}>
+                          <Tr key={index} mt={6}
+                            cursor='pointer'
+                            draggable={students?.length > 0 ? false : true}
+                            onDragStart={() => dragStart(index)}
+                            onDragEnter={() => dragEnter(index)}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDragEnd={dragEnd}
+                            borderTop={index === dragIndex ? '2px' : ''}
+                            borderColor={index === dragIndex ? 'blue.300' : ''}
+                          >
                             {project?.products[index] && (
                               <>
                                 <Td mr={2}>
@@ -565,7 +605,12 @@ const ProjectId = () => {
                     </Tbody>
                   </Table>
                 </TableContainer>
-                {Object.keys([...Array(9)]).map((i: string, index: number) => (
+
+                <Box mt={6}>
+                  <InputModal productIndex={project?.products?.length} buttonDesign={"add"} />
+                </Box>
+
+                {/* {Object.keys([...Array(9)]).map((i: string, index: number) => (
                   <Box key={i} mt={6}>
                     {!project?.products[index] &&
                       project?.products.length === index && (
@@ -579,7 +624,7 @@ const ProjectId = () => {
                         </>
                       )}
                   </Box>
-                ))}
+                ))} */}
               </Box>
             </>
           </Container>

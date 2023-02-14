@@ -138,7 +138,7 @@ const StudentModal: NextPage<Props> = ({
         content.push(row + "<br/>");
       }
     );
-    let signature = student?.signature.split("\n");
+    let signature = student?.signature?.split("\n");
     signature = `<div>${signature?.join("<br/>")}</div>`;
     setSend({
       ...send,

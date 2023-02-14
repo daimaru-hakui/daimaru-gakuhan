@@ -150,7 +150,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     }
     return;
   };
-
+  console.log(productIndex)
   // 商品を登録
   const addProduct = async () => {
     setLoading(true);
@@ -189,41 +189,6 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
       'images'
     );
 
-    // if (!items.imageUrl) {
-    //   if (imageFileUpload) {
-    //     const file = imageFileUpload[0];
-    //     const fileName = new Date().getTime() + '_' + file.name;
-    //     const path = `images/${fileName}`;
-    //     const storageRef = ref(storage, path);
-    //     await uploadBytes(storageRef, file);
-    //     imageUrl = await getDownloadURL(ref(storage, path));
-    //     imagePath = storageRef.fullPath;
-    //   }
-    // }
-    // if (!items.sizeUrlA) {
-    //   if (sizeFileUploadA) {
-    //     const file = sizeFileUploadA[0];
-    //     const fileName = new Date().getTime() + '_' + file.name;
-    //     const path = `sizes/${fileName}`;
-    //     const storageRef = ref(storage, path);
-    //     await uploadBytes(storageRef, file);
-    //     sizeUrlA = await getDownloadURL(ref(storage, path));
-    //     sizePathA = storageRef.fullPath;
-    //     setSizeFileUploadA('');
-    //   }
-    // }
-    // if (!items.imageUrlA) {
-    //   if (imageFileUploadA) {
-    //     const file = imageFileUploadA[0];
-    //     const fileName = new Date().getTime() + '_' + file.name;
-    //     const path = `images/${fileName}`;
-    //     const storageRef = ref(storage, path);
-    //     await uploadBytes(storageRef, file);
-    //     imageUrlA = await getDownloadURL(ref(storage, path));
-    //     imagePathA = storageRef.fullPath;
-    //     setImageFileUploadA('');
-    //   }
-    // }
     const docRef = doc(db, 'projects', `${projectId}`);
     try {
       if (products[productIndex]) {
