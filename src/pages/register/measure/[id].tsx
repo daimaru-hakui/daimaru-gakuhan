@@ -110,11 +110,24 @@ const MeasureId = () => {
         }
 
         inseam = product?.inseam || product?.inseamA ? "なし" : null;
-        if (product?.inseam && inseam === "なし" && student?.gender === "1")
-          inseam = "";
-        if (product?.inseamA && inseam === "なし" && student?.gender === "2")
-          inseam = "";
-        // inseam = product?.inseamA || product?.inseamA ? "なし" : null;
+
+        if (inseam === "なし") {
+          if (
+            product?.clothesType === "2" &&
+            product?.inseam &&
+            student?.gender === "1"
+          )
+            inseam = "";
+
+          if (
+            product?.clothesType === "2" &&
+            product?.inseamA &&
+            student?.gender === "2"
+          )
+            inseam = "";
+
+          if (product?.clothesType === 1 && product?.inseam) inseam = "";
+        }
 
         return {
           productName,
@@ -128,6 +141,8 @@ const MeasureId = () => {
       }),
     });
   }, [project, student]);
+
+  console.log(items);
 
   // 採寸登録
   const updateStudent = async () => {
