@@ -400,6 +400,12 @@ const MeasureId = () => {
               bg="white"
               rounded={6}
               boxShadow="base"
+              borderWidth="3px"
+              borderColor={(items?.products?.[index].size === "" ||
+                items.products?.[index]?.quantity === "" ||
+                (product?.inseam && items.products?.[index]?.inseam === ""))
+                ? "white" : "blue.200"}
+              boxSizing="border-box"
             >
               {project?.gender === "2" &&
                 student?.gender === "2" &&
