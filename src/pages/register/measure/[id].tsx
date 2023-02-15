@@ -95,16 +95,16 @@ const MeasureId = () => {
           productName = product?.productNameA || "";
           price = product?.priceA || null;
           quantity = product?.quantityA ? "" : product?.fixedQuantityA;
-          size = product.sizeA ? product.sizeA : null;
-          size = product?.sizeA.length === 1 ? product?.sizeA[0] : "";
+          size = product?.sizeA[0] ? "" : "未設定";
+          if (product?.sizeA.length === 1 && product?.sizeA[0] !== "未設定") size = product?.sizeA[0]
           sizeUrl = product?.sizeUrlA ? product?.sizeUrlA : "";
           imageUrl = product.imageUrlA ? product.imageUrlA : "";
         } else {
           productName = product?.productName || "";
           price = product?.price || null;
-          quantity = product.quantity ? "" : product.fixedQuantity;
-          size = product.size ? product.size : null;
-          size = product.size.length === 1 ? product.size[0] : "";
+          quantity = product?.quantity ? "" : product.fixedQuantity;
+          size = product?.size[0] ? "" : "未設定";
+          if (product?.size.length === 1 && product?.size[0] !== "未設定") size = product?.size[0]
           sizeUrl = product?.sizeUrl ? product?.sizeUrl : "";
           imageUrl = product.imageUrl ? product.imageUrl : "";
         }
@@ -402,8 +402,8 @@ const MeasureId = () => {
               boxShadow="base"
             >
               {project?.gender === "2" &&
-              student?.gender === "2" &&
-              product.clothesType === "2" ? (
+                student?.gender === "2" &&
+                product.clothesType === "2" ? (
                 <>
                   <Box fontSize="xl">{product.productNameA}</Box>
                   {priceElement(product.priceA)}
