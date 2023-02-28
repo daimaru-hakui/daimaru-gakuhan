@@ -40,6 +40,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
     student?.products.forEach(
       (product: {
         productName: string;
+        color: string;
         size: string;
         quantity: string;
         inseam: string;
@@ -50,6 +51,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
           (product.productName
             ? `<div>商品名 ${product.productName}</div>`
             : "") +
+          (product.color ? `<div>カラー ${product.color}</div>` : "") +
           (product.size ? `<div>サイズ ${product.size}</div>` : "") +
           (product.quantity ? `<div>数量 ${product.quantity}</div>` : "") +
           (product.inseam ? `<div>裾上げ ${product.inseam}</div>` : "") +

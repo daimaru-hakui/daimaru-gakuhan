@@ -91,7 +91,7 @@ const SchoolId = () => {
   useEffect(() => {
     const getUnregister = () => {
       const result = students?.filter(
-        (student: { updatedAt: Date }) => !student.updatedAt
+        (student: { updatedAt: Date; }) => !student.updatedAt
       );
       setUnRegister(result?.length === 0 ? "" : result?.length);
     };
@@ -102,7 +102,7 @@ const SchoolId = () => {
   useEffect(() => {
     const getSumPrice = () => {
       const total = students
-        ?.map((student: { sumTotal: number }) => student.sumTotal)
+        ?.map((student: { sumTotal: number; }) => student.sumTotal)
         ?.reduce((prev: number, current: number) => prev + current, 0);
       setTotalPrice(total);
     };
@@ -167,6 +167,7 @@ const SchoolId = () => {
         (
           product: {
             productName: string;
+            color: string;
             size: string;
             quantity: number;
             inseam: number;
@@ -175,6 +176,7 @@ const SchoolId = () => {
         ) => {
           // keyの名前を作成
           const nameProduct = "商品名" + Number(index + 1);
+          const nameColor = "カラー" + Number(index + 1);
           const nameSize = "サイズ" + Number(index + 1);
           const nameQuantity = "数量" + Number(index + 1);
           const nameInseam = "股下修理" + Number(index + 1);
@@ -182,6 +184,7 @@ const SchoolId = () => {
           // keyに各項目名を入れてオブジェクトを作成
           const obj = {
             [nameProduct]: product.productName,
+            [nameColor]: product.color || undefined,
             [nameSize]: product.size,
             [nameQuantity]: product.quantity,
             [nameInseam]: product.inseam || undefined,
@@ -268,7 +271,7 @@ const SchoolId = () => {
       let productName = project?.products[i]?.productName;
 
       // studentsから商品情報のみ取得（table1行ずつ）して配列に格納
-      const productsArray = students?.map((student: { products: string[] }) =>
+      const productsArray = students?.map((student: { products: string[]; }) =>
         student.products.find((product: any, index: number) =>
           productSize?.find(
             (size: string) => product?.size === size && index === i && true
@@ -277,7 +280,7 @@ const SchoolId = () => {
       );
 
       // productsArrayからサイズ情報だけ取得して配列を作成
-      const sizeOnly = productsArray?.map((product: { size: string }) => {
+      const sizeOnly = productsArray?.map((product: { size: string; }) => {
         return product?.size;
       });
 
@@ -290,7 +293,7 @@ const SchoolId = () => {
       // サイズ毎に配列を作成
       const sizesArray = sizeArray.map((size) =>
         productsArray?.filter(
-          (product: { size: string; quantity: string }) =>
+          (product: { size: string; quantity: string; }) =>
             size === product?.size && true
         )
       );
@@ -384,6 +387,7 @@ const SchoolId = () => {
                         (
                           product: {
                             productName: string;
+                            color: string[];
                             size: string[];
                             quantity: string;
                             inseam: string;
@@ -392,6 +396,7 @@ const SchoolId = () => {
                         ) => (
                           <React.Fragment key={index}>
                             {product?.productName && <Th w="80px">商品名</Th>}
+                            {product?.color && <Th w="80px">カラー</Th>}
                             {product?.size && <Th w="80px">サイズ</Th>}
                             {product?.quantity && <Th w="50px">数量</Th>}
                             {product?.inseam && <Th w="50px">股下修理</Th>}
@@ -419,8 +424,8 @@ const SchoolId = () => {
                         <Td isNumeric>
                           {student.sumTotal
                             ? Math.round(
-                                Number(student.sumTotal)
-                              ).toLocaleString()
+                              Number(student.sumTotal)
+                            ).toLocaleString()
                             : 0}
                           円
                         </Td>
@@ -428,6 +433,18 @@ const SchoolId = () => {
                           <React.Fragment key={index}>
                             {product.productName && (
                               <Td w="80px">{product.productName}</Td>
+                            )}
+                            {product.color && (
+                              <Td
+                                w="80px"
+                                textAlign="center"
+                                fontWeight={
+                                  product.color === "未記入" ? "bold" : ""
+                                }
+                                color={product.color === "未記入" ? "red" : ""}
+                              >
+                                {product.color}
+                              </Td>
                             )}
                             {product.size && (
                               <Td

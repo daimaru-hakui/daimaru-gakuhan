@@ -97,6 +97,7 @@ const Completion = () => {
                 (product: {
                   productName: string;
                   size: string;
+                  color: string;
                   quantity: string;
                   inseam: string;
                 }) => (
@@ -109,7 +110,15 @@ const Completion = () => {
                         <Box>{product.productName}</Box>
                       </Flex>
                     )}
-                    {product.quantity && (
+                    {product.color && (
+                      <Flex>
+                        <Box fontWeight="bold" w="90px">
+                          カラー
+                        </Box>
+                        <Box>{product.color}</Box>
+                      </Flex>
+                    )}
+                    {product.size && (
                       <Flex>
                         <Box fontWeight="bold" w="90px">
                           サイズ

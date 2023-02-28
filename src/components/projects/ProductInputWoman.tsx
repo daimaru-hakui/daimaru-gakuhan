@@ -161,9 +161,7 @@ const ProductInputWoman: NextPage<Props> = ({
 
   return (
     <>
-      <Box my={6} p={1} textAlign="center" bg="red.200">
-        女性用
-      </Box>
+
 
       <Text>商品名</Text>
       <Input

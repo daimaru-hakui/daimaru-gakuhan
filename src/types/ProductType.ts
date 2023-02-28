@@ -4,6 +4,7 @@ export type ProductType = {
   productName: string;
   price: number;
   size: string[];
+  color: string[];
   inseam: boolean;
   quantity: boolean;
   sizeUrl: string;
@@ -15,6 +16,7 @@ export type ProductType = {
   productNameA: string;
   priceA: number;
   sizeA: string[];
+  colorA: string[];
   inseamA: boolean;
   quantityA: boolean;
   sizeUrlA: string;

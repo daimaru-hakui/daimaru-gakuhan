@@ -30,8 +30,7 @@ import { FaPlusCircle, FaEdit } from "react-icons/fa";
 import { db, storage } from "../../../firebase";
 import { useSetRecoilState } from "recoil";
 import { loadingState } from "../../../store";
-import ProductInputWoman from "./ProductInputWoman";
-import ProductInputMan from "./ProductInputMan";
+import ProductInput from "./ProductInput";
 import { ProductType } from "../../types/ProductType";
 import { useProjectInput } from "../../hooks/useProjectInput";
 
@@ -56,6 +55,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     productName: "",
     price: 0,
     size: [],
+    color: [],
     inseam: false,
     quantity: false,
     sizeUrl: "",
@@ -66,6 +66,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     productNameA: "",
     priceA: 0,
     sizeA: [],
+    colorA: [],
     inseamA: false,
     quantityA: false,
     sizeUrlA: "",
@@ -89,6 +90,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           productName: product?.productName,
           price: product?.price,
           size: product?.size,
+          color: product?.color,
           quantity: product?.quantity,
           fixedQuantity: product?.fixedQuantity,
           inseam: product?.inseam,
@@ -100,6 +102,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           productNameA: product?.productNameA,
           priceA: product?.priceA,
           sizeA: product?.sizeA,
+          colorA: product?.colorA,
           quantityA: product?.quantityA,
           fixedQuantityA: product?.fixedQuantityA,
           inseamA: product?.inseamA,
@@ -186,6 +189,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             if (index === productIndex) {
               return {
                 ...items,
+                price: Number(items.price),
+                priceA: Number(items.priceA),
                 sizeUrl: sizeObj?.downloadUrl || sizeUrl,
                 sizePath: sizeObj?.fullPath || sizePath,
                 imageUrl: imageObj?.downloadUrl || imageUrl,
@@ -337,10 +342,25 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                 </Stack>
               </RadioGroup>
             </Box>
-            <ProductInputMan
+
+            <Box my={6} p={1} color="white" textAlign="center" bg="facebook.300">
+              {items.clothesType === "1" ? "男女兼用" : "男性用"}
+            </Box>
+            <ProductInput
               items={items}
               setItems={setItems}
               productIndex={productIndex}
+              productName="productName"
+              price="price"
+              size="size"
+              color="color"
+              quantity="quantity"
+              fixedQuantity="fixedQuantity"
+              inseam="inseam"
+              imageUrl="imageUrl"
+              imagePath="imagePath"
+              sizeUrl="sizeUrl"
+              sizePath="sizePath"
               sizeFileUpload={sizeFileUpload}
               setSizeFileUpload={setSizeFileUpload}
               imageFileUpload={imageFileUpload}
@@ -348,16 +368,32 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               deleteImage={deleteImage}
             />
             {Number(items.clothesType) === 2 && (
-              <ProductInputWoman
-                items={items}
-                setItems={setItems}
-                productIndex={productIndex}
-                sizeFileUploadA={sizeFileUploadA}
-                imageFileUploadA={imageFileUploadA}
-                setSizeFileUploadA={setSizeFileUploadA}
-                setImageFileUploadA={setImageFileUploadA}
-                deleteImage={deleteImage}
-              />
+              <>
+                <Box my={6} p={1} textAlign="center" bg="red.200">
+                  女性用
+                </Box>
+                <ProductInput
+                  items={items}
+                  setItems={setItems}
+                  productIndex={productIndex}
+                  productName="productNameA"
+                  price="priceA"
+                  size="sizeA"
+                  color="colorA"
+                  quantity="quantityA"
+                  fixedQuantity="fixedQuantityA"
+                  inseam="inseamA"
+                  imageUrl="imageUrlA"
+                  imagePath="imagePathA"
+                  sizeUrl="sizeUrlA"
+                  sizePath="sizePathA"
+                  sizeFileUpload={sizeFileUploadA}
+                  setSizeFileUpload={setSizeFileUploadA}
+                  imageFileUpload={imageFileUploadA}
+                  setImageFileUpload={setImageFileUploadA}
+                  deleteImage={deleteImage}
+                />
+              </>
             )}
           </ModalBody>
 

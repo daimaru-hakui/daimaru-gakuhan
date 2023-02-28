@@ -21,141 +21,243 @@ import {
 import { NextPage } from "next";
 import React from "react";
 import { BsXCircleFill } from "react-icons/bs";
+import { useProjectInput } from "../../hooks/useProjectInput";
 
 type Props = {
   items: any;
   setItems: Function;
   productIndex: number;
-  clothesSwitch: string;
   sizeFileUpload: any;
   setSizeFileUpload: Function;
   imageFileUpload: any;
   setImageFileUpload: Function;
-  sizeFileUploadA: any;
-  setSizeFileUploadA: Function;
-  imageFileUploadA: any;
-  setImageFileUploadA: Function;
   deleteImage: Function;
+
+  productName: string;
+  price: string;
+  size: string;
+  quantity: string;
+  fixedQuantity: string;
+  inseam: string;
+  imageUrl: string;
+  imagePath: string;
+  sizeUrl: string;
+  sizePath: string;
+  color: string;
 };
 
 const ProductInput: NextPage<Props> = ({
   items,
   setItems,
-  clothesSwitch,
   sizeFileUpload,
   setSizeFileUpload,
   imageFileUpload,
   setImageFileUpload,
-  sizeFileUploadA,
-  setSizeFileUploadA,
-  imageFileUploadA,
-  setImageFileUploadA,
   deleteImage,
+  productName,
+  price,
+  size,
+  quantity,
+  fixedQuantity,
+  inseam,
+  imageUrl,
+  imagePath,
+  sizeUrl,
+  sizePath,
+  color
 }) => {
-  const sizeData1 = [
-    { id: "別", label: "別" },
-    { id: "F", label: "F" },
-    { id: "WS", label: "WS" },
-    { id: "WM", label: "WM" },
-    { id: "WL", label: "WL" },
-    { id: "3S", label: "3S" },
-    { id: "SS", label: "SS" },
-  ];
-  const sizeData2 = [
-    { id: "S", label: "S" },
-    { id: "M", label: "M" },
-    { id: "L", label: "L" },
-    { id: "LL", label: "LL" },
-    { id: "EL", label: "EL" },
-    { id: "3L", label: "3L" },
-    { id: "4L", label: "4L" },
-    { id: "5L", label: "5L" },
-    { id: "6L", label: "6L" },
-  ];
-  const sizeData3 = [
-    { id: "21.0cm", label: "21.0cm" },
-    { id: "21.5cm", label: "21.5cm" },
-    { id: "22.0cm", label: "22.0cm" },
-    { id: "22.5cm", label: "22.5cm" },
-    { id: "23.0cm", label: "23.0cm" },
-  ];
-  const sizeData4 = [
-    { id: "23.5cm", label: "23.5cm" },
-    { id: "24.0cm", label: "24.0cm" },
-    { id: "24.5cm", label: "24.5cm" },
-    { id: "25.0cm", label: "25.0cm" },
-    { id: "25.5cm", label: "25.5cm" },
-  ];
+  const {
+    handleInputChange,
+    handleSwitchChange,
+    handleNumberChange,
+    handleCheckedChange,
+  } = useProjectInput(items, setItems);
+  const sizeData1 = ["別", "F", "WS", "WM", "WL", "3S", "SS"];
+  const sizeData2 = ["S", "M", "L", "LL", "EL", "3L", "4L", "5L", "6L"];
+  const sizeData3 = ["21.0cm", "21.5cm", "22.0cm", "22.5cm", "23.0cm"];
+  const sizeData4 = ["23.5cm", "24.0cm", "24.5cm", "25.0cm", "25.5cm"];
+  const sizeData5 = ["26.0cm", "26.5cm", "27.0cm", "27.5cm", "28.0cm"];
+  const sizeData6 = ["28.5cm", "29.0cm", "30.0cm"];
+  const colorData1 = ["ブラック", "ホワイト", "レッド", "ブルー"];
 
-  const sizeData5 = [
-    { id: "26.0cm", label: "26.0cm" },
-    { id: "26.5cm", label: "26.5cm" },
-    { id: "27.0cm", label: "27.0cm" },
-    { id: "27.5cm", label: "27.5cm" },
-    { id: "28.0cm", label: "28.0cm" },
-  ];
-  const sizeData6 = [
-    { id: "28.5cm", label: "28.5cm" },
-    { id: "29.0cm", label: "29.0cm" },
-    { id: "30.0cm", label: "30.0cm" },
-  ];
+
+  const productNameElement = (productName: string) => (
+    <>
+      <Text>商品名</Text>
+      <Input
+        mt={1}
+        type="text"
+        placeholder="商品名"
+        name={productName}
+        value={items[productName]}
+        onChange={(e) => handleInputChange(e)}
+      />
+    </>
+  );
+
+  const priceElement = (price: string) => (
+    <Box mt={6}>
+      <Text>販売価格</Text>
+      <Input
+        mt={1}
+        textAlign="right"
+        maxW="100px"
+        type="number"
+        name={price}
+        value={Number(items[price]) || 0}
+        onChange={(e) => handleInputChange(e)}
+      />
+      <Box as="span" ml={1}>
+        円
+        <Box as="span" fontWeight="bold">
+          （税込）
+        </Box>
+      </Box>
+    </Box>
+  );
 
   // サイズ選択表示
-  const sizeList = (array: { id: string; label: string }[]) => (
+  const sizeList = (array: string[], size: string) => (
     <Box>
       <Stack spacing={[1, 3]} mt={1} direction={["column", "row"]}>
-        {array.map((size) => (
+        {array.map((value, index) => (
           <Checkbox
             isChecked={true}
-            key={size.id}
-            value={size.label}
-            onChange={(e) => handleCheckedChange(e, clothesSwitch)}
+            key={index}
+            value={value}
+            onChange={(e) => handleCheckedChange(e, size)}
           >
-            {size.label}
+            {value}
           </Checkbox>
         ))}
       </Stack>
     </Box>
   );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setItems({ ...items, [name]: value });
-  };
+  const sizeElement = (size: string) => (
+    <Box mt={6}>
+      <CheckboxGroup colorScheme="green" defaultValue={items[size]}>
+        <Text>■サイズ</Text>
+        <Flex flexDirection="column">
+          {sizeList(sizeData1, size)}
+          {sizeList(sizeData2, size)}
+          {sizeList(sizeData3, size)}
+          {sizeList(sizeData4, size)}
+          {sizeList(sizeData5, size)}
+          {sizeList(sizeData6, size)}
+        </Flex>
+      </CheckboxGroup>
+      {items[size]?.length > 0 && (
+        <Flex mt={2} p={1} bgColor="gray.100" w="100%">
+          <Box w="80px" mr={3}>
+            表示順
+          </Box>
+          <Flex flexWrap="wrap" w="100%">
+            {items[size].map((size: string) => (
+              <Box key={size} mr={3}>
+                {size}
+              </Box>
+            ))}
+          </Flex>
+        </Flex>
+      )}
+    </Box>
+  );
 
-  const handleSwitchChange = (type: string) => {
-    const value = items[type] ? false : true;
-    setItems({ ...items, [type]: value });
-  };
+  // color選択表示
+  const colorList = (array: string[], color: string) => (
+    <Box>
+      <Flex mt={1} gap={2} direction={["column", "row"]}>
+        {array.map((value, index) => (
+          <Checkbox
+            isChecked={true}
+            key={index}
+            value={value}
+            onChange={(e) => handleCheckedChange(e, color)}
+          >
+            {value}
+          </Checkbox>
+        ))}
+      </Flex>
+    </Box>
+  );
 
-  const handleRadioChange = (e: string, type: string) => {
-    const value = e;
-    setItems({ ...items, [type]: value });
-  };
+  const colorElement = (color: string) => (
+    <Box mt={6}>
+      <CheckboxGroup colorScheme="green" defaultValue={items[color]}>
+        <Text>■カラー</Text>
+        <Flex flexDirection="column">
+          {colorList(colorData1, color)}
+        </Flex>
+      </CheckboxGroup>
 
-  const handleNumberChange = (e: any, type: string) => {
-    const value = e;
-    const name = type;
-    setItems({ ...items, [name]: value });
-  };
+      {items[color]?.length > 0 && (
+        <Flex mt={2} p={1} bgColor="gray.100" w="100%">
+          <Box w="80px" mr={3}>
+            表示順
+          </Box>
+          <Flex flexWrap="wrap" w="100%">
+            {items[color].map((value: string) => (
+              <Box key={value} mr={3}>
+                {value}
+              </Box>
+            ))}
+          </Flex>
+        </Flex>
+      )}
+    </Box>
+  );
 
-  const handleCheckedChange = (e: any, type: string) => {
-    const name = "size" + type;
-    if (e.target.checked) {
-      setItems({
-        ...items,
-        [name]: [...(items[name] || ""), e.target.value],
-      });
-    } else {
-      setItems({
-        ...items,
-        [name]: [
-          ...items[name]?.filter((size: string) => size !== e.target.value),
-        ],
-      });
-    }
-  };
+  const quantityElement = (quantity: string, fixedQuantity: string) => (
+    <Flex mt={6} justifyContent="flex-start" gap={6}>
+      <FormControl display="flex" alignItems="center" w="auto">
+        <FormLabel htmlFor={"quantityA"} w="80px" mb="0">
+          数量入力値
+        </FormLabel>
+        <Switch
+          id={quantity}
+          isChecked={items[quantity]}
+          onChange={() => handleSwitchChange(quantity)}
+        />
+      </FormControl>
+
+      <FormControl display="flex" alignItems="center">
+        <FormLabel htmlFor={fixedQuantity} w="80px" mr="0" mb="0">
+          固定数量
+        </FormLabel>
+        <NumberInput
+          id={fixedQuantity}
+          name={fixedQuantity}
+          min={1}
+          w="80px"
+          value={items[fixedQuantity]}
+          onChange={(e) => handleNumberChange(e, fixedQuantity)}
+        >
+          <NumberInputField />
+          <NumberInputStepper>
+            <NumberIncrementStepper />
+            <NumberDecrementStepper />
+          </NumberInputStepper>
+        </NumberInput>
+      </FormControl>
+    </Flex>
+  );
+
+  const inseamElement = (inseam: string) => (
+    <Box mt={6}>
+      <FormControl display="flex" alignItems="center">
+        <FormLabel htmlFor={inseam} mb="0">
+          股下修理
+        </FormLabel>
+        <Switch
+          id={inseam}
+          isChecked={items[inseam]}
+          onChange={() => handleSwitchChange(inseam)}
+        />
+      </FormControl>
+    </Box>
+  );
+
 
   const imageElement = (
     title: string,
@@ -169,7 +271,7 @@ const ProductInput: NextPage<Props> = ({
     <>
       <Box mt={6}>
         <Text>{title}</Text>
-        {!imageUrl && !fileUpload && (
+        {!items[imageUrl] && !fileUpload && (
           <FormControl mt={2}>
             <FormLabel htmlFor={propUrl} mb="0" w="150px" cursor="pointer">
               <Box
@@ -194,7 +296,7 @@ const ProductInput: NextPage<Props> = ({
           </FormControl>
         )}
 
-        {(imageUrl || fileUpload?.[0]) && (
+        {(items[imageUrl] || fileUpload?.[0]) && (
           <>
             <Box mt={2} position="relative" w="auto">
               <Box
@@ -209,8 +311,8 @@ const ProductInput: NextPage<Props> = ({
                   fontSize="30px"
                   onClick={() =>
                     deleteImage(
-                      imageUrl,
-                      imagePath,
+                      items[imageUrl],
+                      items[imagePath],
                       propUrl,
                       propPath,
                       setFileUpload
@@ -219,8 +321,7 @@ const ProductInput: NextPage<Props> = ({
                 />
               </Box>
 
-              {imageUrl && <img width="100%" src={imageUrl} alt={imageUrl} />}
-
+              {items[imageUrl] && <img width="100%" src={items[imageUrl]} alt={items[imageUrl]} />}
               {fileUpload?.[0] && (
                 <>
                   <img
@@ -242,201 +343,32 @@ const ProductInput: NextPage<Props> = ({
 
   return (
     <>
-      {Number(items.clothesType) === 2 &&
-        (clothesSwitch === "" ? (
-          <Box my={6} p={1} color="white" textAlign="center" bg="facebook.300">
-            男性用
-          </Box>
-        ) : (
-          <Box my={6} p={1} textAlign="center" bg="red.200">
-            女性用
-          </Box>
-        ))}
-      <Text>商品名</Text>
-      <Input
-        mt={1}
-        type="text"
-        placeholder="商品名"
-        name={"productName" + clothesSwitch}
-        value={clothesSwitch === "" ? items.productName : items.productNameA}
-        onChange={(e) => handleInputChange(e)}
-      />
-      <Box mt={6}>
-        <Text>販売価格</Text>
-        <Input
-          mt={1}
-          textAlign="right"
-          maxW="100px"
-          type="number"
-          name={"price" + clothesSwitch}
-          value={
-            clothesSwitch === ""
-              ? Number(items?.price) || 0
-              : Number(items?.priceA) || 0
-          }
-          onChange={(e) => handleInputChange(e)}
-        />
-        <Box as="span" ml={1}>
-          円
-          <Box as="span" fontWeight="bold">
-            （税込）
-          </Box>
-        </Box>
-      </Box>
-
-      <Box mt={6}>
-        <CheckboxGroup
-          colorScheme="green"
-          defaultValue={clothesSwitch === "" ? items?.size : items?.sizeA}
-        >
-          <Text>サイズ</Text>
-          <Flex flexDirection="column">
-            {sizeList(sizeData1)}
-            {sizeList(sizeData2)}
-            {sizeList(sizeData3)}
-            {sizeList(sizeData4)}
-            {sizeList(sizeData5)}
-            {sizeList(sizeData6)}
-          </Flex>
-        </CheckboxGroup>
-        {clothesSwitch === "" ? (
-          <>
-            {items?.size?.length > 0 && (
-              <Flex mt={2} p={1} bgColor="green.100" w="100%">
-                <Box w="80px" mr={3}>
-                  表示順
-                </Box>
-                <Flex flexWrap="wrap" w="100%">
-                  {items.size.map((size: string) => (
-                    <Box key={size} mr={3}>
-                      {size}
-                    </Box>
-                  ))}
-                </Flex>
-              </Flex>
-            )}
-          </>
-        ) : (
-          <>
-            {items?.sizeA?.length > 0 && (
-              <Flex mt={2} p={1} bgColor="green.100" w="100%">
-                <Box w="80px" mr={3}>
-                  表示順
-                </Box>
-                <Flex flexWrap="wrap" w="100%">
-                  {items.sizeA.map((size: string) => (
-                    <Box key={size} mr={3}>
-                      {size}
-                    </Box>
-                  ))}
-                </Flex>
-              </Flex>
-            )}
-          </>
+      {productNameElement(productName)}
+      {priceElement(price)}
+      {sizeElement(size)}
+      {colorElement(color)}
+      {quantityElement(quantity, fixedQuantity)}
+      {inseamElement(inseam)}
+      <>
+        {imageElement(
+          "サイズスペック画像",
+          sizeUrl,
+          sizePath,
+          sizeUrl,
+          sizePath,
+          sizeFileUpload,
+          setSizeFileUpload
         )}
-      </Box>
-
-      <Flex mt={6} justifyContent="flex-start" gap={6}>
-        <FormControl display="flex" alignItems="center" w="auto">
-          <FormLabel htmlFor={"quantity" + clothesSwitch} w="80px" mb="0">
-            数量入力値
-          </FormLabel>
-          <Switch
-            id={"quantity" + clothesSwitch}
-            isChecked={clothesSwitch === "" ? items.quantity : items.quantityA}
-            onChange={() => handleSwitchChange("quantity" + clothesSwitch)}
-          />
-        </FormControl>
-        {(clothesSwitch === "" ? !items.quantity : !items.quantityA) && (
-          <FormControl display="flex" alignItems="center">
-            <FormLabel
-              htmlFor={"fixedqantity" + clothesSwitch}
-              w="80px"
-              mr="0"
-              mb="0"
-            >
-              固定数量
-            </FormLabel>
-            <NumberInput
-              id={"fixedqantity" + clothesSwitch}
-              name={"fixedqantity" + clothesSwitch}
-              min={1}
-              w="80px"
-              value={
-                clothesSwitch === ""
-                  ? items.fixedQuantity
-                  : items.fixedQuantityA
-              }
-              onChange={(e) =>
-                handleNumberChange(e, "fixedQuantity" + clothesSwitch)
-              }
-            >
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+        {imageElement(
+          "イメージ画像",
+          imageUrl,
+          imagePath,
+          imageUrl,
+          imagePath,
+          imageFileUpload,
+          setImageFileUpload
         )}
-      </Flex>
-
-      <Box mt={6}>
-        <FormControl display="flex" alignItems="center">
-          <FormLabel htmlFor={"inseam" + clothesSwitch} mb="0">
-            股下修理
-          </FormLabel>
-          <Switch
-            id="inseam"
-            isChecked={clothesSwitch === "" ? items.inseam : items.inseamA}
-            onChange={() => handleSwitchChange("inseam" + clothesSwitch)}
-          />
-        </FormControl>
-      </Box>
-
-      {clothesSwitch === "" ? (
-        <>
-          {imageElement(
-            "サイズスペック画像",
-            items.sizeUrl,
-            items.sizePath,
-            "sizeUrl",
-            "sizePath",
-            sizeFileUpload,
-            setSizeFileUpload
-          )}
-          {imageElement(
-            "イメージ画像",
-            items.imageUrl,
-            items.imagePath,
-            "imageUrl",
-            "imagePath",
-            imageFileUpload,
-            setImageFileUpload
-          )}
-        </>
-      ) : (
-        <>
-          {imageElement(
-            "サイズスペック画像（女性用）",
-            items.sizeUrlA,
-            items.sizePathA,
-            "sizeUrlA",
-            "sizePathA",
-            sizeFileUploadA,
-            setSizeFileUploadA
-          )}
-          {imageElement(
-            "イメージ画像（女性用）",
-            items.imageUrlA,
-            items.imagePathA,
-            "imageUrlA",
-            "imagePathA",
-            imageFileUploadA,
-            setImageFileUploadA
-          )}
-        </>
-      )}
+      </>
 
       <Divider my={6} />
     </>

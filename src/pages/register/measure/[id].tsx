@@ -82,6 +82,7 @@ const MeasureId = () => {
         let price;
         let quantity;
         let size;
+        let color;
         let inseam;
         let sizeUrl;
         let imageUrl;
@@ -96,7 +97,7 @@ const MeasureId = () => {
           price = product?.priceA || null;
           quantity = product?.quantityA ? "" : product?.fixedQuantityA;
           size = product?.sizeA[0] ? "" : "未設定";
-          if (product?.sizeA.length === 1 && product?.sizeA[0] !== "未設定") size = product?.sizeA[0]
+          if (product?.sizeA.length === 1 && product?.sizeA[0] !== "未設定") size = product?.sizeA[0];
           sizeUrl = product?.sizeUrlA ? product?.sizeUrlA : "";
           imageUrl = product.imageUrlA ? product.imageUrlA : "";
         } else {
@@ -104,13 +105,12 @@ const MeasureId = () => {
           price = product?.price || null;
           quantity = product?.quantity ? "" : product.fixedQuantity;
           size = product?.size[0] ? "" : "未設定";
-          if (product?.size.length === 1 && product?.size[0] !== "未設定") size = product?.size[0]
+          if (product?.size.length === 1 && product?.size[0] !== "未設定") size = product?.size[0];
           sizeUrl = product?.sizeUrl ? product?.sizeUrl : "";
           imageUrl = product.imageUrl ? product.imageUrl : "";
         }
 
         inseam = product?.inseam || product?.inseamA ? "なし" : null;
-
         if (inseam === "なし") {
           if (
             product?.clothesType === "2" &&
@@ -129,10 +129,30 @@ const MeasureId = () => {
           if (product?.clothesType === 1 && product?.inseam) inseam = "";
         }
 
+        color = product?.color || product?.colorA ? "なし" : null;
+        if (color === "なし") {
+          if (
+            product?.clothesType === "2" &&
+            product?.color &&
+            student?.gender === "1"
+          )
+            color = "";
+
+          if (
+            product?.clothesType === "2" &&
+            product?.colorA &&
+            student?.gender === "2"
+          )
+            color = "";
+
+          if (product?.clothesType === 1 && product?.color) color = "";
+        }
+
         return {
           productName,
           price,
           size,
+          color,
           quantity,
           inseam,
           sizeUrl,
@@ -263,6 +283,37 @@ const MeasureId = () => {
               {size.map((size: string) => (
                 <option key={size} value={size}>
                   {size}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Box>
+      )}
+    </>
+  );
+
+  const colorElement = (color: any, index: number) => (
+    <>
+      {color?.length >= 1 && (
+        <Box mt={6}>
+          <Flex mb={2} alignItems="center" justifyContent="space-between">
+            <Text>カラー</Text>
+          </Flex>
+          {color?.length === 1 ? (
+            <Box>
+              {color.map((c: string) => (
+                <Input name="color" key={c} defaultValue={c} isReadOnly />
+              ))}
+            </Box>
+          ) : (
+            <Select
+              placeholder="カラーを選択してください"
+              name="color"
+              onChange={(e) => handleSelectChange(e, index)}
+            >
+              {color.map((c: string) => (
+                <option key={c} value={c}>
+                  {c}
                 </option>
               ))}
             </Select>
@@ -415,6 +466,7 @@ const MeasureId = () => {
                   {priceElement(product.priceA)}
                   {imageUrlElement(product.imageUrlA)}
                   {sizeElement(product.sizeA, product.sizeUrlA, index)}
+                  {colorElement(product.colorA, index)}
                   {quantityElement(
                     product.quantityA,
                     product.fixedQuantityA,
@@ -427,6 +479,7 @@ const MeasureId = () => {
                   <Box fontSize="xl">{product.productName}</Box>
                   {priceElement(product.price)}
                   {imageUrlElement(product.imageUrl)}
+                  {colorElement(product.color, index)}
                   {sizeElement(product.size, product.sizeUrl, index)}
                   {quantityElement(
                     product.quantity,
@@ -445,13 +498,16 @@ const MeasureId = () => {
               onClick={updateStudent}
               disabled={
                 items?.products?.some(
-                  (product: { quantity: string }) => product.quantity === ""
+                  (product: { quantity: string; }) => product.quantity === ""
                 ) ||
                 items?.products?.some(
-                  (product: { size: string }) => product.size === ""
+                  (product: { size: string; }) => product.size === ""
                 ) ||
                 items?.products?.some(
-                  (product: { inseam: string }) => product.inseam === ""
+                  (product: { color: string; }) => product.color === ""
+                ) ||
+                items?.products?.some(
+                  (product: { inseam: string; }) => product.inseam === ""
                 )
               }
             >
