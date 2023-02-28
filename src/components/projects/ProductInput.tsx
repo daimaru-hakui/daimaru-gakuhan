@@ -16,15 +16,11 @@ import {
   Stack,
   Switch,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 
 import { NextPage } from "next";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React from "react";
 import { BsXCircleFill } from "react-icons/bs";
-import { useSetRecoilState } from "recoil";
-import { loadingState } from "../../../store";
 
 type Props = {
   items: any;
@@ -356,7 +352,7 @@ const ProductInput: NextPage<Props> = ({
             <FormLabel
               htmlFor={"fixedqantity" + clothesSwitch}
               w="80px"
-              mr={0}
+              mr="0"
               mb="0"
             >
               固定数量
