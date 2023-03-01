@@ -83,7 +83,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     const getProject = async () => {
       onSnapshot(doc(db, "projects", `${projectId}`), (doc) => {
         setProducts(doc.data()?.products || items);
-        const product = doc.data()?.products[productIndex] || items;
+        const product = doc.data()?.products[productIndex] || initData;
         setItems({
           clothesType: product?.clothesType,
 
@@ -115,7 +115,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     };
     getProject();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId, productIndex]);
+  }, [projectId, productIndex, isOpen]);
 
   // addProductに使う関数（画像を保存）
   const addImage = async (
@@ -191,6 +191,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                 ...items,
                 price: Number(items.price),
                 priceA: Number(items.priceA),
+                color: items.color || [],
+                colorA: items.colorA || [],
                 sizeUrl: sizeObj?.downloadUrl || sizeUrl,
                 sizePath: sizeObj?.fullPath || sizePath,
                 imageUrl: imageObj?.downloadUrl || imageUrl,
@@ -289,7 +291,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
 
   const onReset = () => {
     setItems({
-      ...(products[productIndex] || initData),
+      ...initData,
+      // ...(products[productIndex] || initData),
     });
     setSizeFileUpload(null);
   };
@@ -343,7 +346,13 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               </RadioGroup>
             </Box>
 
-            <Box my={6} p={1} color="white" textAlign="center" bg="facebook.300">
+            <Box
+              my={6}
+              p={1}
+              color="white"
+              textAlign="center"
+              bg="facebook.300"
+            >
               {items.clothesType === "1" ? "男女兼用" : "男性用"}
             </Box>
             <ProductInput

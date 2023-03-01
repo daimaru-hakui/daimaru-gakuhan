@@ -90,58 +90,75 @@ const MeasureId = () => {
         // 男女兼用・女性を選択した場合
         if (
           student?.gender === "2" && // 女性
-          project?.gender === "2" && //男女兼用
-          product?.clothesType === "2" //男女兼用
+          project?.gender === "2" && //男女兼用(性別）
+          product?.clothesType === "2" //男女兼用（服）
         ) {
           productName = product?.productNameA || "";
           price = product?.priceA || null;
           quantity = product?.quantityA ? "" : product?.fixedQuantityA;
-          size = product?.sizeA[0] ? "" : "未設定";
-          if (product?.sizeA.length === 1 && product?.sizeA[0] !== "未設定") size = product?.sizeA[0];
           sizeUrl = product?.sizeUrlA ? product?.sizeUrlA : "";
           imageUrl = product.imageUrlA ? product.imageUrlA : "";
+          size = product?.sizeA[0] ? "" : "未設定";
+          if (product?.sizeA.length === 1 && product?.sizeA[0] !== "未設定")
+            size = product?.sizeA[0];
+          if (product?.colorA.length === 1) color = product?.colorA[0];
+          if (product?.colorA === 0) color = null;
+          if (product?.colorA.length > 1) color = product?.colorA;
         } else {
           productName = product?.productName || "";
           price = product?.price || null;
           quantity = product?.quantity ? "" : product.fixedQuantity;
-          size = product?.size[0] ? "" : "未設定";
-          if (product?.size.length === 1 && product?.size[0] !== "未設定") size = product?.size[0];
           sizeUrl = product?.sizeUrl ? product?.sizeUrl : "";
           imageUrl = product.imageUrl ? product.imageUrl : "";
+          size = product?.size[0] ? "" : "未設定";
+          if (product?.size.length === 1 && product?.size[0] !== "未設定")
+            size = product?.size[0];
+          if (product?.color.length === 1) color = product?.color[0];
+          if (product?.color.length === 0) color = null;
+          if (product?.color.length > 1) color = product?.color;
         }
 
+        //裾上げ設定
         inseam = product?.inseam || product?.inseamA ? "なし" : null;
-        if (inseam === "なし") {
+        if (inseam) {
           if (
             product?.clothesType === "2" &&
-            product?.inseam &&
-            student?.gender === "1"
+            student?.gender === "1" &&
+            product?.inseam
           )
             inseam = "";
 
           if (
             product?.clothesType === "2" &&
-            product?.inseamA &&
-            student?.gender === "2"
+            student?.gender === "2" &&
+            product?.inseamA
           )
             inseam = "";
 
           if (product?.clothesType === 1 && product?.inseam) inseam = "";
         }
 
-        color = product?.color || product?.colorA ? "なし" : null;
+        // カラーの設定
+        if (product?.color === null && product?.colorA === null) color = null; //両方ともnullなら項目なし
+        if (product?.color || product?.colorA) {
+          if (!color) color = "なし";
+          if (typeof color === "object" && color?.length > 1) color = "なし";
+        }
+
         if (color === "なし") {
           if (
             product?.clothesType === "2" &&
+            student?.gender === "1" &&
             product?.color &&
-            student?.gender === "1"
+            product?.color.length > 1
           )
             color = "";
 
           if (
             product?.clothesType === "2" &&
+            student?.gender === "2" &&
             product?.colorA &&
-            student?.gender === "2"
+            product?.colorA.length > 1
           )
             color = "";
 
@@ -174,8 +191,8 @@ const MeasureId = () => {
         doc(db, "schools", `${projectId}`, "students", `${studentId}`),
         {
           ...items,
-          inseam:
-            items.inseam === null ? null : items.inseam ? items.inseam : "なし",
+          // inseam:
+          //   items.inseam === null ? null : items.inseam ? items.inseam : "なし",
           sumTotal,
           updatedAt: serverTimestamp(),
         }
@@ -452,21 +469,24 @@ const MeasureId = () => {
               rounded={6}
               boxShadow="base"
               borderWidth="3px"
-              borderColor={(items?.products?.[index].size === "" ||
+              borderColor={
+                items?.products?.[index].size === "" ||
                 items.products?.[index]?.quantity === "" ||
-                (product?.inseam && items.products?.[index]?.inseam === ""))
-                ? "white" : "blue.200"}
+                (product?.inseam && items.products?.[index]?.inseam === "")
+                  ? "white"
+                  : "blue.200"
+              }
               boxSizing="border-box"
             >
               {project?.gender === "2" &&
-                student?.gender === "2" &&
-                product.clothesType === "2" ? (
+              student?.gender === "2" &&
+              product.clothesType === "2" ? (
                 <>
                   <Box fontSize="xl">{product.productNameA}</Box>
                   {priceElement(product.priceA)}
                   {imageUrlElement(product.imageUrlA)}
-                  {sizeElement(product.sizeA, product.sizeUrlA, index)}
                   {colorElement(product.colorA, index)}
+                  {sizeElement(product.sizeA, product.sizeUrlA, index)}
                   {quantityElement(
                     product.quantityA,
                     product.fixedQuantityA,
@@ -498,16 +518,16 @@ const MeasureId = () => {
               onClick={updateStudent}
               disabled={
                 items?.products?.some(
-                  (product: { quantity: string; }) => product.quantity === ""
+                  (product: { quantity: string }) => product.quantity === ""
                 ) ||
                 items?.products?.some(
-                  (product: { size: string; }) => product.size === ""
+                  (product: { size: string }) => product.size === ""
                 ) ||
                 items?.products?.some(
-                  (product: { color: string; }) => product.color === ""
+                  (product: { color: string }) => product.color === ""
                 ) ||
                 items?.products?.some(
-                  (product: { inseam: string; }) => product.inseam === ""
+                  (product: { inseam: string }) => product.inseam === ""
                 )
               }
             >
