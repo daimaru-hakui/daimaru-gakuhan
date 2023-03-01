@@ -5,9 +5,11 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useRecoilState } from "recoil";
 import { currentUserState } from "../../store";
+import { useRouter } from "next/router";
 
 const Header = () => {
   const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
+  const router = useRouter();
 
   const signOutUser = () => {
     signOut(auth)
@@ -19,6 +21,23 @@ const Header = () => {
         console.log(err);
       });
   };
+
+  const menuElement = (path: string, title: string) => (
+    <Link href={path}>
+      <a>
+        <Text
+          fontSize="xs"
+          colorScheme="gray"
+          py={3}
+          borderBottom="2px"
+          borderBottomColor={router.pathname === path ? "black" : "#ff2e2e00"}
+          _hover={{ opacity: 0.8 }}
+        >
+          {title}
+        </Text>
+      </a>
+    </Link>
+  );
 
   return (
     <>
@@ -56,42 +75,9 @@ const Header = () => {
           >
             <Container maxW="1200">
               <Flex w="100%" gap={6}>
-                <Link href="/dashboard">
-                  <a>
-                    <Text
-                      fontSize="xs"
-                      colorScheme="gray"
-                      py={3}
-                      borderBottom="2px"
-                      borderBottomColor={
-                        location.pathname === "/dashboard"
-                          ? "black"
-                          : "#ff2e2e00"
-                      }
-                      _hover={{ opacity: 0.8 }}
-                    >
-                      ダッシュボード
-                    </Text>
-                  </a>
-                </Link>
-                <Link href="/signature">
-                  <a>
-                    <Text
-                      fontSize="xs"
-                      colorScheme="gray"
-                      py={3}
-                      borderBottom="2px"
-                      borderBottomColor={
-                        location.pathname === "/signature"
-                          ? "black"
-                          : "#ff2e2e00"
-                      }
-                      _hover={{ opacity: 0.8 }}
-                    >
-                      署名一覧
-                    </Text>
-                  </a>
-                </Link>
+                {menuElement("/dashboard", "ダッシュボード")}
+                {menuElement("/signature", "署名一覧")}
+                {menuElement("/colors", "色一覧")}
               </Flex>
             </Container>
           </Box>
