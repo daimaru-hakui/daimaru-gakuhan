@@ -17,11 +17,14 @@ import {
   Switch,
   Text,
 } from "@chakra-ui/react";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import { NextPage } from "next";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BsXCircleFill } from "react-icons/bs";
+import { db } from "../../../firebase";
 import { useProjectInput } from "../../hooks/useProjectInput";
+import { ColorType } from "../../types/ColorType";
 
 type Props = {
   items: any;
@@ -64,7 +67,7 @@ const ProductInput: NextPage<Props> = ({
   imagePath,
   sizeUrl,
   sizePath,
-  color
+  color,
 }) => {
   const {
     handleInputChange,
@@ -78,8 +81,22 @@ const ProductInput: NextPage<Props> = ({
   const sizeData4 = ["23.5cm", "24.0cm", "24.5cm", "25.0cm", "25.5cm"];
   const sizeData5 = ["26.0cm", "26.5cm", "27.0cm", "27.5cm", "28.0cm"];
   const sizeData6 = ["28.5cm", "29.0cm", "30.0cm"];
-  const colorData1 = ["ブラック", "ホワイト", "レッド", "ブルー"];
+  const [colors, setColors] = useState([] as ColorType[]);
 
+  useEffect(() => {
+    const getSColors = async () => {
+      const q = query(collection(db, "colors"), orderBy("title", "asc"));
+
+      onSnapshot(q, (querySnapshot) =>
+        setColors(
+          querySnapshot.docs.map(
+            (doc) => ({ ...doc.data(), id: doc.id } as ColorType)
+          )
+        )
+      );
+    };
+    getSColors();
+  }, []);
 
   const productNameElement = (productName: string) => (
     <>
@@ -165,17 +182,22 @@ const ProductInput: NextPage<Props> = ({
   );
 
   // color選択表示
-  const colorList = (array: string[], color: string) => (
+  const colorList = (array: ColorType[], color: string) => (
     <Box>
-      <Flex mt={1} gap={2} direction={["column", "row"]}>
+      <Flex
+        mt={1}
+        gap={3}
+        flexWrap={{ base: "wrap", sm: "wrap" }}
+        flexDirection={{ base: "column", sm: "row" }}
+      >
         {array.map((value, index) => (
           <Checkbox
             isChecked={true}
             key={index}
-            value={value}
+            value={value.title}
             onChange={(e) => handleCheckedChange(e, color)}
           >
-            {value}
+            {value.title}
           </Checkbox>
         ))}
       </Flex>
@@ -186,9 +208,7 @@ const ProductInput: NextPage<Props> = ({
     <Box mt={6}>
       <CheckboxGroup colorScheme="green" defaultValue={items[color]}>
         <Text>■カラー</Text>
-        <Flex flexDirection="column">
-          {colorList(colorData1, color)}
-        </Flex>
+        <Flex flexDirection="column">{colorList(colors, color)}</Flex>
       </CheckboxGroup>
 
       {items[color]?.length > 0 && (
@@ -258,7 +278,6 @@ const ProductInput: NextPage<Props> = ({
     </Box>
   );
 
-
   const imageElement = (
     title: string,
     imageUrl: string,
@@ -321,7 +340,9 @@ const ProductInput: NextPage<Props> = ({
                 />
               </Box>
 
-              {items[imageUrl] && <img width="100%" src={items[imageUrl]} alt={items[imageUrl]} />}
+              {items[imageUrl] && (
+                <img width="100%" src={items[imageUrl]} alt={items[imageUrl]} />
+              )}
               {fileUpload?.[0] && (
                 <>
                   <img
