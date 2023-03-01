@@ -47,7 +47,7 @@ const ProjectId = () => {
   const projects = useRecoilValue(projectsState);
   const [students, setStudents] = useState<any>();
   const [tableWidth, setTableWidth] = useState(1100);
-  const [dragIndex, setDragIndex] = useState(null)
+  const [dragIndex, setDragIndex] = useState(null);
   const projectId = router.query.id;
   const [project, setProject] = useState<any>({
     title: "",
@@ -237,31 +237,32 @@ const ProjectId = () => {
 
   // ドラッグ&ドロップ
   const dragStart = (index: any) => {
-    setDragIndex(index)
-  }
+    setDragIndex(index);
+  };
 
   const dragEnter = (index: any) => {
-    if (index === dragIndex) return
-    let array = []
-    array = [...project?.products]
+    if (index === dragIndex) return;
+    let array = [];
+    array = [...project?.products];
     setProject(() => {
-      let array = [...project?.products]
-      let deleteElement = array.splice(Number(dragIndex), 1)[0]
-      array.splice(index, 0, deleteElement)
+      let array = [...project?.products];
+      let deleteElement = array.splice(Number(dragIndex), 1)[0];
+      array.splice(index, 0, deleteElement);
       return {
-        ...project, products: array
-      }
-    })
-    setDragIndex(index)
-  }
+        ...project,
+        products: array,
+      };
+    });
+    setDragIndex(index);
+  };
 
   const dragEnd = () => {
     const docRef = doc(db, "projects", `${projectId}`);
     updateDoc(docRef, {
-      ...project
-    })
-    setDragIndex(null)
-  }
+      ...project,
+    });
+    setDragIndex(null);
+  };
 
   // 商品
   const productNameElement = (index: number, prop: string) => (
@@ -269,7 +270,7 @@ const ProjectId = () => {
       {project?.products[index][prop] ? (
         <Box>{project?.products[index][prop]}</Box>
       ) : (
-        <Box>未登録</Box>
+        <Box>なし</Box>
       )}
     </>
   );
@@ -278,13 +279,20 @@ const ProjectId = () => {
   const priceElement = (index: number, prop: string) => (
     <>
       {project?.products[index][prop] ? (
-        <>
-          <Box>
-            {Number(project?.products[index][prop])?.toLocaleString()}円
-          </Box>
-        </>
+        <Box>{Number(project?.products[index][prop])?.toLocaleString()}円</Box>
       ) : (
-        <Box>未登録</Box>
+        <Box>なし</Box>
+      )}
+    </>
+  );
+
+  // カラー展開
+  const colorElement = (index: number, prop: string) => (
+    <>
+      {project?.products[index][prop]?.length > 0 ? (
+        <Box>{project?.products[index][prop].length}色</Box>
+      ) : (
+        <Box>なし</Box>
       )}
     </>
   );
@@ -498,133 +506,123 @@ const ProjectId = () => {
                     {project?.products?.length > 0 && (
                       <Thead>
                         <Tr>
+                          <Th>編集・削除</Th>
                           <Th>商品名</Th>
                           <Th>金額</Th>
+                          <Th>カラー展開</Th>
                           <Th>サイズ展開</Th>
                           <Th>数量入力</Th>
                           <Th>股下修理</Th>
                           <Th>サイズ画像</Th>
                           <Th>イメージ画像</Th>
-                          <Th>編集・削除</Th>
                         </Tr>
                       </Thead>
                     )}
                     <Tbody>
-                      {/* {Object.keys([...Array(9)]).map( */}
-                      {project?.products?.map(
-                        (i: string, index: number) => (
-                          <Tr key={index} mt={6}
-                            cursor='pointer'
-                            draggable={students?.length > 0 ? false : true}
-                            onDragStart={() => dragStart(index)}
-                            onDragEnter={() => dragEnter(index)}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDragEnd={dragEnd}
-                            borderTop={index === dragIndex ? '2px' : ''}
-                            borderColor={index === dragIndex ? 'blue.300' : ''}
-                          >
-                            {project?.products[index] && (
-                              <>
-                                <Td mr={2}>
-                                  {productNameElement(index, "productName")}
-                                  {project?.products[index].clothesType ===
-                                    "2" &&
-                                    productNameElement(index, "productNameA")}
-                                </Td>
-
-                                <Td mr={2}>
-                                  {priceElement(index, "price")}
-                                  {project?.products[index].clothesType ===
-                                    "2" && priceElement(index, "priceA")}
-                                </Td>
-
-                                <Td>
-                                  {sizeElement(index, "size")}
-                                  {project?.products[index].clothesType ===
-                                    "2" && sizeElement(index, "sizeA")}
-                                </Td>
-
-                                <Td>
-                                  {quantityElement(
-                                    index,
-                                    "quantity",
-                                    "fixedQuantity"
+                      {project?.products?.map((i: string, index: number) => (
+                        <Tr
+                          key={index}
+                          mt={6}
+                          cursor="pointer"
+                          draggable={students?.length > 0 ? false : true}
+                          onDragStart={() => dragStart(index)}
+                          onDragEnter={() => dragEnter(index)}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDragEnd={dragEnd}
+                          borderTop={index === dragIndex ? "2px" : ""}
+                          borderColor={index === dragIndex ? "blue.300" : ""}
+                        >
+                          {project?.products[index] && (
+                            <>
+                              <Td>
+                                <HStack spacing={6}>
+                                  {students?.length > 0 ? (
+                                    <>
+                                      <Box>編集不可</Box>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <InputModal
+                                        productIndex={index}
+                                        buttonDesign="edit"
+                                      />
+                                      <FaTrashAlt
+                                        cursor="pointer"
+                                        onClick={() => deleteProduct(index)}
+                                      />
+                                    </>
                                   )}
-                                  {project?.products[index].clothesType ===
-                                    "2" &&
-                                    quantityElement(
-                                      index,
-                                      "quantityA",
-                                      "fixedQuantityA"
-                                    )}
-                                </Td>
+                                </HStack>
+                              </Td>
+                              <Td mr={2}>
+                                {productNameElement(index, "productName")}
+                                {project?.products[index].clothesType === "2" &&
+                                  productNameElement(index, "productNameA")}
+                              </Td>
 
-                                <Td>
-                                  {inseamElement(index, "inseam")}
-                                  {project?.products[index].clothesType ===
-                                    "2" && inseamElement(index, "inseamA")}
-                                </Td>
+                              <Td mr={2}>
+                                {priceElement(index, "price")}
+                                {project?.products[index].clothesType === "2" &&
+                                  priceElement(index, "priceA")}
+                              </Td>
 
-                                <Td>
-                                  {choiceElement(index, "sizeUrl")}
-                                  {project?.products[index].clothesType ===
-                                    "2" && choiceElement(index, "sizeUrlA")}
-                                </Td>
+                              <Td mr={2}>
+                                {colorElement(index, "color")}
+                                {project?.products[index].clothesType === "2" &&
+                                  colorElement(index, "colorA")}
+                              </Td>
 
-                                <Td>
-                                  {choiceElement(index, "imageUrl")}
-                                  {project?.products[index].clothesType ===
-                                    "2" && choiceElement(index, "imageUrlA")}
-                                </Td>
+                              <Td>
+                                {sizeElement(index, "size")}
+                                {project?.products[index].clothesType === "2" &&
+                                  sizeElement(index, "sizeA")}
+                              </Td>
 
-                                <Td>
-                                  <HStack spacing={6}>
-                                    {students?.length > 0 ? (
-                                      <>
-                                        <Box>編集不可</Box>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <InputModal
-                                          productIndex={index}
-                                          buttonDesign="edit"
-                                        />
-                                        <FaTrashAlt
-                                          cursor="pointer"
-                                          onClick={() => deleteProduct(index)}
-                                        />
-                                      </>
-                                    )}
-                                  </HStack>
-                                </Td>
-                              </>
-                            )}
-                          </Tr>
-                        )
-                      )}
+                              <Td>
+                                {quantityElement(
+                                  index,
+                                  "quantity",
+                                  "fixedQuantity"
+                                )}
+                                {project?.products[index].clothesType === "2" &&
+                                  quantityElement(
+                                    index,
+                                    "quantityA",
+                                    "fixedQuantityA"
+                                  )}
+                              </Td>
+
+                              <Td>
+                                {inseamElement(index, "inseam")}
+                                {project?.products[index].clothesType === "2" &&
+                                  inseamElement(index, "inseamA")}
+                              </Td>
+
+                              <Td>
+                                {choiceElement(index, "sizeUrl")}
+                                {project?.products[index].clothesType === "2" &&
+                                  choiceElement(index, "sizeUrlA")}
+                              </Td>
+
+                              <Td>
+                                {choiceElement(index, "imageUrl")}
+                                {project?.products[index].clothesType === "2" &&
+                                  choiceElement(index, "imageUrlA")}
+                              </Td>
+                            </>
+                          )}
+                        </Tr>
+                      ))}
                     </Tbody>
                   </Table>
                 </TableContainer>
 
                 <Box mt={6}>
-                  <InputModal productIndex={project?.products?.length} buttonDesign={"add"} />
+                  <InputModal
+                    productIndex={project?.products?.length}
+                    buttonDesign={"add"}
+                  />
                 </Box>
-
-                {/* {Object.keys([...Array(9)]).map((i: string, index: number) => (
-                  <Box key={i} mt={6}>
-                    {!project?.products[index] &&
-                      project?.products.length === index && (
-                        <>
-                          {students?.length === 0 && (
-                            <InputModal
-                              productIndex={index}
-                              buttonDesign={"add"}
-                            />
-                          )}
-                        </>
-                      )}
-                  </Box>
-                ))} */}
               </Box>
             </>
           </Container>
