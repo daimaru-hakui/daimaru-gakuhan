@@ -94,6 +94,7 @@ const RegisterId = () => {
         collection(db, "schools", `${projectId}`, "students"),
         {
           ...items,
+          gender: items?.gender || "1",
           serialNumber: serialNumber(items?.studentNumber) || "",
           title: project?.title,
           projectId: project?.id,
