@@ -101,9 +101,9 @@ const MeasureId = () => {
           size = product?.sizeA[0] ? "" : "未設定";
           if (product?.sizeA.length === 1 && product?.sizeA[0] !== "未設定")
             size = product?.sizeA[0];
-          if (product?.colorA.length === 1) color = product?.colorA[0];
-          if (product?.colorA === 0) color = null;
-          if (product?.colorA.length > 1) color = product?.colorA;
+          if (product?.colorA?.length === 1) color = product?.colorA[0];
+          if (product?.colorA?.length === 0) color = null;
+          if (product?.colorA?.length > 1) color = product?.colorA;
         } else {
           productName = product?.productName || "";
           price = product?.price || null;
@@ -113,9 +113,9 @@ const MeasureId = () => {
           size = product?.size[0] ? "" : "未設定";
           if (product?.size.length === 1 && product?.size[0] !== "未設定")
             size = product?.size[0];
-          if (product?.color.length === 1) color = product?.color[0];
-          if (product?.color.length === 0) color = null;
-          if (product?.color.length > 1) color = product?.color;
+          if (product?.color?.length === 1) color = product?.color[0];
+          if (product?.color?.length === 0) color = null;
+          if (product?.color?.length > 1) color = product?.color;
         }
 
         //裾上げ設定
