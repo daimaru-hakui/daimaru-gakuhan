@@ -91,7 +91,7 @@ const MeasureId = () => {
         if (
           student?.gender === "2" && // 女性
           project?.gender === "2" && //男女兼用(性別）
-          product?.clothesType === "2" //男女兼用（服）
+          Number(product?.clothesType) === 2 //男女兼用（服）
         ) {
           productName = product?.productNameA || "";
           price = product?.priceA || null;
@@ -120,34 +120,34 @@ const MeasureId = () => {
 
         //裾上げ設定
         inseam = product?.inseam || product?.inseamA ? "なし" : null;
-        if (inseam) {
+        if (inseam === "なし") {
           if (
-            product?.clothesType === "2" &&
+            Number(product?.clothesType) === 2 &&
             student?.gender === "1" &&
             product?.inseam
           )
             inseam = "";
 
           if (
-            product?.clothesType === "2" &&
+            Number(product?.clothesType) === 2 &&
             student?.gender === "2" &&
             product?.inseamA
           )
             inseam = "";
 
-          if (product?.clothesType === 1 && product?.inseam) inseam = "";
+          if (Number(product?.clothesType) === 1 && product?.inseam)
+            inseam = "";
         }
 
         // カラーの設定
         if (product?.color === null && product?.colorA === null) color = null; //両方ともnullなら項目なし
-        if (product?.color || product?.colorA) {
+        if (product?.color?.length > 0 || product?.colorA?.length > 0) {
           if (!color) color = "なし";
           if (typeof color === "object" && color?.length > 1) color = "なし";
         }
-
         if (color === "なし") {
           if (
-            product?.clothesType === "2" &&
+            Number(product?.clothesType) === 2 &&
             student?.gender === "1" &&
             product?.color &&
             product?.color.length > 1
@@ -155,16 +155,15 @@ const MeasureId = () => {
             color = "";
 
           if (
-            product?.clothesType === "2" &&
+            Number(product?.clothesType) === 2 &&
             student?.gender === "2" &&
             product?.colorA &&
             product?.colorA.length > 1
           )
             color = "";
 
-          if (product?.clothesType === 1 && product?.color) color = "";
+          if (Number(product?.clothesType) === 1 && product?.color) color = "";
         }
-
         return {
           productName,
           price,

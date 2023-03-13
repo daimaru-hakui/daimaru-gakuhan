@@ -209,7 +209,7 @@ const ProjectId = () => {
     const docRef = doc(db, "projects", `${projectId}`);
     try {
       updateDoc(docRef, {
-        [type]: value,
+        [type]: value || "1",
       });
     } catch (err) {
       console.log(err);
