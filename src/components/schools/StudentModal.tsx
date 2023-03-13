@@ -317,6 +317,7 @@ const StudentModal: NextPage<Props> = ({
                 <Thead>
                   <Tr>
                     <Th w="auto">商品名</Th>
+                    <Th w="100px">カラー</Th>
                     <Th w="100px">サイズ</Th>
                     <Th w="100px">数量</Th>
                     <Th w="100px">裾上げ</Th>
@@ -326,8 +327,9 @@ const StudentModal: NextPage<Props> = ({
                   {student?.products?.map((product: any, index: number) => (
                     <Tr key={index}>
                       <Td>{product.productName}</Td>
-                      <Td isNumeric>{product.size}</Td>
-                      <Td isNumeric>{product.quantity}</Td>
+                      <Td>{product?.color}</Td>
+                      <Td>{product?.size}</Td>
+                      <Td isNumeric>{product?.quantity}</Td>
                       <Td isNumeric>
                         {product.inseam ? product.inseam : "なし"}
                       </Td>

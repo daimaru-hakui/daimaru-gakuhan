@@ -339,42 +339,41 @@ const SchoolId = () => {
           <Box as="h2" mt={3} fontWeight="bold">
             {project?.title}
           </Box>
+          <Flex mt={3} alignItems="center" justifyContent="space-between">
+            <Box>
+              全{students?.length}件
+              {unRegister && (
+                <Box as="span">{`（未提出者 ${unRegister}名）`}</Box>
+              )}
+            </Box>
+            <Flex>
+              <Link href={`/schools/limit/${projectId}`}>
+                <a>
+                  <Button size="sm" mr={2} colorScheme="facebook">
+                    学生閲覧用ぺージ
+                  </Button>
+                </a>
+              </Link>
+              <CSVLink
+                data={csvData}
+                filename={
+                  new Date().toLocaleString() + `_${project?.title}.csv`
+                }
+              >
+                <Button
+                  size="sm"
+                  mr={2}
+                  colorScheme="facebook"
+                  onClick={onClickCsv}
+                >
+                  CSV
+                </Button>
+              </CSVLink>
+              {/* <TotalModal totals={totals} totalPrice={totalPrice} /> */}
+            </Flex>
+          </Flex>
           {students?.length > 0 ? (
             <>
-              <Flex mt={3} alignItems="center" justifyContent="space-between">
-                <Box>
-                  全{students?.length}件
-                  {unRegister && (
-                    <Box as="span">{`（未提出者 ${unRegister}名）`}</Box>
-                  )}
-                </Box>
-                <Flex>
-                  <Link href={`/schools/limit/${projectId}`}>
-                    <a>
-                      <Button size="sm" mr={2} colorScheme="facebook">
-                        学生閲覧用ぺージ
-                      </Button>
-                    </a>
-                  </Link>
-                  <CSVLink
-                    data={csvData}
-                    filename={
-                      new Date().toLocaleString() + `_${project?.title}.csv`
-                    }
-                  >
-                    <Button
-                      size="sm"
-                      mr={2}
-                      colorScheme="facebook"
-                      onClick={onClickCsv}
-                    >
-                      CSV
-                    </Button>
-                  </CSVLink>
-                  {/* <TotalModal totals={totals} totalPrice={totalPrice} /> */}
-                </Flex>
-              </Flex>
-
               <TableContainer mt={6}>
                 <Table variant="striped" colorScheme="gray" size="sm">
                   <Thead>
@@ -522,7 +521,7 @@ const SchoolId = () => {
               </Box>
             </>
           ) : (
-            <Box mt={6}>現在、登録情報はありません。</Box>
+            <Box textAlign="center" mt={6}>現在、登録情報はありません。</Box>
           )}
         </>
       )}
