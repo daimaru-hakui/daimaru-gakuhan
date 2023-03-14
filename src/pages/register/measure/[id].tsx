@@ -383,8 +383,7 @@ const MeasureId = () => {
             placeholder="裾上直しの長さを選択してください"
             onChange={(e) => handleSelectChange(e, index)}
           >
-            <option value="不要">不要</option>
-            {Object.keys([...Array(30)]).map(
+            {Object.keys(["無し", ...Array(30)]).map(
               (num: string, i: number) => (
                 <option key={num?.toString()} value={i + 1 + "cm"}>
                   {i + 1}cm
