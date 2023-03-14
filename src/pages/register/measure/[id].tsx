@@ -354,6 +354,7 @@ const MeasureId = () => {
             placeholder="数量を選択してしてください"
             onChange={(e) => handleSelectChange(e, index)}
           >
+            <option value={"不要"}>不要</option>
             {array.map((num: string, i: number) => (
               <option key={num?.toString()} value={i}>
                 {i}
@@ -381,6 +382,7 @@ const MeasureId = () => {
             placeholder="裾上直しの長さを選択してください"
             onChange={(e) => handleSelectChange(e, index)}
           >
+            <option value="不要">不要</option>
             {Object.keys(["無し", ...Array(30)]).map(
               (num: string, i: number) => (
                 <option key={num?.toString()} value={i + "cm"}>
