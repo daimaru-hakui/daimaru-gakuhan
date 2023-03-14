@@ -100,6 +100,7 @@ const Completion = () => {
                   color: string;
                   quantity: string;
                   inseam: string;
+                  price: number;
                 }) => (
                   <Box key={product.productName} mt={6}>
                     {product.productName && (
@@ -140,6 +141,14 @@ const Completion = () => {
                           股下修理
                         </Box>
                         <Box>{product.inseam}</Box>
+                      </Flex>
+                    )}
+                    {product.price && (
+                      <Flex>
+                        <Box fontWeight="bold" w="90px">
+                          単価
+                        </Box>
+                        <Box>{product.price.toLocaleString()}円（税込）</Box>
                       </Flex>
                     )}
                   </Box>
