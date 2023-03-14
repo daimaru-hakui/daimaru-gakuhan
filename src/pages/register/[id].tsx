@@ -26,19 +26,6 @@ import { useSetRecoilState } from "recoil";
 import { loadingState } from "../../../store";
 import { ProjectType } from "../../types/ProjectType";
 
-type StudentType = {
-  id: string;
-  title: string;
-  name: string;
-  desc: string;
-  schedule: string;
-  signature: string;
-  gender: string;
-  products: string[];
-  release: boolean;
-  createdAt: Timestamp;
-};
-
 const RegisterId = () => {
   const router = useRouter();
   const projectId = router.query.id;

@@ -99,15 +99,15 @@ const SchoolId = () => {
   }, [students]);
 
   // 生徒全員の合計金額
-  useEffect(() => {
-    const getSumPrice = () => {
-      const total = students
-        ?.map((student: { sumTotal: number; }) => student.sumTotal)
-        ?.reduce((prev: number, current: number) => prev + current, 0);
-      setTotalPrice(total);
-    };
-    getSumPrice();
-  }, [students]);
+  // useEffect(() => {
+  //   const getSumPrice = () => {
+  //     const total = students
+  //       ?.map((student: { sumTotal: number; }) => student.sumTotal)
+  //       ?.reduce((prev: number, current: number) => prev + current, 0);
+  //     setTotalPrice(total);
+  //   };
+  //   getSumPrice();
+  // }, [students]);
 
   // 生徒の登録情報を削除
   const deleteStudent = (studentId: string) => {

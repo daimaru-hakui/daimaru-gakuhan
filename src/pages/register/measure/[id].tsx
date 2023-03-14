@@ -35,7 +35,7 @@ const MeasureId = () => {
   const [project, setProject] = useState({} as ProjectType);
   const [items, setItems] = useState<any>({});
   const [sumTotal, setSumTotal] = useState(0);
-  const array = Object.keys([...Array(10)]);
+  const array = Object.keys([...Array(9)]);
   const setLoading = useSetRecoilState(loadingState);
 
   // student（個別）を取得
@@ -238,7 +238,8 @@ const MeasureId = () => {
         quantity: product.quantity,
       }))
       .forEach((product: any) => {
-        sum += Number(product.price) * Number(product.quantity);
+        const quantity = product.quantity === '不要' ? 0 : product.quantity;
+        sum += Number(product.price) * Number(quantity);
       });
     setSumTotal(sum);
   }, [items.products]);
@@ -354,9 +355,10 @@ const MeasureId = () => {
             placeholder="数量を選択してしてください"
             onChange={(e) => handleSelectChange(e, index)}
           >
+            <option value="不要">不要</option>
             {array.map((num: string, i: number) => (
-              <option key={num?.toString()} value={i}>
-                {i}
+              <option key={num?.toString()} value={i + 1}>
+                {i + 1}
               </option>
             ))}
           </Select>
@@ -381,10 +383,11 @@ const MeasureId = () => {
             placeholder="裾上直しの長さを選択してください"
             onChange={(e) => handleSelectChange(e, index)}
           >
-            {Object.keys(["無し", ...Array(30)]).map(
+            <option value="不要">不要</option>
+            {Object.keys([...Array(30)]).map(
               (num: string, i: number) => (
-                <option key={num?.toString()} value={i + "cm"}>
-                  {i}cm
+                <option key={num?.toString()} value={i + 1 + "cm"}>
+                  {i + 1}cm
                 </option>
               )
             )}
@@ -470,16 +473,16 @@ const MeasureId = () => {
               borderWidth="3px"
               borderColor={
                 items?.products?.[index].size === "" ||
-                items.products?.[index]?.quantity === "" ||
-                (product?.inseam && items.products?.[index]?.inseam === "")
+                  items.products?.[index]?.quantity === "" ||
+                  (product?.inseam && items.products?.[index]?.inseam === "")
                   ? "white"
                   : "blue.200"
               }
               boxSizing="border-box"
             >
               {project?.gender === "2" &&
-              student?.gender === "2" &&
-              product.clothesType === "2" ? (
+                student?.gender === "2" &&
+                product.clothesType === "2" ? (
                 <>
                   <Box fontSize="xl">{product.productNameA}</Box>
                   {priceElement(product.priceA)}
@@ -517,16 +520,16 @@ const MeasureId = () => {
               onClick={updateStudent}
               disabled={
                 items?.products?.some(
-                  (product: { quantity: string }) => product.quantity === ""
+                  (product: { quantity: string; }) => product.quantity === ""
                 ) ||
                 items?.products?.some(
-                  (product: { size: string }) => product.size === ""
+                  (product: { size: string; }) => product.size === ""
                 ) ||
                 items?.products?.some(
-                  (product: { color: string }) => product.color === ""
+                  (product: { color: string; }) => product.color === ""
                 ) ||
                 items?.products?.some(
-                  (product: { inseam: string }) => product.inseam === ""
+                  (product: { inseam: string; }) => product.inseam === ""
                 )
               }
             >
