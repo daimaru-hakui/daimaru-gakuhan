@@ -6,6 +6,8 @@ export type ProductType = {
   size: string[];
   color: string[];
   inseam: boolean;
+  inseamUnnecessaryColumn: boolean;
+  inseamPrice: number;
   quantity: boolean;
   sizeUrl: string;
   sizePath: string;
@@ -18,6 +20,8 @@ export type ProductType = {
   sizeA: string[];
   colorA: string[];
   inseamA: boolean;
+  inseamUnnecessaryColumnA: boolean;
+  inseamPriceA: number;
   quantityA: boolean;
   sizeUrlA: string;
   sizePathA: string;

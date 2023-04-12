@@ -7,7 +7,6 @@ import {
   Input,
   Radio,
   RadioGroup,
-  Select,
   Stack,
   Text,
 } from "@chakra-ui/react";
@@ -19,7 +18,6 @@ import {
   doc,
   onSnapshot,
   serverTimestamp,
-  Timestamp,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { useSetRecoilState } from "recoil";
@@ -190,27 +188,6 @@ const RegisterId = () => {
               </RadioGroup>
             </Box>
           )}
-          {/* {Number(project?.gender) === 3 && (
-            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
-              <RadioGroup
-                name="gender"
-                value={items.gender}
-                onChange={(e) => handleRadioChange(e)}
-              >
-                <Stack spacing={5} direction="row">
-                  <Radio colorScheme="green" value="1">
-                    男性
-                  </Radio>
-                  <Radio colorScheme="green" value="2">
-                    女性
-                  </Radio>
-                  <Radio colorScheme="green" value="3">
-                    その他
-                  </Radio>
-                </Stack>
-              </RadioGroup>
-            </Box>
-          )} */}
 
           <Box mt={6} textAlign="center">
             <Button

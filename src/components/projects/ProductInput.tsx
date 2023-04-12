@@ -42,6 +42,8 @@ type Props = {
   quantity: string;
   fixedQuantity: string;
   inseam: string;
+  inseamUnnecessaryColumn: string;
+  inseamPrice: string;
   imageUrl: string;
   imagePath: string;
   sizeUrl: string;
@@ -63,6 +65,8 @@ const ProductInput: NextPage<Props> = ({
   quantity,
   fixedQuantity,
   inseam,
+  inseamUnnecessaryColumn,
+  inseamPrice,
   imageUrl,
   imagePath,
   sizeUrl,
@@ -74,6 +78,7 @@ const ProductInput: NextPage<Props> = ({
     handleSwitchChange,
     handleNumberChange,
     handleCheckedChange,
+    handleRadioChange,
   } = useProjectInput(items, setItems);
   const sizeData1 = ["不要", "別", "F", "WS", "WM", "WL", "3S", "SS"];
   const sizeData2 = ["S", "M", "L", "LL", "EL", "3L", "4L", "5L", "6L"];
@@ -264,7 +269,7 @@ const ProductInput: NextPage<Props> = ({
   );
 
   const inseamElement = (inseam: string) => (
-    <Box mt={6}>
+    <Flex mt={6}>
       <FormControl display="flex" alignItems="center">
         <FormLabel htmlFor={inseam} mb="0">
           股下修理
@@ -274,8 +279,34 @@ const ProductInput: NextPage<Props> = ({
           isChecked={items[inseam]}
           onChange={() => handleSwitchChange(inseam)}
         />
+        <Flex ml={6} alignItems="center">
+          {items[inseam] && (
+            <>
+              <FormLabel htmlFor={inseamUnnecessaryColumn} mb="0">
+                不要欄
+              </FormLabel>
+              <Switch
+                id={inseamUnnecessaryColumn}
+                isChecked={items[inseamUnnecessaryColumn]}
+                onChange={() => handleSwitchChange(inseamUnnecessaryColumn)}
+              />
+              <Flex gap={1} ml={6} alignItems="center">
+                <Text>単価</Text>
+                <Input
+                  textAlign="right"
+                  maxW="100px"
+                  type="number"
+                  name={inseamPrice}
+                  value={Number(items[inseamPrice]) || 0}
+                  onChange={(e) => handleInputChange(e)}
+                />
+                円（税込）
+              </Flex>
+            </>
+          )}
+        </Flex>
       </FormControl>
-    </Box>
+    </Flex>
   );
 
   const imageElement = (
@@ -361,6 +392,8 @@ const ProductInput: NextPage<Props> = ({
       </Box>
     </>
   );
+
+  console.log(items);
 
   return (
     <>

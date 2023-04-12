@@ -5,10 +5,7 @@ import {
   Container,
   Flex,
   Input,
-  Radio,
-  RadioGroup,
   Select,
-  Stack,
   Text,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
@@ -84,6 +81,7 @@ const MeasureId = () => {
         let size;
         let color;
         let inseam;
+        let inseamPrice;
         let sizeUrl;
         let imageUrl;
 
@@ -120,23 +118,30 @@ const MeasureId = () => {
 
         //裾上げ設定
         inseam = product?.inseam || product?.inseamA ? "なし" : null;
+        inseamPrice = 0;
         if (inseam === "なし") {
           if (
             Number(product?.clothesType) === 2 &&
             student?.gender === "1" &&
             product?.inseam
-          )
+          ) {
             inseam = "";
+            inseamPrice = product?.inseamPrice || 0;
+          }
 
           if (
             Number(product?.clothesType) === 2 &&
             student?.gender === "2" &&
             product?.inseamA
-          )
+          ) {
             inseam = "";
+            inseamPrice = product?.inseamPrice || 0;
+          }
 
-          if (Number(product?.clothesType) === 1 && product?.inseam)
+          if (Number(product?.clothesType) === 1 && product?.inseam) {
             inseam = "";
+            inseamPrice = product?.inseamPrice || 0;
+          }
         }
 
         // カラーの設定
@@ -171,6 +176,7 @@ const MeasureId = () => {
           color,
           quantity,
           inseam,
+          inseamPrice,
           sizeUrl,
           imageUrl,
         };
@@ -236,10 +242,18 @@ const MeasureId = () => {
       ?.map((product: any) => ({
         price: product.price,
         quantity: product.quantity,
+        inseam: product?.inseam,
+        inseamPrice: product.inseamPrice,
       }))
       .forEach((product: any) => {
-        const quantity = product.quantity === '不要' ? 0 : product.quantity;
-        sum += Number(product.price) * Number(quantity);
+        const quantity = product.quantity === "不要" ? 0 : product.quantity;
+        const price = product.price === null ? 0 : product.price;
+        let inseamPrice =
+          product.inseam === "不要" || !product.inseam
+            ? 0
+            : product.inseamPrice;
+        sum +=
+          Number(price) * Number(quantity) + inseamPrice * Number(quantity);
       });
     setSumTotal(sum);
   }, [items.products]);
@@ -372,25 +386,31 @@ const MeasureId = () => {
     </Box>
   );
 
-  const inseamElement = (inseam: string, index: number) => (
+  const inseamElement = (
+    inseam: string,
+    inseamUnnecessaryColumn: boolean,
+    inseamPrice: number,
+    index: number
+  ) => (
     <Box mt={6}>
       {inseam && (
         <>
-          <Text>裾上げ</Text>
+          <Flex gap={6}>
+            <Text>裾上げ</Text>
+            {inseamPrice > 0 && <Text>※別途 {inseamPrice}円（税込）</Text>}
+          </Flex>
           <Select
             mt={1}
             name="inseam"
             placeholder="裾上直しの長さを選択してください"
             onChange={(e) => handleSelectChange(e, index)}
           >
-            <option value="不要">不要</option>
-            {Object.keys(["無し", ...Array(24)]).map(
-              (num: string, i: number) => (
-                <option key={num?.toString()} value={i + 1 + "cm"}>
-                  {i + 1}cm
-                </option>
-              )
-            )}
+            {inseamUnnecessaryColumn && <option value="不要">不要</option>}
+            {Object.keys([...Array(24)]).map((num: string, i: number) => (
+              <option key={num?.toString()} value={i + 1 + "cm"}>
+                {i + 1}cm
+              </option>
+            ))}
           </Select>
         </>
       )}
@@ -473,16 +493,16 @@ const MeasureId = () => {
               borderWidth="3px"
               borderColor={
                 items?.products?.[index].size === "" ||
-                  items.products?.[index]?.quantity === "" ||
-                  (product?.inseam && items.products?.[index]?.inseam === "")
+                items.products?.[index]?.quantity === "" ||
+                (product?.inseam && items.products?.[index]?.inseam === "")
                   ? "white"
                   : "blue.200"
               }
               boxSizing="border-box"
             >
               {project?.gender === "2" &&
-                student?.gender === "2" &&
-                product.clothesType === "2" ? (
+              student?.gender === "2" &&
+              product.clothesType === "2" ? (
                 <>
                   <Box fontSize="xl">{product.productNameA}</Box>
                   {priceElement(product.priceA)}
@@ -494,7 +514,12 @@ const MeasureId = () => {
                     product.fixedQuantityA,
                     index
                   )}
-                  {inseamElement(product.inseamA, index)}
+                  {inseamElement(
+                    product.inseamA,
+                    product?.inseamUnnecessaryColumnA,
+                    product?.inseamPriceA,
+                    index
+                  )}
                 </>
               ) : (
                 <>
@@ -508,7 +533,12 @@ const MeasureId = () => {
                     product.fixedQuantity,
                     index
                   )}
-                  {inseamElement(product.inseam, index)}
+                  {inseamElement(
+                    product.inseam,
+                    product?.inseamUnnecessaryColumn,
+                    product?.inseamPrice,
+                    index
+                  )}
                 </>
               )}
             </Box>
@@ -520,16 +550,16 @@ const MeasureId = () => {
               onClick={updateStudent}
               disabled={
                 items?.products?.some(
-                  (product: { quantity: string; }) => product.quantity === ""
+                  (product: { quantity: string }) => product.quantity === ""
                 ) ||
                 items?.products?.some(
-                  (product: { size: string; }) => product.size === ""
+                  (product: { size: string }) => product.size === ""
                 ) ||
                 items?.products?.some(
-                  (product: { color: string; }) => product.color === ""
+                  (product: { color: string }) => product.color === ""
                 ) ||
                 items?.products?.some(
-                  (product: { inseam: string; }) => product.inseam === ""
+                  (product: { inseam: string }) => product.inseam === ""
                 )
               }
             >
