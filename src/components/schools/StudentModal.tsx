@@ -30,6 +30,7 @@ import QRCode from "qrcode.react";
 import emailjs from "@emailjs/browser";
 import { useSetRecoilState } from "recoil";
 import { loadingState } from "../../../store";
+import { FormStudent } from "./FormStudent";
 
 type Props = {
   projectId: string;
@@ -45,29 +46,28 @@ const StudentModal: NextPage<Props> = ({
   students,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const setLoading = useSetRecoilState(loadingState);
   const [student, setStudent] = useState<any>();
   const [studentIdTemp, setStudentIdTemp] = useState(studentId);
   const [studentNumOrder, setStudentNumOrder] = useState(0);
-  const [send, setSend] = useState({
-    email: "",
-    title: "",
-    content: "",
-    studentNumber: "",
-    lastName: "",
-    firstName: "",
-    sumTotal: "",
-    signature: "",
-  });
-  const form = useRef<HTMLFormElement>(
-    null
-  ) as React.MutableRefObject<HTMLFormElement>;
+  // const [send, setSend] = useState({
+  //   email: "",
+  //   title: "",
+  //   content: "",
+  //   studentNumber: "",
+  //   lastName: "",
+  //   firstName: "",
+  //   sumTotal: "",
+  //   signature: "",
+  // });
+  // const form = useRef<HTMLFormElement>(
+  //   null
+  // ) as React.MutableRefObject<HTMLFormElement>;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setSend({ ...send, [name]: value });
-  };
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const name = e.target.name;
+  //   const value = e.target.value;
+  //   setSend({ ...send, [name]: value });
+  // };
 
   // 生徒の情報を取得
   useEffect(() => {
@@ -116,105 +116,104 @@ const StudentModal: NextPage<Props> = ({
   };
 
   // emailで送る内容をstateで管理
-  useEffect(() => {
-    let content: string[] = [];
-    student?.products.forEach(
-      (product: {
-        productName: string;
-        size: string;
-        quantity: string;
-        inseam: string;
-      }) => {
-        let row: string;
-        row =
-          "<div>" +
-          (product.productName
-            ? `<div>商品名 ${product.productName}</div>`
-            : "") +
-          (product.size ? `<div>サイズ ${product.size}</div>` : "") +
-          (product.quantity ? `<div>数量 ${product.quantity}</div>` : "") +
-          (product.inseam ? `<div>裾上げ ${product.inseam}</div>` : "") +
-          "</div>";
-        content.push(row + "<br/>");
-      }
-    );
-    let signature = student?.signature?.split("\n");
-    signature = `<div>${signature?.join("<br/>")}</div>`;
-    setSend({
-      ...send,
-      content: content.join("").trim(),
-      signature,
-      title: student?.title,
-      studentNumber: student?.studentNumber,
-      firstName: student?.firstName,
-      lastName: student?.lastName,
-      sumTotal: student?.sumTotal,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [student?.products]);
+  // useEffect(() => {
+  //   let content: string[] = [];
+  //   student?.products.forEach(
+  //     (product: {
+  //       productName: string;
+  //       size: string;
+  //       quantity: string;
+  //       inseam: string;
+  //     }) => {
+  //       let row: string;
+  //       row =
+  //         "<div>" +
+  //         (product.productName
+  //           ? `<div>商品名 ${product.productName}</div>`
+  //           : "") +
+  //         (product.size ? `<div>サイズ ${product.size}</div>` : "") +
+  //         (product.quantity ? `<div>数量 ${product.quantity}</div>` : "") +
+  //         (product.inseam ? `<div>裾上げ ${product.inseam}</div>` : "") +
+  //         "</div>";
+  //       content.push(row + "<br/>");
+  //     }
+  //   );
+  //   let signature = student?.signature?.split("\n");
+  //   signature = `<div>${signature?.join("<br/>")}</div>`;
+  //   setSend({
+  //     ...send,
+  //     content: content.join("").trim(),
+  //     signature,
+  //     title: student?.title,
+  //     studentNumber: student?.studentNumber,
+  //     firstName: student?.firstName,
+  //     lastName: student?.lastName,
+  //     sumTotal: student?.sumTotal,
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [student?.products]);
 
   // 確認メール関数
-  const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const PUBLIC_KEY = "user_7yd9EbIQJSbzjqGUXUbJt";
-    const SERVICE_ID = "service_764mpxv";
-    const TEMPLATE_ID = "template_70iyw39";
-    emailjs
-      .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
-      .then(
-        (result) => {
-          window.alert("確認メールを送信致しました。");
-          console.log(result.text);
-        },
-        (error) => {
-          console.log(error.text);
-        }
-      )
-      .finally(() => {
-        updateStudent();
-        setLoading(false);
-        setSend({ ...send, email: "" });
-      });
-  };
+  // const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   const PUBLIC_KEY = "user_7yd9EbIQJSbzjqGUXUbJt";
+  //   const SERVICE_ID = "service_764mpxv";
+  //   const TEMPLATE_ID = "template_70iyw39";
+  //   emailjs
+  //     .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
+  //     .then(
+  //       (result) => {
+  //         window.alert("確認メールを送信致しました。");
+  //         console.log(result.text);
+  //       },
+  //       (error) => {
+  //         console.log(error.text);
+  //       }
+  //     )
+  //     .finally(() => {
+  //       updateStudent();
+  //       setLoading(false);
+  //       setSend({ ...send, email: "" });
+  //     });
+  // };
 
   // 確認メールを送る
-  const handleSendClick = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const result = window.confirm(
-      `以下のメールアドレス宛にお送りして宜しいでしょうか。\n${send?.email}`
-    );
-    if (!result) return;
-    sendEmail(e);
-  };
+  // const handleSendClick = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   const result = window.confirm(
+  //     `以下のメールアドレス宛にお送りして宜しいでしょうか。\n${send?.email}`
+  //   );
+  //   if (!result) return;
+  //   sendEmail(e);
+  // };
 
   // emailアドレス正規表現
-  const isValid = (email: string) => {
-    const regex =
-      /^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/;
-    const result = regex.test(email);
-    return result;
-  };
+  // const isValid = (email: string) => {
+  //   const regex =
+  //     /^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/;
+  //   const result = regex.test(email);
+  //   return result;
+  // };
 
   // emailアドレスを更新
-  const updateStudent = async () => {
-    try {
-      await updateDoc(
-        doc(db, "schools", `${student.projectId}`, "students", `${student.id}`),
-        {
-          email: send.email,
-        }
-      );
-    } catch (err) {
-      console.log(err);
-    } finally {
-    }
-  };
+  // const updateStudent = async () => {
+  //   try {
+  //     await updateDoc(
+  //       doc(db, "schools", `${student.projectId}`, "students", `${student.id}`),
+  //       {
+  //         email: send.email,
+  //       }
+  //     );
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
 
   return (
     <>
       <Button
-        size="sm"
+        size="xs"
         variant="outline"
         colorScheme="facebook"
         onClick={onOpen}
@@ -258,7 +257,8 @@ const StudentModal: NextPage<Props> = ({
                     </Box>
                   </Flex>
                 )}
-                <Flex>
+
+                <Flex alignItems="center">
                   <Box>Email：</Box>
                   <Box>{student?.email ? student?.email : "未登録"}</Box>
                 </Flex>
@@ -275,7 +275,8 @@ const StudentModal: NextPage<Props> = ({
               </Box>
             </Flex>
             <Box mt={3}>
-              <form ref={form} onSubmit={handleSendClick}>
+              <FormStudent student={student} />
+              {/* <form ref={form} onSubmit={handleSendClick}>
                 <Box display="none">
                   <Input name="title" defaultValue={send?.title} />
                   <Input
@@ -307,10 +308,10 @@ const StudentModal: NextPage<Props> = ({
                     isDisabled={!isValid(send.email)}
                     size="sm"
                   >
-                    送信
+                    登録
                   </Button>
                 </Flex>
-              </form>
+              </form> */}
             </Box>
             <TableContainer mt={6}>
               <Table variant="simple">
@@ -347,7 +348,7 @@ const StudentModal: NextPage<Props> = ({
                 onClose();
               }}
             >
-              Close
+              閉じる
             </Button>
           </ModalFooter>
           <Flex justifyContent="space-between" p={6} pt={0}>
