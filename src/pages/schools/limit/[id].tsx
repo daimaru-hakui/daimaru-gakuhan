@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import {
-  Box,
-  Container,
-  Flex,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@chakra-ui/react";
+import { Box, Container, Flex } from "@chakra-ui/react";
 import {
   collection,
   doc,
@@ -25,17 +14,27 @@ import { useRecoilValue } from "recoil";
 import { db } from "../../../../firebase";
 import { currentUserState } from "../../../../store";
 import SliderWidth from "../../../components/SliderWidth";
+import { NextPage } from "next";
 
-const LimitId = () => {
+const LimitId: NextPage = () => {
   const router = useRouter();
+  const currentUser = useRecoilValue(currentUserState);
   const projectId = router.query.id;
   const [students, setStudents] = useState<any>();
   const [project, setProject] = useState<any>();
   const [unRegister, setUnRegister] = useState("");
   const [tableWidth, setTableWidth] = useState(900);
 
+  // ログインしてなければloginページへ移動
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/login");
+    }
+  }, [currentUser, router]);
+
   //生徒の情報を取得
   useEffect(() => {
+    if (!currentUser) return;
     const getStudents = async () => {
       const collectionRef = collection(
         db,
@@ -54,7 +53,7 @@ const LimitId = () => {
       });
     };
     getStudents();
-  }, [projectId]);
+  }, [projectId, currentUser]);
 
   // 学販projectデータ取得
   useEffect(() => {

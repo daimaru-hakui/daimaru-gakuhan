@@ -58,12 +58,14 @@ const RegisterId = () => {
         const price = product.price ? product.price : 0;
         const size = "未記入";
         const quantity = "0";
+        const color = product.color || product.colorA ? "未記入" : null;
         const inseam = product.inseam || product.inseamA ? "未記入" : null;
         return {
           productName,
           price,
           size,
           quantity,
+          color,
           inseam,
         };
       }),
