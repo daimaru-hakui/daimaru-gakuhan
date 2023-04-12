@@ -57,6 +57,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     size: [],
     color: [],
     inseam: false,
+    inseamUnnecessaryColumn: false,
+    inseamPrice: 0,
     quantity: false,
     sizeUrl: "",
     sizePath: "",
@@ -68,6 +70,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     sizeA: [],
     colorA: [],
     inseamA: false,
+    inseamUnnecessaryColumnA: false,
+    inseamPriceA: 0,
     quantityA: false,
     sizeUrlA: "",
     sizePathA: "",
@@ -94,6 +98,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           quantity: product?.quantity,
           fixedQuantity: product?.fixedQuantity,
           inseam: product?.inseam,
+          inseamUnnecessaryColumn: product?.inseamUnnecessaryColumn,
+          inseamPrice: product?.inseamPrice,
           sizeUrl: product?.sizeUrl,
           sizePath: product?.sizePath,
           imageUrl: product?.imageUrl,
@@ -106,6 +112,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           quantityA: product?.quantityA,
           fixedQuantityA: product?.fixedQuantityA,
           inseamA: product?.inseamA,
+          inseamPriceA: product?.inseamPriceA,
+          inseamUnnecessaryColumnA: product?.inseamUnnecessaryColumnA,
           sizeUrlA: product?.sizeUrlA,
           sizePathA: product?.sizePathA,
           imageUrlA: product?.imageUrlA,
@@ -189,8 +197,10 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             if (index === productIndex) {
               return {
                 ...items,
-                price: Number(items.price),
-                priceA: Number(items.priceA),
+                price: Number(items.price) || 0,
+                priceA: Number(items.priceA) || 0,
+                inseamPrice: Number(items.inseamPrice) || 0,
+                inseamPriceA: Number(items.inseamPriceA) || 0,
                 color: items.color || [],
                 colorA: items.colorA || [],
                 sizeUrl: sizeObj?.downloadUrl || sizeUrl,
@@ -366,6 +376,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               quantity="quantity"
               fixedQuantity="fixedQuantity"
               inseam="inseam"
+              inseamUnnecessaryColumn="inseamUnnecessaryColumn"
+              inseamPrice="inseamPrice"
               imageUrl="imageUrl"
               imagePath="imagePath"
               sizeUrl="sizeUrl"
@@ -392,6 +404,8 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                   quantity="quantityA"
                   fixedQuantity="fixedQuantityA"
                   inseam="inseamA"
+                  inseamUnnecessaryColumn="inseamUnnecessaryColumnA"
+                  inseamPrice="inseamPriceA"
                   imageUrl="imageUrlA"
                   imagePath="imagePathA"
                   sizeUrl="sizeUrlA"
@@ -415,7 +429,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                 onClose();
               }}
             >
-              Close
+              閉じる
             </Button>
             <Button
               disabled={!items.productName}

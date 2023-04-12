@@ -337,6 +337,17 @@ const ProjectId = () => {
     </>
   );
 
+  // 股下不要
+  const inseamUnnecessaryElement = (index: number, prop: string) => (
+    <>
+      {Number(project?.products[index][prop]) === 1 ? (
+        <FaRegCircle />
+      ) : (
+        <FaTimes />
+      )}
+    </>
+  );
+
   // イメージ画像・サイズ画像
   const choiceElement = (index: number, prop: string) => (
     <>{project?.products[index][prop] ? <FaRegCircle /> : <FaTimes />}</>
@@ -502,7 +513,7 @@ const ProjectId = () => {
                 <Box fontWeight="bold">商品登録</Box>
 
                 <TableContainer mt={6}>
-                  <Table variant="simple">
+                  <Table variant="simple" size="sm">
                     {project?.products?.length > 0 && (
                       <Thead>
                         <Tr>
@@ -511,10 +522,36 @@ const ProjectId = () => {
                           <Th>金額</Th>
                           <Th>カラー展開</Th>
                           <Th>サイズ展開</Th>
-                          <Th>数量入力</Th>
-                          <Th>股下修理</Th>
-                          <Th>サイズ画像</Th>
-                          <Th>イメージ画像</Th>
+                          <Th>
+                            数量
+                            <br />
+                            入力
+                          </Th>
+                          <Th textAlign="center">
+                            股下
+                            <br />
+                            修理
+                          </Th>
+                          <Th textAlign="center">
+                            股下
+                            <br />
+                            不要欄
+                          </Th>
+                          <Th textAlign="center">
+                            股下
+                            <br />
+                            金額
+                          </Th>
+                          <Th textAlign="center">
+                            サイズ
+                            <br />
+                            画像
+                          </Th>
+                          <Th textAlign="center">
+                            イメージ
+                            <br />
+                            画像
+                          </Th>
                         </Tr>
                       </Thead>
                     )}
@@ -592,22 +629,49 @@ const ProjectId = () => {
                                   )}
                               </Td>
 
-                              <Td>
-                                {inseamElement(index, "inseam")}
+                              <Td w="30px">
+                                <Flex flexDir="column" align="center">
+                                  {inseamElement(index, "inseam")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && inseamElement(index, "inseamA")}
+                                </Flex>
+                              </Td>
+
+                              <Td w="30px">
+                                <Flex flexDir="column" align="center">
+                                  {inseamElement(
+                                    index,
+                                    "inseamUnnecessaryColumn"
+                                  )}
+                                  {project?.products[index].clothesType ===
+                                    "2" &&
+                                    inseamElement(
+                                      index,
+                                      "inseamUnnecessaryColumnA"
+                                    )}
+                                </Flex>
+                              </Td>
+
+                              <Td isNumeric>
+                                {priceElement(index, "inseamPrice")}
                                 {project?.products[index].clothesType === "2" &&
-                                  inseamElement(index, "inseamA")}
+                                  priceElement(index, "inseamPriceA")}
                               </Td>
 
                               <Td>
-                                {choiceElement(index, "sizeUrl")}
-                                {project?.products[index].clothesType === "2" &&
-                                  choiceElement(index, "sizeUrlA")}
+                                <Flex flexDir="column" align="center">
+                                  {choiceElement(index, "sizeUrl")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && choiceElement(index, "sizeUrlA")}
+                                </Flex>
                               </Td>
 
                               <Td>
-                                {choiceElement(index, "imageUrl")}
-                                {project?.products[index].clothesType === "2" &&
-                                  choiceElement(index, "imageUrlA")}
+                                <Flex flexDir="column" align="center">
+                                  {choiceElement(index, "imageUrl")}
+                                  {project?.products[index].clothesType ===
+                                    "2" && choiceElement(index, "imageUrlA")}
+                                </Flex>
                               </Td>
                             </>
                           )}

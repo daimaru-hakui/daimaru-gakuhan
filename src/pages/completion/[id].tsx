@@ -100,6 +100,7 @@ const Completion = () => {
                   color: string;
                   quantity: string;
                   inseam: string;
+                  inseamPrice: number;
                   price: number;
                 }) => (
                   <Box key={product.productName} mt={6}>
@@ -148,7 +149,15 @@ const Completion = () => {
                         <Box fontWeight="bold" w="90px">
                           単価
                         </Box>
-                        <Box>{product.price.toLocaleString()}円（税込）</Box>
+                        <Flex>
+                          {product.price.toLocaleString()}
+                          {product.inseam &&
+                            !["不要", "なし"].includes(product.inseam) &&
+                            product.inseamPrice !== 0 && (
+                              <Box>{`+${product.inseamPrice}`}</Box>
+                            )}
+                          円（税込）
+                        </Flex>
                       </Flex>
                     )}
                   </Box>
