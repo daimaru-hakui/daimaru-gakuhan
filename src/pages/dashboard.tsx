@@ -94,7 +94,7 @@ const Dashboard = () => {
       >
         {projects
           .filter((project: { title: string }) =>
-            project?.title.includes("TSUCHIYA")
+            project?.title.includes(searchValue)
          )
           .map((project: ProjectType) => (
             <Card key={project.id} project={project} />
