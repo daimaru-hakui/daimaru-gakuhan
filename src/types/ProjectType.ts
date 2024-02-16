@@ -4,6 +4,7 @@ export type ProjectType = {
   desc: string;
   schedule: string;
   gender: string;
+  isAddress:boolean;
   release: boolean;
   products: { sizePath: string; imagePath: string }[];
   createdAt: Date;

@@ -7,6 +7,7 @@ import {
   Input,
   Radio,
   RadioGroup,
+  Select,
   Stack,
   Text,
 } from "@chakra-ui/react";
@@ -23,6 +24,8 @@ import { db } from "../../../firebase";
 import { useSetRecoilState } from "recoil";
 import { loadingState } from "../../../store";
 import { ProjectType } from "../../types/ProjectType";
+import { addresses } from "../../utils";
+import axios from "axios";
 
 const RegisterId = () => {
   const router = useRouter();
@@ -51,6 +54,11 @@ const RegisterId = () => {
       ...project,
       gender: "",
       sumTotal: 0,
+      postCode: "",
+      address1: "",
+      address2: "",
+      address3: "",
+      address4: "",
       products: project?.products?.map((product: any) => {
         const productName = "未記入";
         const price = product.price ? product.price : 0;
@@ -112,12 +120,34 @@ const RegisterId = () => {
     setItems({ ...items, gender: value });
   };
 
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setItems({ ...items, [name]: value });
+  };
+
   //学籍番号の数字を抜き出す
   const serialNumber = (str: string) => {
     const regex = /[^0-9]/g;
     const result = str.replace(regex, "");
     const number = parseInt(result);
     return number;
+  };
+
+  const getAddress = async (postNum: string) => {
+    postNum = postNum
+      .replace(/[０-９]/g, function (s: any) {
+        return String.fromCharCode(s.charCodeAt(0) - 65248);
+      })
+      .replace(/[- ー]/g, "");
+    const url = `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postNum}`;
+    const res = await axios(url);
+    const data = await res.data;
+    if (!data) return;
+    const address1 = data.results[0].address1;
+    const address2 = data.results[0].address2;
+    const address3 = data.results[0].address3;
+    setItems({ ...items, postCode: postNum, address1, address2, address3 });
   };
 
   return (
@@ -188,6 +218,64 @@ const RegisterId = () => {
               </RadioGroup>
             </Box>
           )}
+          {Number(project?.isAddress) === 1 && (
+            <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
+              <Flex gap={6}>
+                <Box w="full">
+                  <Text>〒番号</Text>
+                  <Flex mt={2} gap={2}>
+                    <Input
+                      w="full"
+                      name="postCode"
+                      value={items.postCode}
+                      onChange={handleInputChange}
+                    />
+                    <Button onClick={() => getAddress(items.postCode)}>
+                      検索
+                    </Button>
+                  </Flex>
+                </Box>
+                <Box w="full">
+                  <Text>都道府県</Text>
+                  <Select
+                    mt={2}
+                    w="full"
+                    name="address1"
+                    value={items.address1}
+                    onChange={handleSelectChange}
+                  >
+                    <option>選択してください</option>
+                    {addresses.map((address) => (
+                      <option key={address} value={address}>
+                        {address}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
+              </Flex>
+              <Text mt={3}>市区町村</Text>
+              <Input
+                mt={2}
+                name="address2"
+                value={items.address2}
+                onChange={handleInputChange}
+              />
+              <Text mt={3}>町域・番地</Text>
+              <Input
+                mt={2}
+                name="address3"
+                value={items.address3}
+                onChange={handleInputChange}
+              />
+              <Text mt={3}>建物など</Text>
+              <Input
+                mt={2}
+                name="address4"
+                value={items.address4}
+                onChange={handleInputChange}
+              />
+            </Box>
+          )}
 
           <Box mt={6} textAlign="center">
             <Button
@@ -198,6 +286,7 @@ const RegisterId = () => {
                 !items.lastName ||
                 !items.studentNumber ||
                 (Number(project?.gender) === 1 ? null : !items.gender) ||
+                (Number(project?.isAddress) === 0 ? null : !items.address2) ||
                 !project.release
               }
             >

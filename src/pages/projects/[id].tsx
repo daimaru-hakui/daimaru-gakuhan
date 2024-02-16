@@ -53,6 +53,8 @@ const ProjectId = () => {
     title: "",
     desc: "",
     schedule: "",
+    gender: "",
+    isAddress: "",
     createdAt: "",
     products: [],
   });
@@ -204,7 +206,7 @@ const ProjectId = () => {
   };
 
   //　性別記入を変更
-  const handleRadioChange = (e: string, type: string) => {
+  const handleRadioGenderChange = (e: string, type: string) => {
     const value = e;
     const docRef = doc(db, "projects", `${projectId}`);
     try {
@@ -216,6 +218,25 @@ const ProjectId = () => {
     } finally {
       toast({
         title: "性別記入を変更しました",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleRadioAddressChange = (e: string, type: string) => {
+    const value = e;
+    const docRef = doc(db, "projects", `${projectId}`);
+    try {
+      updateDoc(docRef, {
+        [type]: value || "0",
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      toast({
+        title: "住所登録を変更しました",
         status: "success",
         duration: 2000,
         isClosable: true,
@@ -449,7 +470,7 @@ const ProjectId = () => {
                 <RadioGroup
                   isDisabled={students?.length > 0}
                   value={project?.gender}
-                  onChange={(e) => handleRadioChange(e, "gender")}
+                  onChange={(e) => handleRadioGenderChange(e, "gender")}
                 >
                   <Box fontWeight="bold">性別記入</Box>
                   <Stack direction={["column", "row"]} mt={2}>
@@ -458,6 +479,23 @@ const ProjectId = () => {
                     </Radio>
                     <Radio value="2" pr={6}>
                       男性・女性
+                    </Radio>
+                  </Stack>
+                </RadioGroup>
+              </Box>
+              <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+                <RadioGroup
+                  isDisabled={students?.length > 0}
+                  value={project?.isAddress}
+                  onChange={(e) => handleRadioAddressChange(e, "isAddress")}
+                >
+                  <Box fontWeight="bold">住所欄</Box>
+                  <Stack direction={["column", "row"]} mt={2}>
+                    <Radio value="0" pr={6}>
+                      なし
+                    </Radio>
+                    <Radio value="1" pr={6}>
+                      あり
                     </Radio>
                   </Stack>
                 </RadioGroup>
@@ -509,6 +547,7 @@ const ProjectId = () => {
                   </Flex>
                 )}
               </Box>
+  
               <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
                 <Box fontWeight="bold">商品登録</Box>
 
