@@ -462,6 +462,20 @@ const MeasureId = () => {
                   </Box>
                 </Box>
               )}
+              {Number(project?.isAddress) === 1 && (
+                <Box mt={3}>
+                  <Text>住所</Text>
+                  <Box mt={1} ml={3}>
+                    <Box>〒{items.postCode}</Box>
+                    <Box>
+                      {items.address1 +
+                        items.address2 +
+                        items.address3 +
+                        items.address4}
+                    </Box>
+                  </Box>
+                </Box>
+              )}
             </Box>
             <InputEditModal
               items={items}
