@@ -470,10 +470,12 @@ const MeasureId = () => {
                     <Box>
                       {items.address1 +
                         items.address2 +
-                        items.address3 +
-                        items.address4}
+                        items.address3}
                     </Box>
+                    <Box>{items.address4}</Box>
                   </Box>
+                  <Text mt={3}>TEL</Text>
+                  <Box>{`${items.tel1}-${items.tel2}-${items.tel3}`}</Box>
                 </Box>
               )}
             </Box>

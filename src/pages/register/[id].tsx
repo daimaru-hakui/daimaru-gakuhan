@@ -55,10 +55,15 @@ const RegisterId = () => {
       gender: "",
       sumTotal: 0,
       postCode: "",
+
       address1: "",
       address2: "",
       address3: "",
       address4: "",
+      tel1: "",
+      tel2: "",
+      tel3: "",
+
       products: project?.products?.map((product: any) => {
         const productName = "未記入";
         const price = product.price ? product.price : 0;
@@ -93,6 +98,13 @@ const RegisterId = () => {
           serialNumber: serialNumber(items?.studentNumber) || "",
           title: project?.title,
           projectId: project?.id,
+          tel1: items.tel1,
+          tel2: items.tel2,
+          tel3: items.tel3,
+          address1: items.address1,
+          address2: items.address2,
+          address3: items.address3,
+          address4: items.address4,
           createdAt: serverTimestamp(),
         }
       );
@@ -149,6 +161,8 @@ const RegisterId = () => {
     const address3 = data.results[0].address3;
     setItems({ ...items, postCode: postNum, address1, address2, address3 });
   };
+
+  console.log(items);
 
   return (
     <Container maxW="600px" py={6} minH="100vh">
@@ -274,6 +288,37 @@ const RegisterId = () => {
                 value={items.address4}
                 onChange={handleInputChange}
               />
+              <Flex align="center" mt={3}>
+                <Text>Tel</Text>
+                <Box fontSize="xs" mt={1} ml={3}>
+                  (半角数字 ハイフン（-）無しで入力)
+                </Box>
+              </Flex>
+              <Flex gap={3} mt={2} align="center">
+                <Input
+                  maxW={70}
+                  type="number"
+                  name="tel1"
+                  value={items.tel1}
+                  onChange={handleInputChange}
+                />
+                <Box pb={1}>-</Box>
+                <Input
+                  maxW={90}
+                  type="number"
+                  name="tel2"
+                  value={items.tel2}
+                  onChange={handleInputChange}
+                />
+                <Box pb={1}>-</Box>
+                <Input
+                  maxW={90}
+                  type="number"
+                  name="tel3"
+                  value={items.tel3}
+                  onChange={handleInputChange}
+                />
+              </Flex>
             </Box>
           )}
 
@@ -287,6 +332,9 @@ const RegisterId = () => {
                 !items.studentNumber ||
                 (Number(project?.gender) === 1 ? null : !items.gender) ||
                 (Number(project?.isAddress) === 0 ? null : !items.address2) ||
+                (Number(project?.isAddress) === 0 ? null : !items.tel1) ||
+                (Number(project?.isAddress) === 0 ? null : !items.tel2) ||
+                (Number(project?.isAddress) === 0 ? null : !items.tel3) ||
                 !project.release
               }
             >

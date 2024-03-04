@@ -87,6 +87,9 @@ const InputEditModal: NextPage<Props> = ({
           address2: items.address2,
           address3: items.address3,
           address4: items.address4,
+          tel1: items.tel1,
+          tel2: items.tel2,
+          tel3: items.tel3,
         }
       );
     } catch (err) {
@@ -235,6 +238,37 @@ const InputEditModal: NextPage<Props> = ({
                     value={items.address4}
                     onChange={handleInputChange}
                   />
+                  <Flex align="center" mt={3}>
+                    <Text>Tel</Text>
+                    <Box fontSize="xs" mt={1} ml={3}>
+                      (半角数字 ハイフン（-）無しで入力)
+                    </Box>
+                  </Flex>
+                  <Flex gap={3} mt={2} align="center">
+                    <Input
+                      maxW={70}
+                      type="number"
+                      name="tel1"
+                      value={items.tel1}
+                      onChange={handleInputChange}
+                    />
+                    <Box pb={1}>-</Box>
+                    <Input
+                      maxW={90}
+                      type="number"
+                      name="tel2"
+                      value={items.tel2}
+                      onChange={handleInputChange}
+                    />
+                    <Box pb={1}>-</Box>
+                    <Input
+                      maxW={90}
+                      type="number"
+                      name="tel3"
+                      value={items.tel3}
+                      onChange={handleInputChange}
+                    />
+                  </Flex>
                 </Box>
               )}
 
