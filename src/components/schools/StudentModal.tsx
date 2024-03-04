@@ -249,6 +249,18 @@ const StudentModal: NextPage<Props> = ({
                   <Box>性別：</Box>
                   <Box>{genderDisp(student?.gender)}</Box>
                 </Flex>
+                {student?.isAddress && (
+                  <>
+                    <Flex>
+                      <Box>住所：</Box>
+                      <Box>{`〒${student?.postCode} ${student?.address1}${student?.address2}${student?.address3}${student?.address4}`}</Box>
+                    </Flex>
+                    <Flex>
+                      <Box>TEL ： </Box>
+                      <Box>{`${student?.tel1}-${student?.tel2}-${student?.tel3}`}</Box>
+                    </Flex>
+                  </>
+                )}
                 {student?.sumTotal && (
                   <Flex>
                     <Box>金額：</Box>
@@ -257,7 +269,6 @@ const StudentModal: NextPage<Props> = ({
                     </Box>
                   </Flex>
                 )}
-
                 <Flex alignItems="center">
                   <Box>Email：</Box>
                   <Box>{student?.email ? student?.email : "未登録"}</Box>

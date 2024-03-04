@@ -250,6 +250,21 @@ const SchoolId = () => {
         }
       );
 
+      project?.isAddress &&
+        array.push(
+          {
+            住所:
+              "〒" +
+              student?.postCode +
+              " " +
+              student?.address1 +
+              student?.address2 +
+              student?.address3 +
+              student?.address4,
+          },
+          { tel: student?.tel1 + "-" + student?.tel2 + "-" + student?.tel3 }
+        );
+
       return [...array];
     });
 
@@ -273,78 +288,6 @@ const SchoolId = () => {
     const csvFile = header + "\n" + body;
     setCsvData(csvFile);
   };
-
-  ///////////////////////////　集計計算 ///////////////////////////////////
-  // useEffect(() => {
-  //   // 商品アイテム数
-  //   const productsLen = project?.products.length;
-
-  //   // サイズ明細を格納する配列
-  //   let sizeDetails = [];
-
-  //   for (let i = 0; i < productsLen; i++) {
-  //     // サイズ規格を取得
-  //     let productSize = project?.products[i]?.size;
-  //     productSize?.push("未記入");
-  //     // 商品名を取得
-  //     let productName = project?.products[i]?.productName;
-
-  //     // studentsから商品情報のみ取得（table1行ずつ）して配列に格納
-  //     const productsArray = students?.map((student: { products: string[] }) =>
-  //       student.products.find((product: any, index: number) =>
-  //         productSize?.find(
-  //           (size: string) => product?.size === size && index === i && true
-  //         )
-  //       )
-  //     );
-
-  //     // productsArrayからサイズ情報だけ取得して配列を作成
-  //     const sizeOnly = productsArray?.map((product: { size: string }) => {
-  //       return product?.size;
-  //     });
-
-  //     // サイズ情報の重複を削除
-  //     const sizeSet = new Set(sizeOnly);
-
-  //     // new Setを配列に変換
-  //     const sizeArray = Array.from(sizeSet);
-
-  //     // サイズ毎に配列を作成
-  //     const sizesArray = sizeArray.map((size) =>
-  //       productsArray?.filter(
-  //         (product: { size: string; quantity: string }) =>
-  //           size === product?.size && true
-  //       )
-  //     );
-
-  //     // sizesArrayから「数量」のみ取得して配列を作成
-  //     const quantitys = sizesArray.map((sizeObj) =>
-  //       sizeObj
-  //         //quantityが空の場合は１として計算
-  //         .map((size: any) => Number(size?.quantity || 0))
-  //         .reduce((a: number, b: number) => a + b, 0)
-  //     );
-
-  //     // 合計数量を変数に格納
-  //     const sum = quantitys.reduce((a, b) => {
-  //       return a + b;
-  //     }, 0);
-
-  //     // サイズ明細を格納した配列を作成
-  //     const array = sizeArray.map((size, index) => ({
-  //       productName,
-  //       size,
-  //       quantity: quantitys[index],
-  //       sum,
-  //     }));
-
-  //     // 各サイズ明細をループで追加していく
-  //     sizeDetails.push(array);
-  //   }
-
-  //   //すべてのサイズ明細を格納したstate
-  //   setTotals(sizeDetails);
-  // }, [students, project?.products]);
 
   return (
     <Container maxW={`${tableWidth}px`} py={6}>
@@ -466,6 +409,12 @@ const SchoolId = () => {
                       <Th>採寸完了日</Th>
                       <Th>経過時間</Th>
                       <Th>Email</Th>
+                      {project?.isAddress && (
+                        <>
+                          <Th>住所</Th>
+                          <Th>TEL</Th>
+                        </>
+                      )}
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -565,6 +514,12 @@ const SchoolId = () => {
                             )}
                         </Td>
                         <Td>{student?.email && student?.email}</Td>
+                        {project?.isAddress && (
+                          <>
+                            <Td>{`〒${student.postCode} ${student.address1}${student.address2}${student.address3}${student.address4}`}</Td>
+                            <Td>{`${student.tel1}-${student.tel2}-${student.tel3}`}</Td>
+                          </>
+                        )}
                       </Tr>
                     ))}
                   </Tbody>
