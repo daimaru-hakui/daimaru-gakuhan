@@ -87,7 +87,7 @@ const ProductInput: NextPage<Props> = ({
   const sizeData5 = ["26.0cm", "26.5cm", "27.0cm", "27.5cm", "28.0cm"];
   const sizeData6 = ["28.5cm", "29.0cm", "30.0cm"];
   const [colors, setColors] = useState([] as ColorType[]);
-  console.log(items);
+  
   useEffect(() => {
     const getSColors = async () => {
       const q = query(collection(db, "colors"), orderBy("title", "asc"));

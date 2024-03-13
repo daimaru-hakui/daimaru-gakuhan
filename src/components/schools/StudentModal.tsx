@@ -265,7 +265,12 @@ const StudentModal: NextPage<Props> = ({
                   <Flex>
                     <Box>金額：</Box>
                     <Box>
-                      {Math.round(Number(student?.sumTotal)).toLocaleString()}円
+                      {Math.round(
+                        Number(student?.sumTotal) +
+                          (Number(student.isDelivery) === 1 &&
+                            student.deliveryCost)
+                      ).toLocaleString()}
+                      円 {Number(student.isDelivery) === 1 && "（送料込）"}
                     </Box>
                   </Flex>
                 )}

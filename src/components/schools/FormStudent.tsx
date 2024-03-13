@@ -79,9 +79,9 @@ export const FormStudent: FC<Props> = ({ student }) => {
     if (send.email === "" && student?.email) {
       setSend({ ...send, email: student.email });
     }
-    const PUBLIC_KEY = "user_7yd9EbIQJSbzjqGUXUbJt";
-    const SERVICE_ID = "service_764mpxv";
-    const TEMPLATE_ID = "template_70iyw39";
+    const PUBLIC_KEY = process.env.NEXT_PUBLIC_PUBLIC_KEY as string;
+    const SERVICE_ID = process.env.NEXT_PUBLIC_SERVICE_ID as string;
+    const TEMPLATE_ID = process.env.NEXT_PUBLIC_TEMPLATE_ID as string;
     emailjs
       .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
       .then(

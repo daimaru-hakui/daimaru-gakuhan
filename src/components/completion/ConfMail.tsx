@@ -21,8 +21,10 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
     studentNumber: "",
     lastName: "",
     firstName: "",
-    sumTotal: "",
+    sumTotal: 0,
     signature: "",
+    address: "",
+    tel: "",
   });
   const form = useRef<HTMLFormElement>(
     null
@@ -44,6 +46,8 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
         size: string;
         quantity: string;
         inseam: string;
+        isDelivery: string;
+        deliveryCost: number;
       }) => {
         let row: string;
         row =
@@ -59,6 +63,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
         content.push(row + "<br/>");
       }
     );
+
     let signature = student?.signature?.split("\n");
     signature = `<div>${signature?.join("<br/>")}</div>`;
     setSend({ ...send, content: content.join("").trim(), signature });
@@ -72,7 +77,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
     setLoading(true);
     const PUBLIC_KEY = process.env.NEXT_PUBLIC_PUBLIC_KEY as string;
     const SERVICE_ID = process.env.NEXT_PUBLIC_SERVICE_ID as string;
-    const TEMPLATE_ID =process.env.NEXT_PUBLIC_TEMPLATE_ID as string;
+    const TEMPLATE_ID = process.env.NEXT_PUBLIC_TEMPLATE_ID as string;
     emailjs
       .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
       .then(
@@ -181,16 +186,47 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
           onChange={handleInputChange}
           display="none"
         />
+        {Number(student.isDelivery) === 1 && (
+          <>
+            <Input
+              type="text"
+              name="address"
+              defaultValue={
+                `${student?.postCode}  ${
+                  student?.address1 +
+                  student?.address2 +
+                  student?.address3 +
+                  student?.address4
+                }` || ""
+              }
+              onChange={handleInputChange}
+              display="none"
+            />
+            <Input
+              type="text"
+              name="tel"
+              defaultValue={
+                `${student?.tel1}-${student?.tel2}+${student?.tel3}` || ""
+              }
+              onChange={handleInputChange}
+              display="none"
+            />
+          </>
+        )}
         {student.sumTotal > 0 && (
           <Input
             type="text"
             name="sumTotal"
-            defaultValue={Math.round(student.sumTotal)}
+            defaultValue={Math.round(
+              student.sumTotal +
+                (Number(student.isDelivery) === 1 ? student.deliveryCost : 0)
+            )}
             onChange={handleInputChange}
             display="none"
           />
         )}
         <Textarea name="content" defaultValue={send.content} display="none" />
+
         <Textarea
           name="signature"
           defaultValue={send.signature}

@@ -88,7 +88,11 @@ const Completion = () => {
                   合計金額
                 </Box>
                 <Box>
-                  {Math.round(student?.sumTotal).toLocaleString()}円（税込）
+                  {Math.round(
+                    student?.sumTotal +
+                      (student?.deliveryCost ? student.deliveryCost : 0)
+                  ).toLocaleString()}
+                  円（税込）
                 </Box>
               </Flex>
             )}
@@ -163,7 +167,40 @@ const Completion = () => {
                   </Box>
                 )
               )}
+              <Flex>
+                <Box fontWeight="bold" w="90px">
+                  送料
+                </Box>
+                <Flex>
+                  {student.deliveryCost.toLocaleString()}
+                  円（税込）
+                </Flex>
+              </Flex>
             </Stack>
+            {Number(student.isDelivery) === 1 && (
+              <>
+                <Flex mt={6}>
+                  <Box fontWeight="bold" w="90px">
+                    住所
+                  </Box>
+                  <Box>
+                    <Box> {`〒${student?.postCode}`}</Box>
+                    {`${
+                      student?.address1 + student?.address2 + student?.address3
+                    } `}
+                    <Box>{student?.address4}</Box>
+                  </Box>
+                </Flex>
+                <Flex>
+                  <Box fontWeight="bold" w="90px">
+                    TEL
+                  </Box>
+                  <Box>
+                    {`${student?.tel1}-${student?.tel2}-${student?.tel3} `}
+                  </Box>
+                </Flex>
+              </>
+            )}
             {student?.signature && (
               <>
                 <Divider mt={6} />

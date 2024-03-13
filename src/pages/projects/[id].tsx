@@ -8,12 +8,13 @@ import {
   Flex,
   HStack,
   Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Radio,
   RadioGroup,
-  Slider,
-  SliderFilledTrack,
-  SliderThumb,
-  SliderTrack,
   Stack,
   Table,
   TableContainer,
@@ -55,6 +56,8 @@ const ProjectId = () => {
     schedule: "",
     gender: "",
     isAddress: "",
+    isDelivery: "",
+    deliveryCost: 0,
     createdAt: "",
     products: [],
   });
@@ -155,7 +158,7 @@ const ProjectId = () => {
     }
   };
 
-  // タイトルを編集
+  // 説明文を編集
   const updateDesc = async () => {
     const docRef = doc(db, "projects", `${projectId}`);
     try {
@@ -182,7 +185,7 @@ const ProjectId = () => {
     setProject({ ...project, [name]: value });
   };
 
-  // スケジュール変更
+  // 採寸日変更
   const handleScheduleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: string
@@ -225,7 +228,8 @@ const ProjectId = () => {
     }
   };
 
-  const handleRadioAddressChange = (e: string, type: string) => {
+  // 送料　有無　変更
+  const handleRadioChange = (e: string, type: string) => {
     const value = e;
     const docRef = doc(db, "projects", `${projectId}`);
     try {
@@ -236,7 +240,26 @@ const ProjectId = () => {
       console.log(err);
     } finally {
       toast({
-        title: "住所登録を変更しました",
+        title: "変更しました",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
+  // 送料　金額変更
+  const handleDeliveryCostClick = () => {
+    const docRef = doc(db, "projects", `${projectId}`);
+    try {
+      updateDoc(docRef, {
+        deliveryCost: Number(project.deliveryCost),
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      toast({
+        title: "送料を変更しました",
         status: "success",
         duration: 2000,
         isClosable: true,
@@ -374,6 +397,8 @@ const ProjectId = () => {
     <>{project?.products[index][prop] ? <FaRegCircle /> : <FaTimes />}</>
   );
 
+  console.log(project);
+
   return (
     <>
       {currentUser && (
@@ -487,7 +512,7 @@ const ProjectId = () => {
                 <RadioGroup
                   isDisabled={students?.length > 0}
                   value={project?.isAddress}
-                  onChange={(e) => handleRadioAddressChange(e, "isAddress")}
+                  onChange={(e) => handleRadioChange(e, "isAddress")}
                 >
                   <Box fontWeight="bold">住所欄</Box>
                   <Stack direction={["column", "row"]} mt={2}>
@@ -499,6 +524,47 @@ const ProjectId = () => {
                     </Radio>
                   </Stack>
                 </RadioGroup>
+              </Box>
+              <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
+                <RadioGroup
+                  isDisabled={students?.length > 0}
+                  value={project?.isDelivery}
+                  onChange={(e) => handleRadioChange(e, "isDelivery")}
+                >
+                  <Box fontWeight="bold">送料（税込）</Box>
+                  <Stack direction={["column", "row"]} mt={2}>
+                    <Radio value="0" pr={6}>
+                      なし
+                    </Radio>
+                    <Radio value="1" pr={6}>
+                      あり
+                    </Radio>
+                  </Stack>
+                </RadioGroup>
+                <Flex mt={2} gap={3} alignItems="center">
+                  <NumberInput
+                    isDisabled={students?.length > 0}
+                    value={project?.deliveryCost}
+                    onChange={(e) =>
+                      setProject((prev: any) => {
+                        return { ...prev, deliveryCost: Number(e) };
+                      })
+                    }
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  <Button
+                    isDisabled={students?.length > 0}
+                    colorScheme="blue"
+                    onClick={handleDeliveryCostClick}
+                  >
+                    確定
+                  </Button>
+                </Flex>
               </Box>
               <Box mt={6}>
                 <SliderWidth
@@ -547,7 +613,7 @@ const ProjectId = () => {
                   </Flex>
                 )}
               </Box>
-  
+
               <Box p={6} mt={6} bg="white" borderRadius={6} boxShadow="base">
                 <Box fontWeight="bold">商品登録</Box>
 
