@@ -206,7 +206,7 @@ const ConfMail: NextPage<Props> = ({ student, release }) => {
               type="text"
               name="tel"
               defaultValue={
-                `${student?.tel1}-${student?.tel2}+${student?.tel3}` || ""
+                `${student?.tel1}-${student?.tel2}-${student?.tel3}` || ""
               }
               onChange={handleInputChange}
               display="none"
