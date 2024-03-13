@@ -448,7 +448,11 @@ const SchoolId = () => {
                         <Td isNumeric>
                           {student.sumTotal
                             ? Math.round(
-                                Number(student.sumTotal)
+                                Number(
+                                  student.sumTotal +
+                                    (Number(student.isDelivery) === 1 &&
+                                      student.deliveryCost)
+                                )
                               ).toLocaleString()
                             : 0}
                           円

@@ -105,6 +105,7 @@ const RegisterId = () => {
           address2: items.address2,
           address3: items.address3,
           address4: items.address4,
+          deliveryCost:Number(items.isDelivery) === 1 ? items.deliveryCost : 0,
           createdAt: serverTimestamp(),
         }
       );
