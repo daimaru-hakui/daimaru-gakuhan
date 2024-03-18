@@ -2,6 +2,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   Flex,
   Input,
@@ -26,12 +27,14 @@ import { loadingState } from "../../../store";
 import { ProjectType } from "../../types/ProjectType";
 import { addresses } from "../../utils";
 import axios from "axios";
+import Agreement from "../../components/register/Agreement";
 
 const RegisterId = () => {
   const router = useRouter();
   const projectId = router.query.id;
   const [project, setProject] = useState<ProjectType>();
   const [items, setItems] = useState<any>();
+  const [isAgreeChecked, setIsAgreeChecked] = useState(false);
   const setLoading = useSetRecoilState(loadingState);
 
   // project（個別）を取得
@@ -55,7 +58,6 @@ const RegisterId = () => {
       gender: "",
       sumTotal: 0,
       postCode: "",
-
       address1: "",
       address2: "",
       address3: "",
@@ -105,7 +107,8 @@ const RegisterId = () => {
           address2: items.address2,
           address3: items.address3,
           address4: items.address4,
-          deliveryCost:Number(items.isDelivery) === 1 ? items.deliveryCost : 0,
+          deliveryCost: Number(items.isDelivery) === 1 ? items.deliveryCost : 0,
+          isAgreeChecked,
           createdAt: serverTimestamp(),
         }
       );
@@ -163,7 +166,7 @@ const RegisterId = () => {
     setItems({ ...items, postCode: postNum, address1, address2, address3 });
   };
 
-  console.log(items);
+  // console.log(items);
 
   return (
     <Container maxW="600px" py={6} minH="100vh">
@@ -322,6 +325,7 @@ const RegisterId = () => {
               </Flex>
             </Box>
           )}
+          <Agreement setIsAgreeChecked={setIsAgreeChecked} />
 
           <Box mt={6} textAlign="center">
             <Button
@@ -332,10 +336,13 @@ const RegisterId = () => {
                 !items.lastName ||
                 !items.studentNumber ||
                 (Number(project?.gender) === 1 ? null : !items.gender) ||
+                (Number(project?.isAddress) === 0 ? null : !items.postCode) ||
+                (Number(project?.isAddress) === 0 ? null : !items.address1) ||
                 (Number(project?.isAddress) === 0 ? null : !items.address2) ||
                 (Number(project?.isAddress) === 0 ? null : !items.tel1) ||
                 (Number(project?.isAddress) === 0 ? null : !items.tel2) ||
                 (Number(project?.isAddress) === 0 ? null : !items.tel3) ||
+                !isAgreeChecked ||
                 !project.release
               }
             >
