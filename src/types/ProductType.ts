@@ -14,6 +14,7 @@ export type ProductType = {
   imageUrl: string;
   imagePath: string;
   fixedQuantity: number;
+  limit: number;
 
   productNameA: string;
   priceA: number;
@@ -28,4 +29,5 @@ export type ProductType = {
   imageUrlA: string;
   imagePathA: string;
   fixedQuantityA: number;
+  limitA: number;
 };

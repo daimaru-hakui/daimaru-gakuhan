@@ -41,6 +41,7 @@ type Props = {
   size: string;
   quantity: string;
   fixedQuantity: string;
+  limit: string;
   inseam: string;
   inseamUnnecessaryColumn: string;
   inseamPrice: string;
@@ -64,6 +65,7 @@ const ProductInput: NextPage<Props> = ({
   size,
   quantity,
   fixedQuantity,
+  limit,
   inseam,
   inseamUnnecessaryColumn,
   inseamPrice,
@@ -87,7 +89,7 @@ const ProductInput: NextPage<Props> = ({
   const sizeData5 = ["26.0cm", "26.5cm", "27.0cm", "27.5cm", "28.0cm"];
   const sizeData6 = ["28.5cm", "29.0cm", "30.0cm"];
   const [colors, setColors] = useState([] as ColorType[]);
-  
+
   useEffect(() => {
     const getSColors = async () => {
       const q = query(collection(db, "colors"), orderBy("title", "asc"));
@@ -236,7 +238,7 @@ const ProductInput: NextPage<Props> = ({
   const quantityElement = (quantity: string, fixedQuantity: string) => (
     <Flex mt={6} justifyContent="flex-start" gap={6}>
       <FormControl display="flex" alignItems="center" w="auto">
-        <FormLabel htmlFor={"quantityA"} w="80px" mb="0">
+        <FormLabel htmlFor={quantity} w="80px" mb="0">
           数量入力値
         </FormLabel>
         <Switch
@@ -245,26 +247,47 @@ const ProductInput: NextPage<Props> = ({
           onChange={() => handleSwitchChange(quantity)}
         />
       </FormControl>
-
-      <FormControl display="flex" alignItems="center">
-        <FormLabel htmlFor={fixedQuantity} w="80px" mr="0" mb="0">
-          固定数量
-        </FormLabel>
-        <NumberInput
-          id={fixedQuantity}
-          name={fixedQuantity}
-          min={1}
-          w="80px"
-          value={items[fixedQuantity]}
-          onChange={(e) => handleNumberChange(e, fixedQuantity)}
-        >
-          <NumberInputField />
-          <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
-          </NumberInputStepper>
-        </NumberInput>
-      </FormControl>
+      {items[quantity] ? (
+        <FormControl display="flex" alignItems="center">
+          <FormLabel htmlFor={items[limit]} w="80px" mr="0" mb="0">
+            上限数量
+          </FormLabel>
+          <NumberInput
+            id={limit}
+            name={limit}
+            min={1}
+            w="80px"
+            value={items[limit] || 9}
+            onChange={(e) => handleNumberChange(e, limit)}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
+      ) : (
+        <FormControl display="flex" alignItems="center">
+          <FormLabel htmlFor={fixedQuantity} w="80px" mr="0" mb="0">
+            固定数量
+          </FormLabel>
+          <NumberInput
+            id={fixedQuantity}
+            name={fixedQuantity}
+            min={1}
+            w="80px"
+            value={items[fixedQuantity]}
+            onChange={(e) => handleNumberChange(e, fixedQuantity)}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
+      )}
     </Flex>
   );
 

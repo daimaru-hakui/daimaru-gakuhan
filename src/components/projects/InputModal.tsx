@@ -65,6 +65,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     imageUrl: "",
     imagePath: "",
     fixedQuantity: 1,
+    limit: 9,
     productNameA: "",
     priceA: 0,
     sizeA: [],
@@ -78,6 +79,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
     imageUrlA: "",
     imagePathA: "",
     fixedQuantityA: 1,
+    limitA: 9
   };
   const [items, setItems] = useState(initData as ProductType);
   const { handleRadioChange } = useProjectInput(items, setItems);
@@ -97,6 +99,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           color: product?.color,
           quantity: product?.quantity,
           fixedQuantity: product?.fixedQuantity,
+          limit: product?.limit,
           inseam: product?.inseam,
           inseamUnnecessaryColumn: product?.inseamUnnecessaryColumn,
           inseamPrice: product?.inseamPrice,
@@ -111,6 +114,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
           colorA: product?.colorA,
           quantityA: product?.quantityA,
           fixedQuantityA: product?.fixedQuantityA,
+          limitA: product.limitA,
           inseamA: product?.inseamA,
           inseamPriceA: product?.inseamPriceA,
           inseamUnnecessaryColumnA: product?.inseamUnnecessaryColumnA,
@@ -375,6 +379,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
               color="color"
               quantity="quantity"
               fixedQuantity="fixedQuantity"
+              limit="limit"
               inseam="inseam"
               inseamUnnecessaryColumn="inseamUnnecessaryColumn"
               inseamPrice="inseamPrice"
@@ -403,6 +408,7 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
                   color="colorA"
                   quantity="quantityA"
                   fixedQuantity="fixedQuantityA"
+                  limit="limitA"
                   inseam="inseamA"
                   inseamUnnecessaryColumn="inseamUnnecessaryColumnA"
                   inseamPrice="inseamPriceA"

@@ -357,6 +357,7 @@ const MeasureId = () => {
   const quantityElement = (
     qantity: string,
     fixedQuantity: string,
+    limit: number = 9,
     index: number
   ) => (
     <Box mt={6}>
@@ -370,11 +371,16 @@ const MeasureId = () => {
             onChange={(e) => handleSelectChange(e, index)}
           >
             <option value="不要">不要</option>
-            {array.map((num: string, i: number) => (
+            {[...Array(limit)].map((num: string, i: number) => (
               <option key={num?.toString()} value={i + 1}>
                 {i + 1}
               </option>
             ))}
+            {/* {array.map((num: string, i: number) => (
+              <option key={num?.toString()} value={i + 1}>
+                {i + 1}
+              </option>
+            ))} */}
           </Select>
         </>
       ) : (
@@ -509,16 +515,16 @@ const MeasureId = () => {
               borderWidth="3px"
               borderColor={
                 items?.products?.[index].size === "" ||
-                items.products?.[index]?.quantity === "" ||
-                (product?.inseam && items.products?.[index]?.inseam === "")
+                  items.products?.[index]?.quantity === "" ||
+                  (product?.inseam && items.products?.[index]?.inseam === "")
                   ? "white"
                   : "blue.200"
               }
               boxSizing="border-box"
             >
               {project?.gender === "2" &&
-              student?.gender === "2" &&
-              product.clothesType === "2" ? (
+                student?.gender === "2" &&
+                product.clothesType === "2" ? (
                 <>
                   <Box fontSize="xl">{product.productNameA}</Box>
                   {priceElement(product.priceA)}
@@ -528,6 +534,7 @@ const MeasureId = () => {
                   {quantityElement(
                     product.quantityA,
                     product.fixedQuantityA,
+                    product.limit || 9,
                     index
                   )}
                   {inseamElement(
@@ -547,6 +554,7 @@ const MeasureId = () => {
                   {quantityElement(
                     product.quantity,
                     product.fixedQuantity,
+                    product.limit || 9,
                     index
                   )}
                   {inseamElement(
@@ -566,16 +574,16 @@ const MeasureId = () => {
               onClick={updateStudent}
               disabled={
                 items?.products?.some(
-                  (product: { quantity: string }) => product.quantity === ""
+                  (product: { quantity: string; }) => product.quantity === ""
                 ) ||
                 items?.products?.some(
-                  (product: { size: string }) => product.size === ""
+                  (product: { size: string; }) => product.size === ""
                 ) ||
                 items?.products?.some(
-                  (product: { color: string }) => product.color === ""
+                  (product: { color: string; }) => product.color === ""
                 ) ||
                 items?.products?.some(
-                  (product: { inseam: string }) => product.inseam === ""
+                  (product: { inseam: string; }) => product.inseam === ""
                 )
               }
             >

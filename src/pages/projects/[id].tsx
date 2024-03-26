@@ -72,7 +72,7 @@ const ProjectId = () => {
   useEffect(() => {
     const getProject = async () => {
       setProject(
-        projects.find((project: { id: string }) => {
+        projects.find((project: { id: string; }) => {
           if (project.id === `${projectId}`) return true;
         })
       );
@@ -355,17 +355,20 @@ const ProjectId = () => {
   );
 
   // 入力値
-  const quantityElement = (index: number, prop: string, propSub: string) => (
+  const quantityElement = (index: number, prop: string, propSub: string, limit: string) => (
     <>
       {Number(project?.products[index][prop]) === 1 ? (
-        <Box>入力値あり</Box>
+        <Flex>
+          <Box as='span' mr={2}>入力上限</Box>
+          {project.products[index][limit] || 9}
+        </Flex>
       ) : (
-        <Box>
+        <Flex>
           <Box as="span" mr={2}>
             固定数量
           </Box>
           {project?.products[index][propSub]}
-        </Box>
+        </Flex>
       )}
     </>
   );
@@ -724,13 +727,15 @@ const ProjectId = () => {
                                 {quantityElement(
                                   index,
                                   "quantity",
-                                  "fixedQuantity"
+                                  "fixedQuantity",
+                                  "limit"
                                 )}
                                 {project?.products[index].clothesType === "2" &&
                                   quantityElement(
                                     index,
                                     "quantityA",
-                                    "fixedQuantityA"
+                                    "fixedQuantityA",
+                                    "limitA"
                                   )}
                               </Td>
 
