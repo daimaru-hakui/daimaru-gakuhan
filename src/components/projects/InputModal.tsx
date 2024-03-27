@@ -201,6 +201,10 @@ const InputModal: NextPage<Props> = ({ productIndex, buttonDesign }) => {
             if (index === productIndex) {
               return {
                 ...items,
+                fixedQuantity:Number(items.fixedQuantity),
+                fixedQuantityA:Number(items.fixedQuantityA),
+                limit:Number(items.limit) || 0,
+                limitA:Number(items.limitA) || 0,
                 price: Number(items.price) || 0,
                 priceA: Number(items.priceA) || 0,
                 inseamPrice: Number(items.inseamPrice) || 0,
