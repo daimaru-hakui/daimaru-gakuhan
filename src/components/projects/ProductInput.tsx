@@ -83,7 +83,7 @@ const ProductInput: NextPage<Props> = ({
     handleRadioChange,
   } = useProjectInput(items, setItems);
   const sizeData1 = ["不要", "別", "F", "WS", "WM", "WL", "3S", "SS"];
-  const sizeData2 = ["S", "M", "L", "LL", "EL", "3L", "4L", "5L", "6L"];
+  const sizeData2 = ["S", "M", "L", "LL", "EL", "3L", "4L", "5L", "6L","BL","BBL"];
   const sizeData3 = ["21.0cm", "21.5cm", "22.0cm", "22.5cm", "23.0cm"];
   const sizeData4 = ["23.5cm", "24.0cm", "24.5cm", "25.0cm", "25.5cm"];
   const sizeData5 = ["26.0cm", "26.5cm", "27.0cm", "27.5cm", "28.0cm"];
