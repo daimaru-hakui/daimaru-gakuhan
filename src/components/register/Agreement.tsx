@@ -24,6 +24,7 @@ const Agreement = ({ setIsAgreeChecked }: AgreementProps) => {
     boxRef.current.addEventListener("scroll", scrollEvent);
     return () => removeEventListener("scroll", scrollEvent);
   }, []);
+  
 
   return (
     <Box mt={6} p={6} bg="white" rounded={6} boxShadow="base">
